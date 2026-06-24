@@ -1137,8 +1137,8 @@ ${summary}`;
     el.innerHTML = `<div class="ai-box"><div class="ai-title">${titleTxt}</div>${mdToHtml(text)}</div>`;
   }catch(err){
     el.innerHTML = LANG==='en'
-      ? `<div class="ai-box"><p>Couldn't generate the analysis right now. Please try again shortly.</p></div>`
-      : `<div class="ai-box"><p>تعذّر توليد التحليل الآن. حاولي مرة أخرى بعد قليل.</p></div>`;
+      ? `<div class="ai-box"><p>Couldn't generate the analysis right now. Please try again shortly.</p><p style="font-size:11px;color:#9b8a92;">Debug: ${escapeHtml(err.message||String(err))}</p></div>`
+      : `<div class="ai-box"><p>تعذّر توليد التحليل الآن. حاولي مرة أخرى بعد قليل.</p><p style="font-size:11px;color:#9b8a92;">تفاصيل: ${escapeHtml(err.message||String(err))}</p></div>`;
   }
 }
 
@@ -1255,8 +1255,8 @@ document.getElementById('genDailyReport').addEventListener('click', async ()=>{
     renderDailyMiniChart('dailyMiniChart');
   }catch(err){
     el.innerHTML = LANG==='en'
-      ? `<div class="ai-box"><p>Couldn't generate the report right now. Please try again shortly.</p></div>`
-      : `<div class="ai-box"><p>تعذّر توليد التقرير الآن. حاولي مرة أخرى بعد قليل.</p></div>`;
+      ? `<div class="ai-box"><p>Couldn't generate the report right now. Please try again shortly.</p><p style="font-size:11px;color:#9b8a92;">Debug: ${escapeHtml(err.message||String(err))}</p></div>`
+      : `<div class="ai-box"><p>تعذّر توليد التقرير الآن. حاولي مرة أخرى بعد قليل.</p><p style="font-size:11px;color:#9b8a92;">تفاصيل: ${escapeHtml(err.message||String(err))}</p></div>`;
   }
 });
 
