@@ -1,0 +1,627 @@
+// Hada' API Worker — handles signup/login and per-account data storage in D1.
+// Bind a D1 database named DB, and set a secret TOKEN_SECRET (any long random string).
+
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+};
+
+function json(body, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+  });
+}
+
+// ---------- crypto helpers ----------
+function bufToBase64(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+function base64ToBuf(b64) {
+  const bin = atob(b64);
+  const buf = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+  return buf;
+}
+function base64url(buf) {
+  return bufToBase64(buf).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function base64urlToBuf(str) {
+  str = str.replace(/-/g, "+").replace(/_/g, "/");
+  while (str.length % 4) str += "=";
+  return base64ToBuf(str);
+}
+
+async function hashPassword(password) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const enc = new TextEncoder().encode(password);
+  const keyMaterial = await crypto.subtle.importKey("raw", enc, "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: 50000, hash: "SHA-256" },
+    keyMaterial,
+    256
+  );
+  return `${bufToBase64(salt)}:${bufToBase64(bits)}`;
+}
+
+async function verifyPassword(password, stored) {
+  const [saltB64, hashB64] = stored.split(":");
+  const salt = base64ToBuf(saltB64);
+  const enc = new TextEncoder().encode(password);
+  const keyMaterial = await crypto.subtle.importKey("raw", enc, "PBKDF2", false, ["deriveBits"]);
+
+  // Try both iteration counts (50k = current, 100k = legacy hashes created before the switch)
+  for (const iterations of [50000, 100000]) {
+    const bits = await crypto.subtle.deriveBits(
+      { name: "PBKDF2", salt, iterations, hash: "SHA-256" },
+      keyMaterial,
+      256
+    );
+    if (bufToBase64(bits) === hashB64) return true;
+  }
+  return false;
+}
+
+async function signToken(payloadObj, secret) {
+  const payload = base64url(new TextEncoder().encode(JSON.stringify(payloadObj)));
+  const key = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
+  return `${payload}.${base64url(sig)}`;
+}
+
+async function verifyToken(token, secret) {
+  if (!token) return null;
+  const [payload, sig] = token.split(".");
+  if (!payload || !sig) return null;
+  const key = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]
+  );
+  const valid = await crypto.subtle.verify("HMAC", key, base64urlToBuf(sig), new TextEncoder().encode(payload));
+  if (!valid) return null;
+  const obj = JSON.parse(new TextDecoder().decode(base64urlToBuf(payload)));
+  if (obj.exp && Date.now() > obj.exp) return null;
+  return obj;
+}
+
+function newId() {
+  return crypto.randomUUID();
+}
+
+async function getAuthUser(request, env) {
+  const auth = request.headers.get("Authorization") || "";
+  const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
+  const data = await verifyToken(token, env.TOKEN_SECRET);
+  return data ? data.uid : null;
+}
+
+// ---------- Web Push (RFC 8291 + VAPID) ----------
+async function importVapidPrivateKey(jwkStr) {
+  const jwk = JSON.parse(jwkStr);
+  return crypto.subtle.importKey(
+    "jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]
+  );
+}
+
+async function buildVapidHeader(endpoint, vapidPrivateJwk, vapidPublicKeyB64, subjectEmail) {
+  const url = new URL(endpoint);
+  const aud = `${url.protocol}//${url.host}`;
+  const header = { typ: "JWT", alg: "ES256" };
+  const payload = { aud, exp: Math.floor(Date.now() / 1000) + 12 * 3600, sub: subjectEmail };
+  const signingInput =
+    base64url(new TextEncoder().encode(JSON.stringify(header))) + "." +
+    base64url(new TextEncoder().encode(JSON.stringify(payload)));
+
+  const key = await importVapidPrivateKey(vapidPrivateJwk);
+  const sig = await crypto.subtle.sign(
+    { name: "ECDSA", hash: "SHA-256" }, key, new TextEncoder().encode(signingInput)
+  );
+  const jwt = signingInput + "." + base64url(sig);
+  return `vapid t=${jwt}, k=${vapidPublicKeyB64}`;
+}
+
+async function hmacSha256(keyBuf, dataBuf) {
+  const key = await crypto.subtle.importKey("raw", keyBuf, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return new Uint8Array(await crypto.subtle.sign("HMAC", key, dataBuf));
+}
+
+function concatBuf(...arrs) {
+  const len = arrs.reduce((a, b) => a + b.length, 0);
+  const out = new Uint8Array(len);
+  let off = 0;
+  for (const a of arrs) { out.set(a, off); off += a.length; }
+  return out;
+}
+
+async function hkdf(salt, ikm, info, length) {
+  const prk = await hmacSha256(salt, ikm);
+  const infoAndCounter = concatBuf(info, new Uint8Array([1]));
+  const okm = await hmacSha256(prk, infoAndCounter);
+  return okm.slice(0, length);
+}
+
+async function encryptPushPayload(payloadObj, p256dhB64, authB64) {
+  const ua_public = base64urlToBuf(p256dhB64);
+  const auth_secret = base64urlToBuf(authB64);
+
+  const asKeyPair = await crypto.subtle.generateKey(
+    { name: "ECDH", namedCurve: "P-256" }, true, ["deriveBits"]
+  );
+  const asPublicRaw = new Uint8Array(await crypto.subtle.exportKey("raw", asKeyPair.publicKey));
+
+  const uaKey = await crypto.subtle.importKey(
+    "raw", ua_public, { name: "ECDH", namedCurve: "P-256" }, false, []
+  );
+  const sharedSecret = new Uint8Array(
+    await crypto.subtle.deriveBits({ name: "ECDH", public: uaKey }, asKeyPair.privateKey, 256)
+  );
+
+  const enc = new TextEncoder();
+  const ikmInfo = concatBuf(enc.encode("WebPush: info\0"), ua_public, asPublicRaw);
+  const ikm = await hkdf(auth_secret, sharedSecret, ikmInfo, 32);
+
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const cek = await hkdf(salt, ikm, enc.encode("Content-Encoding: aes128gcm\0"), 16);
+  const nonce = await hkdf(salt, ikm, enc.encode("Content-Encoding: nonce\0"), 12);
+
+  const plaintext = concatBuf(enc.encode(JSON.stringify(payloadObj)), new Uint8Array([2]));
+  const cekKey = await crypto.subtle.importKey("raw", cek, { name: "AES-GCM" }, false, ["encrypt"]);
+  const ciphertext = new Uint8Array(
+    await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, cekKey, plaintext)
+  );
+
+  const rs = new Uint8Array(4);
+  new DataView(rs.buffer).setUint32(0, 4096);
+  const header = concatBuf(salt, rs, new Uint8Array([asPublicRaw.length]), asPublicRaw);
+  return concatBuf(header, ciphertext);
+}
+
+async function sendWebPush(subscription, payloadObj, env) {
+  const body = await encryptPushPayload(payloadObj, subscription.p256dh, subscription.auth);
+  const vapidHeader = await buildVapidHeader(
+    subscription.endpoint, env.VAPID_PRIVATE_JWK, env.VAPID_PUBLIC_KEY, "mailto:support@hadaa.app"
+  );
+  const res = await fetch(subscription.endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/octet-stream",
+      "Content-Encoding": "aes128gcm",
+      "TTL": "86400",
+      "Authorization": vapidHeader,
+    },
+    body,
+  });
+  return res;
+}
+
+// ---------- main handler ----------
+export default {
+  async fetch(request, env) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: CORS_HEADERS });
+    }
+
+    const url = new URL(request.url);
+    const path = url.pathname;
+
+    try {
+      // ---- SIGNUP ----
+      if (path === "/api/signup" && request.method === "POST") {
+        const { email, password, name } = await request.json();
+        if (!email || !password) return json({ error: "Missing email or password" }, 400);
+
+        const existing = await env.DB.prepare("SELECT id FROM users WHERE email = ?").bind(email).first();
+        if (existing) return json({ error: "Email already registered" }, 409);
+
+        const id = newId();
+        const hash = await hashPassword(password);
+        await env.DB.prepare(
+          "INSERT INTO users (id, email, name, password_hash) VALUES (?, ?, ?, ?)"
+        ).bind(id, email, name || "", hash).run();
+
+        const token = await signToken({ uid: id, exp: Date.now() + 1000 * 60 * 60 * 24 * 30 }, env.TOKEN_SECRET);
+        return json({ token, user: { id, email, name: name || "" } });
+      }
+
+      // ---- LOGIN ----
+      if (path === "/api/login" && request.method === "POST") {
+        const { email, password } = await request.json();
+        if (!email || !password) return json({ error: "Missing email or password" }, 400);
+
+        const user = await env.DB.prepare("SELECT * FROM users WHERE email = ?").bind(email).first();
+        if (!user) return json({ error: "Invalid email or password" }, 401);
+
+        const ok = await verifyPassword(password, user.password_hash);
+        if (!ok) return json({ error: "Invalid email or password" }, 401);
+
+        const token = await signToken({ uid: user.id, exp: Date.now() + 1000 * 60 * 60 * 24 * 30 }, env.TOKEN_SECRET);
+        return json({ token, user: { id: user.id, email: user.email, name: user.name } });
+      }
+
+      // ---- ME ----
+      if (path === "/api/me" && request.method === "GET") {
+        const uid = await getAuthUser(request, env);
+        if (!uid) return json({ error: "Unauthorized" }, 401);
+        const user = await env.DB.prepare("SELECT id, email, name FROM users WHERE id = ?").bind(uid).first();
+        return json({ user });
+      }
+
+      // ---- PROFILE UPDATE (name, email) ----
+      if (path === "/api/profile" && request.method === "POST") {
+        const uid = await getAuthUser(request, env);
+        if (!uid) return json({ error: "Unauthorized" }, 401);
+        const { name, email } = await request.json();
+        if (!email) return json({ error: "Email cannot be empty" }, 400);
+
+        const existing = await env.DB.prepare(
+          "SELECT id FROM users WHERE email = ? AND id != ?"
+        ).bind(email, uid).first();
+        if (existing) return json({ error: "Email already in use" }, 409);
+
+        await env.DB.prepare(
+          "UPDATE users SET name = ?, email = ? WHERE id = ?"
+        ).bind(name || "", email, uid).run();
+
+        const user = await env.DB.prepare("SELECT id, email, name FROM users WHERE id = ?").bind(uid).first();
+        return json({ user });
+      }
+
+      // ---- ENTRIES (get all / upsert one) ----
+      if (path === "/api/entries" && request.method === "GET") {
+        const uid = await getAuthUser(request, env);
+        if (!uid) return json({ error: "Unauthorized" }, 401);
+        const { results } = await env.DB.prepare(
+          "SELECT date, mood, symptoms, psych, feeling, \"trigger\" FROM entries WHERE user_id = ? ORDER BY date DESC"
+        ).bind(uid).all();
+        const entries = results.map(r => ({
+          date: r.date, mood: r.mood,
+          symptoms: r.symptoms ? JSON.parse(r.symptoms) : [],
+          psych: r.psych ? JSON.parse(r.psych) : [],
+          feeling: r.feeling || "", trigger: r.trigger || "",
+        }));
+        return json({ entries });
+      }
+
+      if (path === "/api/entries" && request.method === "POST") {
+        const uid = await getAuthUser(request, env);
+        if (!uid) return json({ error: "Unauthorized" }, 401);
+        const e = await request.json();
+        await env.DB.prepare(
+          `INSERT INTO entries (id, user_id, date, mood, symptoms, psych, feeling, "trigger")
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+           ON CONFLICT(user_id, date) DO UPDATE SET
+             mood=excluded.mood, symptoms=excluded.symptoms, psych=excluded.psych,
+             feeling=excluded.feeling, "trigger"=excluded."trigger"`
+        ).bind(
+          newId(), uid, e.date, e.mood || null,
+          JSON.stringify(e.symptoms || []), JSON.stringify(e.psych || []),
+          e.feeling || "", e.trigger || ""
+        ).run();
+        return json({ ok: true });
+      }
+
+      // ---- CYCLE SETTINGS ----
+      if (path === "/api/cycle-settings" && request.method === "GET") {
+        const uid = await getAuthUser(request, env);
+        if (!uid) return json({ error: "Unauthorized" }, 401);
+        const row = await env.DB.prepare("SELECT * FROM cycle_settings WHERE user_id = ?").bind(uid).first();
+        if (!row) return json({ settings: null });
+        return json({
+          settings: {
+            starts: row.starts ? JSON.parse(row.starts) : [],
+            cycleLen: row.cycle_len, periodLen: row.period_len, age: row.age,
+          }
+        });
+      }
+
+      if (path === "/api/cycle-settings" && request.method === "POST") {
+        const uid = await getAuthUser(request, env);
+        if (!uid) return json({ error: "Unauthorized" }, 401);
+        const s = await request.json();
+        await env.DB.prepare(
+          `INSERT INTO cycle_settings (user_id, starts, cycle_len, period_len, age)
+           VALUES (?, ?, ?, ?, ?)
+           ON CONFLICT(user_id) DO UPDATE SET
+             starts=excluded.starts, cycle_len=excluded.cycle_len,
+             period_len=excluded.period_len, age=excluded.age`
+        ).bind(uid, JSON.stringify(s.starts || []), s.cycleLen || 28, s.periodLen || 5, s.age || null).run();
+        return json({ ok: true });
+      }
+
+      // ---- DHIKR SETTINGS ----
+      if (path === "/api/dhikr-settings" && request.method === "GET") {
+        const uid = await getAuthUser(request, env);
+        if (!uid) return json({ error: "Unauthorized" }, 401);
+        const row = await env.DB.prepare("SELECT * FROM dhikr_settings WHERE user_id = ?").bind(uid).first();
+        if (!row) return json({ settings: null });
+        return json({
+          settings: {
+            enabled: !!row.enabled, istighfar: !!row.istighfar,
+            tasbeeh: !!row.tasbeeh, salawat: !!row.salawat,
+          }
+        });
+      }
+
+      if (path === "/api/dhikr-settings" && request.method === "POST") {
+        const uid = await getAuthUser(request, env);
+        if (!uid) return json({ error: "Unauthorized" }, 401);
+        const s = await request.json();
+        await env.DB.prepare(
+          `INSERT INTO dhikr_settings (user_id, enabled, istighfar, tasbeeh, salawat)
+           VALUES (?, ?, ?, ?, ?)
+           ON CONFLICT(user_id) DO UPDATE SET
+             enabled=excluded.enabled, istighfar=excluded.istighfar,
+             tasbeeh=excluded.tasbeeh, salawat=excluded.salawat`
+        ).bind(uid, s.enabled ? 1 : 0, s.istighfar ? 1 : 0, s.tasbeeh ? 1 : 0, s.salawat ? 1 : 0).run();
+        return json({ ok: true });
+      }
+
+      // ---- PUSH: get the public VAPID key (front-end needs this to subscribe) ----
+      if (path === "/api/push-public-key" && request.method === "GET") {
+        return json({ key: env.VAPID_PUBLIC_KEY });
+      }
+
+      // ---- PUSH: save a subscription for the current user ----
+      if (path === "/api/push-subscribe" && request.method === "POST") {
+        const uid = await getAuthUser(request, env);
+        if (!uid) return json({ error: "Unauthorized" }, 401);
+        const sub = await request.json();
+        if (!sub.endpoint || !sub.keys) return json({ error: "Invalid subscription" }, 400);
+
+        await env.DB.prepare(
+          `INSERT INTO push_subscriptions (id, user_id, endpoint, p256dh, auth)
+           VALUES (?, ?, ?, ?, ?)
+           ON CONFLICT(endpoint) DO UPDATE SET p256dh=excluded.p256dh, auth=excluded.auth, user_id=excluded.user_id`
+        ).bind(newId(), uid, sub.endpoint, sub.keys.p256dh, sub.keys.auth).run();
+        return json({ ok: true });
+      }
+
+      // ---- PUSH: remove a subscription (e.g. user disabled reminders) ----
+      if (path === "/api/push-unsubscribe" && request.method === "POST") {
+        const uid = await getAuthUser(request, env);
+        if (!uid) return json({ error: "Unauthorized" }, 401);
+        const { endpoint } = await request.json();
+        await env.DB.prepare("DELETE FROM push_subscriptions WHERE user_id = ? AND endpoint = ?").bind(uid, endpoint).run();
+        return json({ ok: true });
+      }
+
+      // ---- PUSH: send a one-off test notification to the current user ----
+      if (path === "/api/push-test" && request.method === "POST") {
+        const uid = await getAuthUser(request, env);
+        if (!uid) return json({ error: "Unauthorized" }, 401);
+        const { results } = await env.DB.prepare(
+          "SELECT endpoint, p256dh, auth FROM push_subscriptions WHERE user_id = ?"
+        ).bind(uid).all();
+        if (results.length === 0) return json({ error: "No push subscription found for this user" }, 404);
+
+        let sent = 0, lastError = null;
+        for (const sub of results) {
+          try {
+            const res = await sendWebPush(sub, { title: "هَدَأ 🌙", body: "تجربة الإشعارات نجحت! ✓" }, env);
+            if (res.ok || res.status === 201) sent++;
+            else lastError = `HTTP ${res.status}`;
+          } catch (e) { lastError = e.message; }
+        }
+        return json({ ok: sent > 0, sent, error: lastError });
+      }
+
+      // ---- CHAT: status (remaining time + today's history) ----
+      if (path === "/api/chat-status" && request.method === "GET") {
+        const uid = await getAuthUser(request, env);
+        if (!uid) return json({ error: "Unauthorized" }, 401);
+        const today = new Date().toISOString().slice(0, 10);
+
+        const session = await env.DB.prepare(
+          "SELECT started_at FROM chat_sessions WHERE user_id = ? AND chat_date = ?"
+        ).bind(uid, today).first();
+
+        const { results: messages } = await env.DB.prepare(
+          "SELECT role, content FROM chat_messages WHERE user_id = ? AND chat_date = ? ORDER BY created_at ASC"
+        ).bind(uid, today).all();
+
+        let remainingSeconds = 30 * 60;
+        if (session) {
+          const elapsedMs = Date.now() - new Date(session.started_at).getTime();
+          remainingSeconds = Math.max(0, Math.round(30 * 60 - elapsedMs / 1000));
+        }
+
+        return json({ remainingSeconds, messages, started: !!session });
+      }
+
+      // ---- CHAT: send a message (30-minute daily budget, resets next day) ----
+      if (path === "/api/chat" && request.method === "POST") {
+        const uid = await getAuthUser(request, env);
+        if (!uid) return json({ error: "Unauthorized" }, 401);
+        const { message, lang } = await request.json();
+        if (!message) return json({ error: "Missing 'message' field" }, 400);
+
+        const today = new Date().toISOString().slice(0, 10);
+        let session = await env.DB.prepare(
+          "SELECT started_at FROM chat_sessions WHERE user_id = ? AND chat_date = ?"
+        ).bind(uid, today).first();
+
+        if (!session) {
+          const startedAt = new Date().toISOString();
+          await env.DB.prepare(
+            "INSERT INTO chat_sessions (user_id, chat_date, started_at) VALUES (?, ?, ?)"
+          ).bind(uid, today, startedAt).run();
+          session = { started_at: startedAt };
+        }
+
+        const elapsedMs = Date.now() - new Date(session.started_at).getTime();
+        const remainingSeconds = Math.max(0, Math.round(30 * 60 - elapsedMs / 1000));
+        if (remainingSeconds <= 0) {
+          return json({ error: "TIME_UP", remainingSeconds: 0 }, 403);
+        }
+
+        await env.DB.prepare(
+          "INSERT INTO chat_messages (id, user_id, chat_date, role, content) VALUES (?, ?, ?, 'user', ?)"
+        ).bind(newId(), uid, today, message).run();
+
+        const { results: history } = await env.DB.prepare(
+          "SELECT role, content FROM chat_messages WHERE user_id = ? AND chat_date = ? ORDER BY created_at ASC"
+        ).bind(uid, today).all();
+
+        const apiKey = env.ANTHROPIC_API_KEY;
+        if (!apiKey) return json({ error: "ANTHROPIC_API_KEY is not set on the Worker." }, 500);
+
+        const systemPrompt = lang === "en"
+          ? "You are a warm, supportive companion inside the Hada' app (a women's cycle & mood tracker). Keep replies caring, concise (under 120 words), and conversational. Address the user directly as 'you'. Never provide medical diagnoses — suggest seeing a doctor for medical concerns. Stay focused on her wellbeing, mood, and cycle-related topics."
+          : "أنتِ رفيقة دعم لطيفة داخل تطبيق هَدَأ (تطبيق تتبع الدورة والمزاج). ردودك دافئة ومختصرة (أقل من 120 كلمة) وبأسلوب محادثة طبيعي. خاطبي المستخدمة بصيغة المخاطبة المباشرة. لا تقدمي تشخيصًا طبيًا أبدًا — اقترحي عليها زيارة طبيبة لو الموضوع طبي. ابقي مركزة على راحتها النفسية ومزاجها ومواضيع متعلقة بالدورة.";
+
+        const anthropicMessages = history.map(m => ({ role: m.role, content: m.content }));
+
+        const response = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": apiKey,
+            "anthropic-version": "2023-06-01",
+          },
+          body: JSON.stringify({
+            model: "claude-sonnet-4-6",
+            max_tokens: 400,
+            system: systemPrompt,
+            messages: anthropicMessages,
+          }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) return json({ error: data }, response.status);
+
+        const replyText = (data.content || []).filter(c => c.type === "text").map(c => c.text).join("\n");
+
+        await env.DB.prepare(
+          "INSERT INTO chat_messages (id, user_id, chat_date, role, content) VALUES (?, ?, ?, 'assistant', ?)"
+        ).bind(newId(), uid, today, replyText).run();
+
+        const newRemaining = Math.max(0, Math.round(30 * 60 - (Date.now() - new Date(session.started_at).getTime()) / 1000));
+        return json({ reply: replyText, remainingSeconds: newRemaining });
+      }
+
+      // ---- FORGOT PASSWORD: send a reset link by email ----
+      if (path === "/api/forgot-password" && request.method === "POST") {
+        const { email, lang } = await request.json();
+        if (!email) return json({ error: "Missing email" }, 400);
+
+        const user = await env.DB.prepare("SELECT id FROM users WHERE email = ?").bind(email).first();
+        // Always return success even if the email doesn't exist, to avoid leaking which emails are registered.
+        if (!user) return json({ ok: true });
+
+        const token = newId() + newId();
+        const expiresAt = new Date(Date.now() + 1000 * 60 * 60).toISOString(); // 1 hour
+        await env.DB.prepare(
+          "INSERT INTO password_resets (token, user_id, expires_at) VALUES (?, ?, ?)"
+        ).bind(token, user.id, expiresAt).run();
+
+        const siteUrl = env.SITE_URL || "https://hadaa-app.netlify.app";
+        const resetLink = `${siteUrl}/?reset=${token}`;
+
+        const subject = lang === "en" ? "Reset your Hada' password" : "إعادة تعيين كلمة مرور هَدَأ";
+        const body = lang === "en"
+          ? `<p>You requested a password reset for your Hada' account.</p><p><a href="${resetLink}">Click here to set a new password</a> (link expires in 1 hour).</p><p>If you didn't request this, you can ignore this email.</p>`
+          : `<p>طلبتِ إعادة تعيين كلمة مرور حسابك في هَدَأ.</p><p><a href="${resetLink}">اضغطي هنا لتعيين كلمة مرور جديدة</a> (الرابط صالح لمدة ساعة واحدة).</p><p>لو لم تطلبي هذا، تجاهلي هذا البريد.</p>`;
+
+        let debugInfo = { hasKey: !!env.RESEND_API_KEY };
+        if (env.RESEND_API_KEY) {
+          try {
+            const resendRes = await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${env.RESEND_API_KEY}`,
+              },
+              body: JSON.stringify({
+                from: "Hada' <onboarding@resend.dev>",
+                to: [email],
+                subject,
+                html: body,
+              }),
+            });
+            debugInfo.status = resendRes.status;
+            debugInfo.body = await resendRes.text();
+          } catch (e) { debugInfo.error = e.message; }
+        }
+
+        return json({ ok: true, debugInfo });
+      }
+
+      // ---- RESET PASSWORD: consume the token and set a new password ----
+      if (path === "/api/reset-password" && request.method === "POST") {
+        const { token, newPassword } = await request.json();
+        if (!token || !newPassword) return json({ error: "Missing token or newPassword" }, 400);
+        if (newPassword.length < 6) return json({ error: "Password must be at least 6 characters" }, 400);
+
+        const reset = await env.DB.prepare(
+          "SELECT * FROM password_resets WHERE token = ? AND used = 0"
+        ).bind(token).first();
+        if (!reset) return json({ error: "Invalid or already-used reset link" }, 400);
+        if (new Date(reset.expires_at).getTime() < Date.now()) {
+          return json({ error: "This reset link has expired. Please request a new one." }, 400);
+        }
+
+        const hash = await hashPassword(newPassword);
+        await env.DB.prepare("UPDATE users SET password_hash = ? WHERE id = ?").bind(hash, reset.user_id).run();
+        await env.DB.prepare("UPDATE password_resets SET used = 1 WHERE token = ?").bind(token).run();
+
+        return json({ ok: true });
+      }
+
+      // ---- ADMIN STATS (protected by ADMIN_SECRET) ----
+      if (path === "/api/admin/stats" && request.method === "POST") {
+        const { secret } = await request.json();
+        if (!env.ADMIN_SECRET || secret !== env.ADMIN_SECRET) {
+          return json({ error: "Unauthorized" }, 401);
+        }
+
+        const [users, entries, activeToday, activeWeek, activeMonth, recentUsers, dailyReg] = await Promise.all([
+          env.DB.prepare("SELECT COUNT(*) as n FROM users").first(),
+          env.DB.prepare("SELECT COUNT(*) as n FROM entries").first(),
+          env.DB.prepare("SELECT COUNT(DISTINCT user_id) as n FROM entries WHERE date = date('now')").first(),
+          env.DB.prepare("SELECT COUNT(DISTINCT user_id) as n FROM entries WHERE date >= date('now','-7 days')").first(),
+          env.DB.prepare("SELECT COUNT(DISTINCT user_id) as n FROM entries WHERE date >= date('now','-30 days')").first(),
+          env.DB.prepare("SELECT email, name, created_at FROM users ORDER BY created_at DESC LIMIT 10").all(),
+          env.DB.prepare("SELECT date, COUNT(*) as entries FROM entries GROUP BY date ORDER BY date DESC LIMIT 14").all(),
+        ]);
+
+        return json({
+          totalUsers: users.n,
+          totalEntries: entries.n,
+          activeToday: activeToday.n,
+          activeThisWeek: activeWeek.n,
+          activeThisMonth: activeMonth.n,
+          recentUsers: recentUsers.results,
+          dailyActivity: dailyReg.results,
+        });
+      }
+
+      return json({ error: "Not found" }, 404);
+    } catch (err) {
+      return json({ error: err.message }, 500);
+    }
+  },
+
+  // ---- Cron-triggered dhikr push (set up a Trigger in the dashboard, e.g. every 20 minutes) ----
+  async scheduled(event, env, ctx) {
+    const DHIKR_PHRASES = [
+      "أستغفر الله العظيم وأتوب إليه",
+      "سبحان الله وبحمده",
+      "اللهم صلِّ وسلِّم على نبينا محمد",
+    ];
+    const { results: users } = await env.DB.prepare(
+      "SELECT user_id FROM dhikr_settings WHERE enabled = 1"
+    ).all();
+
+    for (const u of users) {
+      const { results: subs } = await env.DB.prepare(
+        "SELECT endpoint, p256dh, auth FROM push_subscriptions WHERE user_id = ?"
+      ).bind(u.user_id).all();
+      const phrase = DHIKR_PHRASES[Math.floor(Math.random() * DHIKR_PHRASES.length)];
+      for (const sub of subs) {
+        try { await sendWebPush(sub, { title: "تذكير بالذكر 🕊️", body: phrase }, env); } catch (e) {}
+      }
+    }
+  },
+};
