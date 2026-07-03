@@ -1,0 +1,2968 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>هَدَأ — متتبع الدورة والمزاج</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="theme-color" content="#3D2B3D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400&family=Tajawal:wght@300;400;500;700&family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --cream:#FBF4EE;
+  --plum:#3D2B3D;
+  --rose:#C97B84;
+  --terracotta:#B5573F;
+  --sage:#8A9B7E;
+  --line:#E3D4CB;
+  --gold:#C8956D;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--cream);
+  color:var(--plum);
+  font-family:'Tajawal','Segoe UI',sans-serif;
+  font-weight:300;
+  line-height:1.7;
+}
+h1,h2,h3{
+  font-family:'Aref Ruqaa','Tajawal',serif;
+  font-weight:400;
+  margin:0;
+}
+.wrap{max-width:880px;margin:0 auto;padding:28px 20px 80px;}
+header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-bottom:18px;border-bottom:2px solid var(--line);margin-bottom:28px;
+}
+header .brand{display:flex;align-items:center;gap:10px;}
+header .brand .dot{width:14px;height:14px;border-radius:50%;background:var(--terracotta);}
+header h1{font-size:22px;color:var(--plum);}
+header .tag{font-size:12px;color:var(--rose);margin-top:2px;}
+nav{display:flex;gap:6px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:4px;}
+nav button{
+  border:none;background:transparent;padding:8px 16px;border-radius:10px;
+  font-family:inherit;font-size:14px;cursor:pointer;color:var(--plum);transition:.2s;
+}
+nav button.active{background:var(--plum);color:#fff;}
+.card{
+  background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:20px;
+}
+.card h2{font-size:18px;margin-bottom:14px;color:var(--plum);}
+.eyebrow{font-size:11px;letter-spacing:.08em;color:var(--rose);text-transform:uppercase;font-weight:700;margin-bottom:6px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+label{display:block;font-size:13px;color:#6b5a64;margin-bottom:6px;font-weight:600;}
+input[type=date],input[type=text],textarea,select{
+  width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;
+  font-family:inherit;font-size:14px;background:#FFFDFB;color:var(--plum);
+}
+textarea{resize:vertical;min-height:80px;}
+.pillgroup{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.pill{
+  border:1.5px solid var(--line);background:#FFFDFB;border-radius:999px;padding:7px 14px;
+  font-size:13px;cursor:pointer;transition:.15s;user-select:none;
+}
+.pill.selected{background:var(--terracotta);color:#fff;border-color:var(--terracotta);}
+.mood-row{display:flex;gap:8px;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;}
+.mood-opt{
+  flex:1;min-width:90px;text-align:center;padding:12px 6px;border-radius:12px;border:1.5px solid var(--line);
+  cursor:pointer;font-size:20px;background:#FFFDFB;transition:.15s;
+}
+.mood-opt .lbl{display:block;font-size:11px;margin-top:4px;color:#6b5a64;font-weight:500;}
+.mood-opt .lbl2{display:block;font-size:10px;margin-top:3px;color:var(--rose);font-family:'Aref Ruqaa',serif;}
+.mood-opt.selected{background:var(--rose);border-color:var(--rose);}
+.mood-opt.selected .lbl{color:#fff;}
+.mood-opt.selected .lbl2{color:#FBF1EC;}
+.btn{
+  background:var(--plum);color:#fff;border:none;border-radius:12px;padding:12px 22px;
+  font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;
+}
+.btn:hover{background:#2a1e2a;}
+.btn.secondary{background:transparent;color:var(--plum);border:1.5px solid var(--plum);}
+.btn.small{padding:7px 14px;font-size:12px;}
+.row-end{display:flex;justify-content:flex-end;gap:10px;}
+.entry{
+  border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;background:#FFFDFB;
+}
+.entry .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.entry .date{font-weight:700;font-size:13px;color:var(--terracotta);}
+.entry .tags{font-size:12px;color:#6b5a64;}
+.entry .note{font-size:13px;color:#4a3c44;margin-top:6px;}
+.empty{
+  text-align:center;padding:40px 20px;color:#9b8a92;border:2px dashed var(--line);border-radius:16px;
+}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.calendar .d{
+  aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;border:1px solid var(--line);background:#FFFDFB;color:#6b5a64;position:relative;
+}
+.calendar .d.period{background:var(--terracotta);color:#fff;border-color:var(--terracotta);}
+.calendar .d.predicted{background:#F3DCD3;border-color:var(--rose);color:var(--terracotta);}
+.calendar .d.today{box-shadow:0 0 0 2px var(--plum) inset;font-weight:700;}
+.calendar .label{font-size:10px;color:var(--rose);text-align:center;font-weight:700;}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:640px){.stat-grid{grid-template-columns:1fr 1fr;}}
+.stat{background:#FFFDFB;border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center;}
+.stat .num{font-size:26px;font-weight:400;color:var(--terracotta);font-family:'Aref Ruqaa',serif;}
+.stat .lbl{font-size:12px;color:#6b5a64;margin-top:4px;}
+.ai-box{
+  background:linear-gradient(135deg,#FBF1EC,#F4ECE3);border:1.5px solid var(--gold);border-radius:16px;
+  padding:18px 20px;margin-top:14px;
+}
+.ai-box .ai-title{font-size:13px;color:var(--terracotta);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.ai-box p{font-size:14px;margin:0 0 8px;color:#3D2B3D;}
+.ai-box p:last-child{margin-bottom:0;}
+.loading{color:#9b8a92;font-size:13px;display:flex;align-items:center;gap:8px;}
+.spinner{width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--terracotta);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.banner{
+  background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:18px;
+  font-size:13px;color:#6b5a64;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+footer{text-align:center;font-size:12px;color:#a89aa0;margin-top:30px;}
+
+/* phase card */
+#articlesScroll::-webkit-scrollbar{display:none;}
+.article-card{
+  flex-shrink:0;width:148px;background:#fff;border:none;border-radius:16px;
+  cursor:pointer;transition:.2s;overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:0 2px 12px rgba(61,43,61,.10);
+}
+.article-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(61,43,61,.16);}
+.article-card .art-cover{
+  height:110px;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.article-card .art-cover svg{position:absolute;inset:0;width:100%;height:100%;}
+.article-card .art-body{padding:10px 11px 13px;}
+.article-card .art-title{
+  font-size:12px;font-weight:700;line-height:1.4;
+  background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.article-card .art-tag{font-size:10px;color:#a08898;font-weight:500;margin-top:5px;}
+.greeting-bar{
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:4px 2px;
+}
+.greeting-hi{font-size:19px;font-family:'Aref Ruqaa',serif;color:var(--plum);}
+.greeting-hi span{color:var(--terracotta);}
+.greeting-sub{font-size:13px;color:#6b5a64;margin-top:2px;}
+.settings-gear{
+  background:#fff;border:1.5px solid var(--line);border-radius:50%;width:40px;height:40px;
+  font-size:18px;cursor:pointer;flex-shrink:0;transition:.15s;
+}
+.settings-gear:hover{background:var(--cream);border-color:var(--rose);}
+
+.phase-card{
+  background:linear-gradient(135deg,#3D2B3D,#5A3F52);color:#fff;border-radius:20px;padding:24px;margin-bottom:20px;
+  position:relative;overflow:hidden;
+}
+.phase-card .dayno{font-size:13px;opacity:.85;margin-bottom:4px;}
+.phase-card .phasename{font-size:26px;font-family:'Aref Ruqaa',serif;font-weight:400;margin-bottom:6px;}
+.phase-card .phasedesc{font-size:13.5px;opacity:.92;max-width:520px;}
+.phase-track{display:flex;gap:4px;margin-top:18px;}
+.phase-seg{flex:1;height:8px;border-radius:6px;background:rgba(255,255,255,.22);position:relative;}
+.phase-seg.done{background:rgba(255,255,255,.55);}
+.phase-seg.current{background:#fff;}
+.phase-legend{display:flex;justify-content:space-between;font-size:10px;opacity:.75;margin-top:6px;}
+.onboard-overlay{
+  position:fixed;inset:0;background:rgba(61,43,61,.55);display:flex;align-items:center;justify-content:center;
+  z-index:50;padding:20px;
+}
+.onboard-box{background:#fff;border-radius:20px;padding:30px;max-width:420px;width:100%;}
+.onboard-box h2{margin-bottom:8px;}
+.onboard-box p{font-size:13.5px;color:#6b5a64;margin-bottom:18px;}
+.update-link{font-size:12px;color:var(--rose);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;}
+
+/* English mode */
+body.lang-en{font-family:'Poppins','Segoe UI',sans-serif;}
+body.lang-en h1,body.lang-en h2,body.lang-en h3,body.lang-en .phasename,body.lang-en .stat .num{
+  font-family:'Poppins',sans-serif !important;font-weight:600 !important;
+}
+body.lang-en .mood-opt .lbl2{font-family:'Poppins',sans-serif;font-style:italic;}
+.lang-toggle{
+  border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:6px 12px;
+  font-family:inherit;font-size:13px;cursor:pointer;color:var(--plum);margin-right:8px;
+}
+.lang-toggle:hover{background:var(--cream);}
+.header-actions{display:flex;align-items:center;gap:10px;}
+
+/* daily report */
+.tip-box{
+  background:#F4ECE3;border-right:4px solid var(--sage);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:13.5px;
+}
+body.lang-en .tip-box{border-right:none;border-left:4px solid var(--sage);}
+.resource-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.resource-chip{
+  display:inline-flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--gold);color:var(--terracotta);
+  border-radius:999px;padding:6px 14px;font-size:12.5px;text-decoration:none;transition:.15s;
+}
+.resource-chip:hover{background:var(--gold);color:#fff;}
+.mini-chart-wrap{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:14px;}
+.mini-chart-wrap .cap{font-size:12px;color:#6b5a64;margin-bottom:8px;}
+
+/* dhikr reminder */
+.dhikr-toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--plum);color:#fff;
+  padding:14px 22px;border-radius:14px;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:100;
+  display:flex;align-items:center;gap:10px;max-width:90vw;text-align:center;
+}
+.dhikr-toast button{background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:12px;}
+.dhikr-settings{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px;}
+
+/* chat */
+.chat-bubble{max-width:80%;padding:10px 16px;border-radius:16px;font-size:13.5px;line-height:1.55;}
+.chat-bubble.user{align-self:flex-end;background:var(--plum);color:#fff;}
+.chat-bubble.assistant{align-self:flex-start;background:#F4ECE3;color:var(--plum);}
+#chatInput{border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:14px;background:#FFFDFB;color:var(--plum);}
+.toggle-switch{
+  position:relative;width:46px;height:26px;background:var(--line);border-radius:999px;cursor:pointer;transition:.2s;flex-shrink:0;
+}
+.toggle-switch.on{background:var(--sage);}
+.toggle-switch .knob{position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s;}
+.toggle-switch.on .knob{left:23px;}
+body.lang-en .toggle-switch .knob{left:3px;}
+body.lang-en .toggle-switch.on .knob{left:23px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <h1 id="brandTitle">هَدَأ</h1>
+        <div class="tag" id="brandTag">متتبع الدورة والمزاج — نسخة تجريبية محلية</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="lang-toggle" id="logoutBtn" style="display:none;">🚪 <span id="logoutLbl">خروج</span></button>
+      <button class="lang-toggle" id="langToggle">English</button>
+      <nav>
+        <button class="navbtn active" data-tab="log" id="navLog">اليوم</button>
+        <button class="navbtn" data-tab="calendar" id="navCalendar">التقويم</button>
+        <button class="navbtn" data-tab="weekly" id="navWeekly">أسبوعي</button>
+        <button class="navbtn" data-tab="monthly" id="navMonthly">شهري</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="banner" id="banner">
+    <span id="bannerText">🔒 بياناتك محفوظة بأمان بحسابك الخاص، ولن تُشارك مع أي شخص آخر.</span>
+  </div>
+
+  <div class="banner" id="installBanner" style="display:none;background:linear-gradient(135deg,#FBF1EC,#F4ECE3);border-color:var(--gold);">
+    <span id="installBannerText"></span>
+    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+      <button class="btn small" id="installBannerBtn" style="display:none;">📲 <span id="installBannerBtnLbl">تثبيت التطبيق</span></button>
+      <button class="settings-gear" id="installBannerClose" style="width:32px;height:32px;font-size:14px;">✕</button>
+    </div>
+  </div>
+
+  <!-- AUTH (LOGIN / SIGNUP) -->
+  <div class="onboard-overlay" id="authOverlay" style="display:none;">
+    <div class="onboard-box">
+      <h2 id="authTitle">تسجيل الدخول</h2>
+      <p id="authSub">سجّلي دخولك للوصول لبياناتك من أي جهاز.</p>
+
+      <div class="pillgroup" style="margin-bottom:14px;">
+        <div class="pill selected" id="authTabLogin" data-tab="login">تسجيل دخول</div>
+        <div class="pill" id="authTabSignup" data-tab="signup">حساب جديد</div>
+      </div>
+
+      <div id="authNameRow" style="display:none;">
+        <label id="authNameLbl">اسمك</label>
+        <input type="text" id="authName">
+        <div style="height:14px;"></div>
+      </div>
+
+      <label id="authEmailLbl">البريد الإلكتروني</label>
+      <input type="email" id="authEmail">
+      <div style="height:14px;"></div>
+
+      <label id="authPasswordLbl">كلمة المرور</label>
+      <div style="position:relative;">
+        <input type="password" id="authPassword" style="padding-left:40px;">
+        <button type="button" id="togglePasswordBtn" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:4px;">👁️</button>
+      </div>
+
+      <div style="margin-top:8px;text-align:left;" id="forgotPasswordRow">
+        <button type="button" id="forgotPasswordLink" style="background:none;border:none;color:var(--rose);font-size:12.5px;text-decoration:underline;cursor:pointer;padding:0;">نسيتِ كلمة المرور؟</button>
+      </div>
+
+      <p id="authError" style="color:#B5573F;font-size:12.5px;margin:10px 0 0;display:none;"></p>
+
+      <div class="row-end" style="margin-top:18px;">
+        <button class="btn" id="authSubmit">دخول</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORGOT PASSWORD -->
+  <div class="onboard-overlay" id="forgotOverlay" style="display:none;">
+    <div class="onboard-box">
+      <h2 id="forgotTitle">نسيتِ كلمة المرور؟</h2>
+      <p id="forgotSub">أدخلي بريدك الإلكتروني المسجّل، وبنرسل لك رابط لتعيين كلمة مرور جديدة.</p>
+
+      <label id="forgotEmailLbl">البريد الإلكتروني</label>
+      <input type="email" id="forgotEmail">
+
+      <p id="forgotMsg" style="font-size:12.5px;margin:10px 0 0;display:none;"></p>
+
+      <div class="row-end" style="margin-top:18px;">
+        <button class="btn secondary small" id="forgotCancel">إغلاق</button>
+        <button class="btn" id="forgotSubmit">إرسال الرابط</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESET PASSWORD -->
+  <div class="onboard-overlay" id="resetOverlay" style="display:none;">
+    <div class="onboard-box">
+      <h2 id="resetTitle">تعيين كلمة مرور جديدة</h2>
+      <p id="resetSub">اكتبي كلمة المرور الجديدة لحسابك.</p>
+
+      <label id="resetPasswordLbl">كلمة المرور الجديدة</label>
+      <div style="position:relative;">
+        <input type="password" id="resetPassword" style="padding-left:40px;">
+        <button type="button" id="toggleResetPasswordBtn" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:4px;">👁️</button>
+      </div>
+
+      <p id="resetMsg" style="font-size:12.5px;margin:10px 0 0;display:none;"></p>
+
+      <div class="row-end" style="margin-top:18px;">
+        <button class="btn" id="resetSubmit">حفظ كلمة المرور</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONBOARDING -->
+  <div class="onboard-overlay" id="onboardOverlay" style="display:none;">
+    <div class="onboard-box">
+      <h2 id="obTitle">هلا فيك 🌿</h2>
+      <p id="obDesc">عشان نحدد لك مكانك الحالي من الدورة بدقة، أخبرينا بأول يوم من آخر دورة جاتك، ومتوسط طول دورتك المعتاد (إذا ما كنتي متأكدة، 28 يوم متوسط شائع).</p>
+      <label id="obLastPeriodLbl">متى بدأت آخر دورة شهرية؟ أدخلي التاريخ أو أقرب تاريخ تتذكرينه</label>
+      <input type="date" id="obLastPeriod">
+      <div style="height:14px;"></div>
+      <label id="obAgeLbl">عمرك</label>
+      <input type="text" id="obAge" placeholder="27">
+      <div style="height:14px;"></div>
+      <label id="obCycleLenLbl">متوسط طول الدورة (بالأيام)</label>
+      <input type="text" id="obCycleLen" value="28">
+      <div style="height:14px;"></div>
+      <label id="obPeriodLenLbl">متوسط مدة الحيض (بالأيام)</label>
+      <input type="text" id="obPeriodLen" value="5">
+      <div class="row-end" style="margin-top:18px;">
+        <button class="btn secondary small" id="obCancel" style="display:none;">إغلاق</button>
+        <button class="btn" id="obSave">احسبي مرحلتي</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE SETTINGS -->
+  <div class="onboard-overlay" id="profileOverlay" style="display:none;">
+    <div class="onboard-box">
+      <h2 id="profileTitle">إعدادات الحساب</h2>
+      <p id="profileSub">عدّلي اسمك أو بريدك الإلكتروني أو عمرك.</p>
+
+      <label id="profileNameLbl">الاسم</label>
+      <input type="text" id="profileName">
+      <div style="height:14px;"></div>
+
+      <label id="profileEmailLbl">البريد الإلكتروني</label>
+      <input type="email" id="profileEmail">
+      <div style="height:14px;"></div>
+
+      <label id="profileAgeLbl">عمرك</label>
+      <input type="text" id="profileAge" placeholder="27">
+
+      <p id="profileError" style="color:#B5573F;font-size:12.5px;margin:10px 0 0;display:none;"></p>
+
+      <div class="row-end" style="margin-top:18px;">
+        <button class="btn secondary small" id="profileCancel">إغلاق</button>
+        <button class="btn" id="profileSave">حفظ التعديلات</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOK SUMMARY MODAL -->
+  <div class="onboard-overlay" id="bookModalOverlay" style="display:none;align-items:flex-start;padding-top:30px;padding-bottom:30px;">
+    <div class="onboard-box" style="max-width:640px;max-height:88vh;overflow-y:auto;text-align:right;">
+      <h2 id="bookModalTitle" style="margin-bottom:18px;"></h2>
+      <div id="bookModalBody"></div>
+      <div class="row-end" style="margin-top:20px;gap:10px;">
+        <button class="btn secondary small" id="bookModalClose">إغلاق</button>
+        <a class="btn small" id="bookModalBuyLink" href="#" target="_blank" rel="noopener" style="text-decoration:none;"></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARTICLE MODAL -->
+  <div class="onboard-overlay" id="articleModalOverlay" style="display:none;align-items:flex-start;padding-top:30px;padding-bottom:30px;">
+    <div class="onboard-box" style="max-width:600px;max-height:88vh;overflow-y:auto;text-align:right;">
+      <div id="articleModalIllo" style="font-size:52px;text-align:center;margin-bottom:14px;"></div>
+      <h2 id="articleModalTitle" style="margin-bottom:16px;"></h2>
+      <div id="articleModalBody"></div>
+      <div class="row-end" style="margin-top:20px;">
+        <button class="btn" id="articleModalClose">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG TAB -->
+  <div class="tab-panel active" id="tab-log">
+
+    <div class="greeting-bar" id="greetingBar">
+      <div>
+        <div class="greeting-hi" id="greetingHi">مرحبًا، <span id="greetingName"></span> 👋</div>
+        <div class="greeting-sub" id="greetingSub">كيف أنتِ اليوم؟</div>
+      </div>
+      <button class="settings-gear" id="profileSettingsBtn" title="الإعدادات">⚙️</button>
+    </div>
+
+    <div class="phase-card" id="phaseCard">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div class="dayno" id="phaseDayNo">اليوم 1 من الدورة</div>
+          <div class="phasename" id="phaseName">—</div>
+        </div>
+        <div id="countdownBox" style="text-align:center;background:rgba(255,255,255,.15);border-radius:14px;padding:10px 18px;flex-shrink:0;">
+          <div id="countdownNum" style="font-size:36px;font-family:'Aref Ruqaa',serif;line-height:1;">—</div>
+          <div id="countdownLbl" style="font-size:11px;opacity:.85;margin-top:2px;">يومًا للدورة</div>
+        </div>
+      </div>
+      <div class="phasedesc" id="phaseDesc" style="margin-top:10px;">سجّلي بداية دورتك لتحديد مرحلتك الحالية.</div>
+      <div id="todayExpectBox" style="margin-top:12px;background:rgba(255,255,255,.12);border-radius:12px;padding:10px 14px;display:none;">
+        <div id="todayExpectLbl" style="font-size:11px;opacity:.75;margin-bottom:4px;font-weight:600;">توقّعي اليوم</div>
+        <div id="todayExpectText" style="font-size:13px;opacity:.95;line-height:1.5;"></div>
+      </div>
+      <div class="phase-track" id="phaseTrack" style="margin-top:14px;"></div>
+      <div class="phase-legend" id="phaseLegend"><span>حيض</span><span>تبويض</span><span>قبل الحيض</span></div>
+      <div style="margin-top:14px;display:flex;gap:16px;flex-wrap:wrap;">
+        <button class="update-link" id="updatePeriodBtn">📅 <span id="updatePeriodLbl">دورتي بدأت اليوم — حدّثي الحساب</span></button>
+        <button class="update-link" id="editCycleBtn"><span id="editCycleLbl">⚙️ تعديل بيانات الدورة</span></button>
+      </div>
+    </div>
+
+    <!-- ARTICLES SECTION -->
+    <div style="margin-bottom:20px;">
+      <div class="eyebrow" id="eyebrowArticles" style="margin-bottom:12px;">مقالات تساعدك تفهمي جسمك</div>
+    <!-- WEEKLY FEATURED SECTION -->
+    <div style="margin-bottom:20px;" id="weeklyFeaturedSection">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="eyebrow" id="weeklyFeaturedEyebrow">مقتطفات هذا الأسبوع</div>
+        <button id="archiveToggleBtn" style="background:none;border:none;color:var(--rose);font-size:12px;cursor:pointer;font-family:inherit;padding:0;text-decoration:underline;">الأرشيف</button>
+      </div>
+      <div id="weeklyFeaturedContent"></div>
+      <div id="archiveSection" style="display:none;margin-top:14px;">
+        <div class="eyebrow" style="margin-bottom:10px;" id="archiveEyebrow">أرشيف المقتطفات</div>
+        <div id="archiveContent"></div>
+      </div>
+    </div>
+
+      <div id="articlesScroll" style="display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow" id="eyebrowLog">تسجيل اليوم</div>
+      <h2 id="logTitle">كيف تشعرين اليوم؟</h2>
+
+      <label id="dateLbl">التاريخ</label>
+      <input type="date" id="entryDate">
+
+
+      <label id="moodLbl">حالتك المزاجية</label>
+      <div class="mood-row" id="moodRow">
+        <div class="mood-opt" data-val="1">😞<span class="lbl" id="mood1lbl">سيئة جدًا</span><span class="lbl2" id="mood1lbl2">الحمدلله على كل حال</span></div>
+        <div class="mood-opt" data-val="2">😕<span class="lbl" id="mood2lbl">سيئة</span><span class="lbl2" id="mood2lbl2">أوف، استغفر الله</span></div>
+        <div class="mood-opt" data-val="3">😐<span class="lbl" id="mood3lbl">عادية</span><span class="lbl2" id="mood3lbl2">الحمدلله</span></div>
+        <div class="mood-opt" data-val="4">🙂<span class="lbl" id="mood4lbl">جيدة</span><span class="lbl2" id="mood4lbl2">اللهم لك الحمد</span></div>
+        <div class="mood-opt" data-val="5">😄<span class="lbl" id="mood5lbl">رائعة</span><span class="lbl2" id="mood5lbl2">ياربي لك الحمد والشكر</span></div>
+      </div>
+
+      <label id="symptomsLbl">الأعراض الجسدية</label>
+      <div class="pillgroup" id="symptomPills">
+        <div class="pill" data-val="تشنجات" data-en="Cramps">تشنجات</div>
+        <div class="pill" data-val="صداع" data-en="Headache">صداع</div>
+        <div class="pill" data-val="تعب" data-en="Fatigue">تعب</div>
+        <div class="pill" data-val="انتفاخ" data-en="Bloating">انتفاخ</div>
+        <div class="pill" data-val="آلام ظهر" data-en="Back pain">آلام ظهر</div>
+        <div class="pill" data-val="غثيان" data-en="Nausea">غثيان</div>
+        <div class="pill" data-val="اضطراب نوم" data-en="Sleep trouble">اضطراب نوم</div>
+        <div class="pill" data-val="رغبة شديدة بالأكل" data-en="Food cravings">رغبة شديدة بالأكل</div>
+        <div class="pill" data-val="حساسية الثدي" data-en="Breast tenderness">حساسية الثدي</div>
+        <div class="pill" data-val="حب الشباب" data-en="Acne">حب الشباب</div>
+        <div class="pill" data-val="دوخة" data-en="Dizziness">دوخة</div>
+        <div class="pill" data-val="إفرازات" data-en="Discharge">إفرازات</div>
+        <div class="pill" data-val="إمساك" data-en="Constipation">إمساك</div>
+        <div class="pill" data-val="إسهال" data-en="Diarrhea">إسهال</div>
+        <div class="pill" data-val="تقلصات في المعدة" data-en="Stomach cramps">تقلصات في المعدة</div>
+        <div class="pill" data-val="آلام مفاصل" data-en="Joint pain">آلام مفاصل</div>
+        <div class="pill" data-val="جفاف الجلد" data-en="Dry skin">جفاف الجلد</div>
+        <div class="pill" data-val="فقدان الشهية" data-en="Loss of appetite">فقدان الشهية</div>
+        <div class="pill" data-val="خفقان القلب" data-en="Heart palpitations">خفقان القلب</div>
+      </div>
+
+      <label id="psychLbl">الأعراض النفسية</label>
+      <div class="pillgroup" id="psychPills">
+        <div class="pill" data-val="قلق" data-en="Anxiety">قلق</div>
+        <div class="pill" data-val="حزن" data-en="Sadness">حزن</div>
+        <div class="pill" data-val="عصبية" data-en="Irritability">عصبية</div>
+        <div class="pill" data-val="بكاء بسهولة" data-en="Crying easily">بكاء بسهولة</div>
+        <div class="pill" data-val="حساسية زائدة" data-en="Overly sensitive">حساسية زائدة</div>
+        <div class="pill" data-val="فرح" data-en="Joy">فرح</div>
+        <div class="pill" data-val="حماس" data-en="Motivation">حماس</div>
+        <div class="pill" data-val="هدوء" data-en="Calm">هدوء</div>
+      </div>
+
+      <label id="feelingLbl">صفي مشاعرك بكلماتك (اختياري)</label>
+      <textarea id="feelingText" placeholder="مثلاً: حسيت بضغط في الصدر من الصبح، وكل شي يضايقني بسرعة..."></textarea>
+
+      <label style="margin-top:14px;" id="triggerLbl">إيش اللي خلى شعورك يتغير اليوم؟ (سبب النزول أو الارتفاع)</label>
+      <textarea id="triggerText" placeholder="مثلاً: تعبت من قلة النوم، أو كلام شخص جرحني، أو قعدة حلوة مع صديقاتي رفعت مزاجي..."></textarea>
+
+      <div class="row-end" style="margin-top:16px;">
+        <button class="btn" id="saveEntry">حفظ تسجيل اليوم</button>
+      </div>
+    </div>
+
+    <div class="card" id="dailyReportCard">
+      <div class="eyebrow" id="eyebrowDailyReport">تحليل اليوم</div>
+      <h2 id="dailyReportTitle">تقرير اليوم</h2>
+      <p style="font-size:13px;color:#6b5a64;margin:0 0 14px;" id="dailyReportSub">اضغطي لتحليل حالتك اليوم بالذكاء الاصطناعي، مع نصائح عملية وأفكار تساعدك على تحسين مزاجك.</p>
+      <div class="row-end" style="gap:10px;flex-wrap:wrap;">
+        <button class="btn secondary" id="genActivitiesOnly">🌿 <span id="activitiesOnlyLbl">أنشطة تساعدك على الاتزان</span></button>
+        <button class="btn" id="genDailyReport">📋 احصلي على تقرير اليوم</button>
+      </div>
+      <div id="dailyReportResult"></div>
+    </div>
+
+    <div class="card" id="chatCard">
+      <div class="eyebrow" id="eyebrowChat">محادثة</div>
+      <h2 id="chatTitle">تكلمي معايا</h2>
+      <p style="font-size:13px;color:#6b5a64;margin:0 0 14px;" id="chatSub">محادثة يومية قصيرة (٣٠ دقيقة)، تقدرين تسألين أو تكملين فيها أي وقت، وتتجدد كل يوم.</p>
+      <div id="chatTimerBox" style="font-size:12.5px;color:var(--rose);font-weight:600;margin-bottom:10px;"></div>
+      <div id="chatMessages" style="display:flex;flex-direction:column;gap:10px;max-height:340px;overflow-y:auto;margin-bottom:14px;"></div>
+      <div id="chatInputRow" style="display:flex;gap:10px;">
+        <input type="text" id="chatInput" style="flex:1;" placeholder="اكتبي رسالتك...">
+        <button class="btn" id="chatSendBtn">إرسال</button>
+      </div>
+      <div id="chatLockedMsg" style="display:none;font-size:13.5px;color:#9b8a92;text-align:center;padding:14px;"></div>
+    </div>
+
+    <div class="card" id="dhikrCard" style="padding:16px 20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div class="eyebrow" id="dhikrEyebrow">تذكير</div>
+          <h2 style="font-size:16px;" id="dhikrTitle">ذكّرني بالذكر كل 20 دقيقة</h2>
+        </div>
+        <div class="toggle-switch" id="dhikrToggle"><div class="knob"></div></div>
+      </div>
+      <div class="dhikr-settings" id="dhikrOptionsRow">
+        <label style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:400;margin:0;">
+          <input type="checkbox" id="dhikrIstighfar" checked> <span id="dhikrIstighfarLbl">استغفار</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:400;margin:0;">
+          <input type="checkbox" id="dhikrTasbeeh" checked> <span id="dhikrTasbeehLbl">تسبيح</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:400;margin:0;">
+          <input type="checkbox" id="dhikrSalawat" checked> <span id="dhikrSalawatLbl">صلاة على النبي</span>
+        </label>
+      </div>
+      <p style="font-size:11.5px;color:#9b8a92;margin:8px 0 0;" id="dhikrNote">يعمل التذكير فقط أثناء بقاء هذه الصفحة مفتوحة في متصفحك.</p>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:13px;font-weight:600;" id="pushTitle">إشعارات حتى لو التطبيق مقفول</div>
+          <div style="font-size:11.5px;color:#9b8a92;" id="pushSub">فعّليها لو تبين تستلمين تذكير الذكر حتى والتطبيق مقفول تمامًا.</div>
+        </div>
+        <button class="btn secondary small" id="enablePushBtn">🔔 <span id="enablePushLbl">تفعيل الإشعارات</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow" id="eyebrowRecent">آخر التسجيلات</div>
+      <h2 id="recentTitle">سجلاتك الأخيرة</h2>
+      <div id="recentEntries"></div>
+    </div>
+  </div>
+
+  <!-- CALENDAR TAB -->
+  <div class="tab-panel" id="tab-calendar">
+    <div class="card">
+      <div class="eyebrow" id="eyebrowOverview">نظرة عامة</div>
+      <h2 id="calMonthLabel">التقويم</h2>
+      <div class="row-end" style="margin-bottom:10px;">
+        <button class="btn secondary small" id="prevMonth">‹ <span id="prevMonthLbl">الشهر السابق</span></button>
+        <button class="btn secondary small" id="nextMonth"><span id="nextMonthLbl">الشهر التالي</span> ›</button>
+      </div>
+      <div class="calendar" id="calendarGrid"></div>
+      <div style="display:flex;gap:18px;margin-top:14px;font-size:12px;color:#6b5a64;" id="calLegendRow">
+        <div><span style="display:inline-block;width:10px;height:10px;background:var(--terracotta);border-radius:3px;margin-left:5px;margin-right:5px;"></span><span id="calLegendActual">أيام الدورة المسجلة</span></div>
+        <div><span style="display:inline-block;width:10px;height:10px;background:#F3DCD3;border:1px solid var(--rose);border-radius:3px;margin-left:5px;margin-right:5px;"></span><span id="calLegendPredicted">توقّع الدورة القادمة</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="eyebrow" id="eyebrowCycleStats">إحصائيات الدورة</div>
+      <h2 id="cycleStatsTitle">ملخص سريع</h2>
+      <div class="stat-grid" id="cycleStats"></div>
+    </div>
+  </div>
+
+  <!-- WEEKLY TAB -->
+  <div class="tab-panel" id="tab-weekly">
+    <div class="card">
+      <div class="eyebrow" id="eyebrowWeek">آخر 7 أيام</div>
+      <h2 id="weeklyTitle">تقريرك الأسبوعي</h2>
+      <div class="stat-grid" id="weeklyStats"></div>
+      <canvas id="weeklyChart" height="120" style="margin-top:20px;"></canvas>
+      <div class="row-end" style="margin-top:16px;">
+        <button class="btn" id="genWeeklyAI">✨ توليد تحليل ذكي للأسبوع</button>
+      </div>
+      <div id="weeklyAIResult"></div>
+    </div>
+  </div>
+
+  <!-- MONTHLY TAB -->
+  <div class="tab-panel" id="tab-monthly">
+    <div class="card">
+      <div class="eyebrow" id="eyebrowMonth">آخر 30 يومًا</div>
+      <h2 id="monthlyTitle">تقريرك الشهري</h2>
+      <canvas id="monthlyChart" height="130"></canvas>
+      <div class="stat-grid" id="monthlyStats" style="margin-top:20px;"></div>
+      <div class="row-end" style="margin-top:16px;">
+        <button class="btn" id="genMonthlyAI">✨ توليد تحليل الأنماط الشهرية</button>
+      </div>
+      <div id="monthlyAIResult"></div>
+    </div>
+  </div>
+
+  <footer id="footerText">هَدَأ — نسخة تجريبية تعليمية. هذا التطبيق لا يقدّم تشخيصًا طبيًا أو نفسيًا، ولا يُغني عن استشارة مختصة عند الحاجة.</footer>
+</div>
+
+<script>
+const STORAGE_KEY = 'entries';
+const CYCLE_KEY = 'cycleSettings';
+let entries = [];
+let cycleSettings = null; // { starts:[dates], cycleLen, periodLen }
+let selectedMood = null;
+let selectedSymptoms = new Set(), selectedPsych = new Set();
+let calRefDate = new Date();
+let LANG = 'ar';
+let appDataLoaded = false;
+
+// ================= STORAGE ABSTRACTION =================
+// Uses window.storage when running inside Claude (persists across sessions there).
+// Falls back to the browser's own localStorage when deployed standalone (Netlify, local file, etc.)
+const hasClaudeStorage = (typeof window.storage !== 'undefined' && window.storage !== null);
+
+async function storageGet(key){
+  if(hasClaudeStorage){
+    try{ return await window.storage.get(key); }catch(e){ return null; }
+  }
+  try{
+    const v = localStorage.getItem('hada_'+key);
+    return v!==null ? { key, value:v } : null;
+  }catch(e){ return null; }
+}
+async function storageSet(key, value){
+  if(hasClaudeStorage){
+    try{ return await window.storage.set(key, value); }catch(e){ return null; }
+  }
+  try{
+    localStorage.setItem('hada_'+key, value);
+    return { key, value };
+  }catch(e){ return null; }
+}
+
+// ================= ACCOUNT API (Cloudflare Worker + D1) =================
+const API_BASE = 'https://hada-api.enasahmed87.workers.dev';
+let authToken = null;
+let currentUser = null;
+
+function loadTokenFromStorage(){
+  try{ authToken = localStorage.getItem('hada_token'); }catch(e){ authToken = null; }
+}
+function saveTokenToStorage(token){
+  authToken = token;
+  try{ localStorage.setItem('hada_token', token); }catch(e){}
+}
+function clearTokenFromStorage(){
+  authToken = null; currentUser = null;
+  try{ localStorage.removeItem('hada_token'); }catch(e){}
+}
+
+async function apiFetch(path, options={}){
+  const headers = Object.assign({ 'Content-Type':'application/json' }, options.headers||{});
+  if(authToken) headers['Authorization'] = 'Bearer ' + authToken;
+  const res = await fetch(API_BASE + path, Object.assign({}, options, { headers }));
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+  return data;
+}
+
+async function apiSignup(email, password, name){
+  const data = await apiFetch('/api/signup', { method:'POST', body: JSON.stringify({ email, password, name }) });
+  saveTokenToStorage(data.token);
+  currentUser = data.user;
+  return data.user;
+}
+async function apiLogin(email, password){
+  const data = await apiFetch('/api/login', { method:'POST', body: JSON.stringify({ email, password }) });
+  saveTokenToStorage(data.token);
+  currentUser = data.user;
+  return data.user;
+}
+async function apiCheckSession(){
+  if(!authToken) return null;
+  try{
+    const data = await apiFetch('/api/me');
+    currentUser = data.user;
+    return data.user;
+  }catch(e){
+    clearTokenFromStorage();
+    return null;
+  }
+}
+async function apiUpdateProfile(name, email){
+  const data = await apiFetch('/api/profile', { method:'POST', body: JSON.stringify({ name, email }) });
+  currentUser = data.user;
+  return data.user;
+}
+
+// ================= AI CALL ABSTRACTION =================
+// Inside Claude (artifact preview), calling api.anthropic.com directly works —
+// Claude's environment injects auth automatically.
+// Once deployed standalone (Netlify, etc.), the browser can't call Anthropic directly
+// (no key, CORS), so we route through our own Netlify function (/netlify/functions/analyze.js),
+// which holds the real API key server-side.
+async function callClaudeAI(prompt, maxTokens){
+  if(hasClaudeStorage){
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: maxTokens,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    const json = await response.json();
+    return (json.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('\n');
+  } else {
+    const response = await fetch("https://hadaa-app.netlify.app/.netlify/functions/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, max_tokens: maxTokens })
+    });
+    const json = await response.json();
+    if(json.error) throw new Error(typeof json.error==='string' ? json.error : JSON.stringify(json.error));
+    return (json.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('\n');
+  }
+}
+
+document.getElementById('entryDate').valueAsDate = new Date();
+document.getElementById('entryDate').addEventListener('change', loadEntryIntoForm);
+
+function loadEntryIntoForm(){
+  const date = document.getElementById('entryDate').value;
+  resetForm();
+  const existing = entries.find(e=>e.date===date);
+  const saveBtn = document.getElementById('saveEntry');
+  if(existing){
+    selectedMood = existing.mood;
+    if(existing.mood){
+      const opt = document.querySelector(`#moodRow .mood-opt[data-val="${existing.mood}"]`);
+      if(opt) opt.classList.add('selected');
+    }
+    existing.symptoms.forEach(s=>{
+      selectedSymptoms.add(s);
+      const p = document.querySelector(`#symptomPills .pill[data-val="${cssEscape(s)}"]`);
+      if(p) p.classList.add('selected');
+    });
+    existing.psych.forEach(s=>{
+      selectedPsych.add(s);
+      const p = document.querySelector(`#psychPills .pill[data-val="${cssEscape(s)}"]`);
+      if(p) p.classList.add('selected');
+    });
+    document.getElementById('feelingText').value = existing.feeling||'';
+    document.getElementById('triggerText').value = existing.trigger||'';
+    saveBtn.textContent = LANG==='en' ? 'Update today\u2019s log' : 'تحديث تسجيل هذا اليوم';
+  } else {
+    saveBtn.textContent = LANG==='en' ? 'Save today\u2019s log' : 'حفظ تسجيل اليوم';
+  }
+}
+function cssEscape(s){ return s.replace(/(["\\])/g,'\\$1'); }
+
+// ================= LANGUAGE / i18n =================
+const I18N = {
+  brandTitle:      { ar:"هَدَأ", en:"Hada\u2019" },
+  brandTag:        { ar:"متتبع الدورة والمزاج", en:"Cycle & mood tracker" },
+  bookModalClose:  { ar:"إغلاق", en:"Close" },
+  articleModalClose:{ ar:"إغلاق", en:"Close" },
+  bannerText:      { ar:"🔒 بياناتك محفوظة بأمان بحسابك الخاص، ولن تُشارك مع أي شخص آخر.", en:"🔒 Your data is safely stored in your own account and never shared." },
+  authTitle:       { ar:"تسجيل الدخول", en:"Log in" },
+  authSub:         { ar:"سجّلي دخولك للوصول لبياناتك من أي جهاز.", en:"Log in to access your data from any device." },
+  authTabLogin:    { ar:"تسجيل دخول", en:"Log in" },
+  authTabSignup:   { ar:"حساب جديد", en:"Sign up" },
+  authNameLbl:     { ar:"اسمك", en:"Your name" },
+  authEmailLbl:    { ar:"البريد الإلكتروني", en:"Email" },
+  authPasswordLbl: { ar:"كلمة المرور", en:"Password" },
+  authSubmit:      { ar:"دخول", en:"Log in" },
+  forgotPasswordLink:{ ar:"نسيتِ كلمة المرور؟", en:"Forgot your password?" },
+  forgotTitle:     { ar:"نسيتِ كلمة المرور؟", en:"Forgot your password?" },
+  forgotSub:       { ar:"أدخلي بريدك الإلكتروني المسجّل، وبنرسل لك رابط لتعيين كلمة مرور جديدة.", en:"Enter your registered email, and we'll send you a link to set a new password." },
+  forgotEmailLbl:  { ar:"البريد الإلكتروني", en:"Email" },
+  forgotCancel:    { ar:"إغلاق", en:"Close" },
+  forgotSubmit:    { ar:"إرسال الرابط", en:"Send link" },
+  resetTitle:      { ar:"تعيين كلمة مرور جديدة", en:"Set a new password" },
+  resetSub:        { ar:"اكتبي كلمة المرور الجديدة لحسابك.", en:"Enter a new password for your account." },
+  resetPasswordLbl:{ ar:"كلمة المرور الجديدة", en:"New password" },
+  resetSubmit:     { ar:"حفظ كلمة المرور", en:"Save password" },
+  logoutLbl:       { ar:"خروج", en:"Log out" },
+  greetingSub:     { ar:"كيف أنتِ اليوم؟", en:"How are you today?" },
+  profileTitle:    { ar:"إعدادات الحساب", en:"Account settings" },
+  profileSub:      { ar:"عدّلي اسمك أو بريدك الإلكتروني أو عمرك.", en:"Edit your name, email, or age." },
+  profileNameLbl:  { ar:"الاسم", en:"Name" },
+  profileEmailLbl: { ar:"البريد الإلكتروني", en:"Email" },
+  profileAgeLbl:   { ar:"عمرك", en:"Your age" },
+  profileCancel:   { ar:"إغلاق", en:"Close" },
+  profileSave:     { ar:"حفظ التعديلات", en:"Save changes" },
+  dhikrEyebrow:    { ar:"تذكير", en:"Reminder" },
+  dhikrTitle:      { ar:"ذكّرني بالذكر كل 20 دقيقة", en:"Remind me to do dhikr every 20 minutes" },
+  dhikrIstighfarLbl:{ ar:"استغفار", en:"Istighfar" },
+  dhikrTasbeehLbl: { ar:"تسبيح", en:"Tasbeeh" },
+  dhikrSalawatLbl: { ar:"صلاة على النبي", en:"Salawat on the Prophet" },
+  dhikrNote:       { ar:"يعمل التذكير فقط أثناء بقاء هذه الصفحة مفتوحة في متصفحك.", en:"Reminders only work while this page stays open in your browser." },
+  pushTitle:       { ar:"إشعارات حتى لو التطبيق مقفول", en:"Notifications even when the app is closed" },
+  pushSub:         { ar:"فعّليها لو تبين تستلمين تذكير الذكر حتى والتطبيق مقفول تمامًا.", en:"Turn this on to receive dhikr reminders even when the app is fully closed." },
+  enablePushLbl:   { ar:"تفعيل الإشعارات", en:"Enable notifications" },
+  eyebrowDailyReport:{ ar:"تحليل اليوم", en:"Today's analysis" },
+  dailyReportTitle: { ar:"تقرير اليوم", en:"Daily report" },
+  dailyReportSub:  { ar:"اضغطي لتحليل حالتك اليوم بالذكاء الاصطناعي، مع نصائح عملية وأفكار تساعدك على تحسين مزاجك.", en:"Tap to get an AI analysis of how you're doing today, with practical tips and ideas to help lift your mood." },
+  genDailyReport:  { ar:"📋 احصلي على تقرير اليوم", en:"📋 Get today's report" },
+  activitiesOnlyLbl:{ ar:"أنشطة تساعدك على الاتزان", en:"Activities to help you feel balanced" },
+  eyebrowChat:     { ar:"محادثة", en:"Chat" },
+  chatTitle:       { ar:"تكلمي معايا", en:"Talk to me" },
+  chatSub:         { ar:"محادثة يومية قصيرة (٣٠ دقيقة)، تقدرين تسألين أو تكملين فيها أي وقت، وتتجدد كل يوم.", en:"A short daily chat (30 minutes) — ask anything or continue anytime, and it refreshes every day." },
+  chatSendBtn:     { ar:"إرسال", en:"Send" },
+  navLog:          { ar:"اليوم", en:"Today" },
+  navCalendar:     { ar:"التقويم", en:"Calendar" },
+  navWeekly:       { ar:"أسبوعي", en:"Weekly" },
+  navMonthly:      { ar:"شهري", en:"Monthly" },
+  obTitle:         { ar:"هلا فيك 🌿", en:"Welcome 🌿" },
+  obDesc:          { ar:"عشان نحدد لك مكانك الحالي من الدورة بدقة، أخبرينا بأول يوم من آخر دورة جاتك، ومتوسط طول دورتك المعتاد (إذا ما كنتي متأكدة، 28 يوم متوسط شائع).", en:"To pinpoint where you are in your cycle, tell us the first day of your last period and your usual average cycle length (28 days is a common average if you're not sure)." },
+  obLastPeriodLbl: { ar:"متى بدأت آخر دورة شهرية؟ أدخلي التاريخ أو أقرب تاريخ تتذكرينه", en:"When did your last period start? Enter the date, or your closest estimate" },
+  obAgeLbl:        { ar:"عمرك", en:"Your age" },
+  obCycleLenLbl:   { ar:"متوسط طول الدورة (بالأيام)", en:"Average cycle length (days)" },
+  obPeriodLenLbl:  { ar:"متوسط مدة الحيض (بالأيام)", en:"Average period length (days)" },
+  obSave:          { ar:"احسبي مرحلتي", en:"Calculate my phase" },
+  obCancel:        { ar:"إغلاق", en:"Close" },
+  updatePeriodLbl: { ar:"دورتي بدأت اليوم — حدّثي الحساب", en:"My period started today — update calculation" },
+  editCycleLbl:    { ar:"⚙️ تعديل بيانات الدورة", en:"⚙️ Edit cycle data" },
+  eyebrowLog:      { ar:"تسجيل اليوم", en:"Today's log" },
+  logTitle:        { ar:"كيف تشعرين اليوم؟", en:"How are you feeling today?" },
+  dateLbl:         { ar:"التاريخ", en:"Date" },
+  moodLbl:         { ar:"حالتك المزاجية", en:"Your mood" },
+  symptomsLbl:     { ar:"الأعراض الجسدية", en:"Physical symptoms" },
+  psychLbl:        { ar:"الأعراض النفسية", en:"Emotional symptoms" },
+  feelingLbl:      { ar:"صفي مشاعرك بكلماتك (اختياري)", en:"Describe your feelings in your own words (optional)" },
+  triggerLbl:      { ar:"إيش اللي خلى شعورك يتغير اليوم؟ (سبب النزول أو الارتفاع)", en:"What changed your mood today? (the reason for the dip or lift)" },
+  saveEntry:       { ar:"حفظ تسجيل اليوم", en:"Save today's log" },
+  eyebrowRecent:   { ar:"آخر التسجيلات", en:"Recent logs" },
+  recentTitle:     { ar:"سجلاتك الأخيرة", en:"Your recent entries" },
+  eyebrowOverview: { ar:"نظرة عامة", en:"Overview" },
+  prevMonth:       { ar:"‹ الشهر السابق", en:"‹ Previous" },
+  nextMonth:       { ar:"الشهر التالي ›", en:"Next ›" },
+  calLegendActual:   { ar:"أيام الدورة المسجلة", en:"Logged period days" },
+  calLegendPredicted:{ ar:"توقّع الدورة القادمة", en:"Predicted next period" },
+  prevMonthLbl:      { ar:"الشهر السابق", en:"Previous month" },
+  nextMonthLbl:      { ar:"الشهر التالي", en:"Next month" },
+  eyebrowCycleStats:{ ar:"إحصائيات الدورة", en:"Cycle stats" },
+  cycleStatsTitle: { ar:"ملخص سريع", en:"Quick summary" },
+  eyebrowWeek:     { ar:"آخر 7 أيام", en:"Last 7 days" },
+  weeklyTitle:     { ar:"تقريرك الأسبوعي", en:"Your weekly report" },
+  genWeeklyAI:     { ar:"✨ توليد تحليل ذكي للأسبوع", en:"✨ Generate weekly AI insight" },
+  eyebrowMonth:    { ar:"آخر 30 يومًا", en:"Last 30 days" },
+  monthlyTitle:    { ar:"تقريرك الشهري", en:"Your monthly report" },
+  genMonthlyAI:    { ar:"✨ توليد تحليل الأنماط الشهرية", en:"✨ Generate monthly pattern insight" },
+  footerText:      { ar:"هَدَأ — نسخة تجريبية تعليمية. هذا التطبيق لا يقدّم تشخيصًا طبيًا أو نفسيًا، ولا يُغني عن استشارة مختصة عند الحاجة.", en:"Hada\u2019 — an educational demo. This app does not provide medical or psychological diagnosis and is not a substitute for professional care." },
+  mood1lbl:        { ar:"سيئة جدًا", en:"Very bad" },
+  mood1lbl2:       { ar:"الحمدلله على كل حال", en:"Grateful regardless" },
+  mood2lbl:        { ar:"سيئة", en:"Bad" },
+  mood2lbl2:       { ar:"أوف، استغفر الله", en:"Ugh, seeking patience" },
+  mood3lbl:        { ar:"عادية", en:"Okay" },
+  mood3lbl2:       { ar:"الحمدلله", en:"Thankful" },
+  mood4lbl:        { ar:"جيدة", en:"Good" },
+  mood4lbl2:       { ar:"اللهم لك الحمد", en:"Praise be" },
+  mood5lbl:        { ar:"رائعة", en:"Amazing" },
+  mood5lbl2:       { ar:"ياربي لك الحمد والشكر", en:"All praise and thanks" },
+};
+
+const PLACEHOLDERS = {
+  feelingText: { ar:"مثلاً: حسيت بضغط في الصدر من الصبح، وكل شي يضايقني بسرعة...", en:"e.g. I felt tightness in my chest since morning, and everything irritated me easily..." },
+  triggerText: { ar:"مثلاً: تعبت من قلة النوم، أو كلام شخص جرحني، أو قعدة حلوة مع صديقاتي رفعت مزاجي...", en:"e.g. Lack of sleep wore me out, or something someone said hurt me, or a nice time with friends lifted my mood..." },
+  obAge:       { ar:"مثلاً: 27", en:"e.g. 27" },
+  chatInput:   { ar:"اكتبي رسالتك...", en:"Type your message..." },
+};
+
+function applyLang(){
+  document.documentElement.lang = LANG;
+  document.documentElement.dir = LANG==='en' ? 'ltr' : 'rtl';
+  document.body.classList.toggle('lang-en', LANG==='en');
+  document.getElementById('langToggle').textContent = LANG==='en' ? 'العربية' : 'English';
+
+  Object.keys(I18N).forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = I18N[id][LANG];
+  });
+  Object.keys(PLACEHOLDERS).forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.placeholder = PLACEHOLDERS[id][LANG];
+  });
+
+  // pills with data-en
+  document.querySelectorAll('.pill[data-en]').forEach(p=>{
+    p.textContent = LANG==='en' ? p.dataset.en : p.dataset.val;
+  });
+
+  // phase legend
+  document.getElementById('phaseLegend').innerHTML = LANG==='en'
+    ? '<span>Period</span><span>Ovulation</span><span>Pre-period</span>'
+    : '<span>حيض</span><span>تبويض</span><span>قبل الحيض</span>';
+
+  // re-render dynamic sections in new language (only once app data has loaded post-login)
+  if(appDataLoaded){
+    renderPhaseCard();
+    renderRecent();
+    renderCalendar();
+    renderGreeting();
+    renderArticles();
+    renderWeeklyFeatured();
+    if(document.getElementById('tab-weekly').classList.contains('active')) renderWeekly();
+    if(document.getElementById('tab-monthly').classList.contains('active')) renderMonthly();
+  }
+  if(typeof showInstallBanner==='function') showInstallBanner();
+}
+
+document.getElementById('langToggle').addEventListener('click', ()=>{
+  LANG = LANG==='ar' ? 'en' : 'ar';
+  applyLang();
+});
+
+// ================= DHIKR REMINDER =================
+const DHIKR_KEY = 'dhikrSettings';
+let dhikrSettings = { enabled:false, istighfar:true, tasbeeh:true, salawat:true };
+let dhikrIntervalId = null;
+
+const DHIKR_PHRASES = {
+  istighfar: { ar:'أستغفر الله العظيم وأتوب إليه', en:'Astaghfirullah al-\u2018Adheem — "I seek forgiveness from Allah, the Magnificent"' },
+  tasbeeh:   { ar:'سبحان الله وبحمده', en:'Subhanallahi wa bihamdih — "Glory be to Allah, and praise be to Him"' },
+  salawat:   { ar:'اللهم صلِّ وسلِّم على نبينا محمد', en:'Allahumma salli wa sallim \u2018ala nabiyyina Muhammad — Send blessings upon the Prophet' },
+};
+
+async function loadDhikrSettings(){
+  try{
+    const data = await apiFetch('/api/dhikr-settings');
+    if(data.settings) dhikrSettings = data.settings;
+  }catch(e){}
+}
+async function saveDhikrSettings(){
+  try{ await apiFetch('/api/dhikr-settings', { method:'POST', body: JSON.stringify(dhikrSettings) }); }catch(e){}
+}
+
+function showDhikrToast(){
+  const active = Object.keys(DHIKR_PHRASES).filter(k=>dhikrSettings[k]);
+  if(active.length===0) return;
+  const choice = active[Math.floor(Math.random()*active.length)];
+  const phrase = DHIKR_PHRASES[choice][LANG];
+
+  document.querySelectorAll('.dhikr-toast').forEach(t=>t.remove());
+  const toast = document.createElement('div');
+  toast.className = 'dhikr-toast';
+  const closeLbl = LANG==='en' ? 'Close' : 'إغلاق';
+  toast.innerHTML = `<span>🕊️ ${escapeHtml(phrase)}</span><button>${closeLbl}</button>`;
+  toast.querySelector('button').addEventListener('click', ()=> toast.remove());
+  document.body.appendChild(toast);
+  setTimeout(()=> toast.remove(), 12000);
+
+  if('Notification' in window && Notification.permission === 'granted'){
+    try{ new Notification(LANG==='en' ? 'Dhikr reminder' : 'تذكير بالذكر', { body: phrase }); }catch(e){}
+  }
+}
+
+function startDhikrInterval(){
+  if(dhikrIntervalId) clearInterval(dhikrIntervalId);
+  dhikrIntervalId = setInterval(showDhikrToast, 20*60*1000);
+}
+function stopDhikrInterval(){
+  if(dhikrIntervalId){ clearInterval(dhikrIntervalId); dhikrIntervalId=null; }
+}
+
+function renderDhikrToggle(){
+  document.getElementById('dhikrToggle').classList.toggle('on', dhikrSettings.enabled);
+  document.getElementById('dhikrIstighfar').checked = dhikrSettings.istighfar;
+  document.getElementById('dhikrTasbeeh').checked = dhikrSettings.tasbeeh;
+  document.getElementById('dhikrSalawat').checked = dhikrSettings.salawat;
+}
+
+document.getElementById('dhikrToggle').addEventListener('click', async ()=>{
+  dhikrSettings.enabled = !dhikrSettings.enabled;
+  renderDhikrToggle();
+  await saveDhikrSettings();
+  if(dhikrSettings.enabled){
+    if('Notification' in window && Notification.permission==='default'){
+      try{ await Notification.requestPermission(); }catch(e){}
+    }
+    startDhikrInterval();
+    showDhikrToast(); // immediate confirmation
+  } else {
+    stopDhikrInterval();
+  }
+});
+
+['dhikrIstighfar','dhikrTasbeeh','dhikrSalawat'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', async (e)=>{
+    const key = id.replace('dhikr','').toLowerCase();
+    dhikrSettings[key] = e.target.checked;
+    await saveDhikrSettings();
+  });
+});
+
+// ================= PUSH NOTIFICATIONS (work even when app is fully closed) =================
+function base64urlToUint8Array(b64url){
+  const padding = '='.repeat((4 - b64url.length % 4) % 4);
+  const base64 = (b64url + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  const arr = new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++) arr[i] = raw.charCodeAt(i);
+  return arr;
+}
+
+async function updateEnablePushButton(){
+  const btn = document.getElementById('enablePushBtn');
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+    btn.style.display = 'none';
+    return;
+  }
+  try{
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    document.getElementById('enablePushLbl').textContent = sub
+      ? (LANG==='en' ? 'Notifications enabled ✓' : 'الإشعارات مفعّلة ✓')
+      : (LANG==='en' ? 'Enable notifications' : 'تفعيل الإشعارات');
+  }catch(e){}
+}
+
+document.getElementById('enablePushBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('enablePushBtn');
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+    alert(LANG==='en' ? 'Push notifications are not supported on this browser.' : 'هذا المتصفح لا يدعم الإشعارات.');
+    return;
+  }
+  try{
+    const perm = await Notification.requestPermission();
+    if(perm !== 'granted'){
+      alert(LANG==='en' ? 'Notification permission was not granted.' : 'لم يتم منح صلاحية الإشعارات.');
+      return;
+    }
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if(!sub){
+      const { key } = await apiFetch('/api/push-public-key');
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: base64urlToUint8Array(key),
+      });
+    }
+    await apiFetch('/api/push-subscribe', {
+      method:'POST',
+      body: JSON.stringify({ endpoint: sub.endpoint, keys: {
+        p256dh: arrayBufferToB64Url(sub.getKey('p256dh')),
+        auth: arrayBufferToB64Url(sub.getKey('auth')),
+      }})
+    });
+    await updateEnablePushButton();
+    await apiFetch('/api/push-test', { method:'POST' });
+    alert(LANG==='en' ? 'Notifications enabled! A test notification was sent.' : 'تم تفعيل الإشعارات! تم إرسال إشعار تجريبي.');
+  }catch(e){
+    alert((LANG==='en' ? 'Could not enable notifications: ' : 'تعذّر تفعيل الإشعارات: ') + e.message);
+  }
+});
+
+function arrayBufferToB64Url(buf){
+  const bytes = new Uint8Array(buf);
+  let str = '';
+  for(let i=0;i<bytes.length;i++) str += String.fromCharCode(bytes[i]);
+  return btoa(str).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+
+
+
+async function loadEntries(){
+  try{
+    const data = await apiFetch('/api/entries');
+    entries = data.entries || [];
+  }catch(e){ entries = []; }
+  entries.sort((a,b)=> new Date(b.date)-new Date(a.date));
+}
+async function saveEntry(entry){
+  await apiFetch('/api/entries', { method:'POST', body: JSON.stringify(entry) });
+}
+async function loadCycleSettings(){
+  try{
+    const data = await apiFetch('/api/cycle-settings');
+    cycleSettings = data.settings || null;
+  }catch(e){ cycleSettings = null; }
+}
+async function saveCycleSettings(){
+  await apiFetch('/api/cycle-settings', { method:'POST', body: JSON.stringify(cycleSettings) });
+}
+
+
+// ---- nav ----
+document.querySelectorAll('.navbtn').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('.navbtn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+    if(b.dataset.tab==='calendar') renderCalendar();
+    if(b.dataset.tab==='weekly') renderWeekly();
+    if(b.dataset.tab==='monthly') renderMonthly();
+  });
+});
+
+// ---- mood selection ----
+document.getElementById('moodRow').addEventListener('click', e=>{
+  const p = e.target.closest('.mood-opt'); if(!p) return;
+  document.querySelectorAll('#moodRow .mood-opt').forEach(x=>x.classList.remove('selected'));
+  p.classList.add('selected'); selectedMood = parseInt(p.dataset.val);
+});
+function bindMultiPills(containerId, set){
+  document.getElementById(containerId).addEventListener('click', e=>{
+    const p = e.target.closest('.pill'); if(!p) return;
+    const v = p.dataset.val;
+    if(set.has(v)){ set.delete(v); p.classList.remove('selected'); }
+    else { set.add(v); p.classList.add('selected'); }
+  });
+}
+bindMultiPills('symptomPills', selectedSymptoms);
+bindMultiPills('psychPills', selectedPsych);
+
+// ---- save entry ----
+document.getElementById('saveEntry').addEventListener('click', async ()=>{
+  const date = document.getElementById('entryDate').value;
+  if(!date){ alert(LANG==='en' ? 'Please choose a date first' : 'اختاري التاريخ أولاً'); return; }
+  const entry = {
+    date,
+    mood: selectedMood,
+    symptoms: Array.from(selectedSymptoms),
+    psych: Array.from(selectedPsych),
+    feeling: document.getElementById('feelingText').value.trim(),
+    trigger: document.getElementById('triggerText').value.trim(),
+  };
+  entries = entries.filter(e=>e.date !== date);
+  entries.push(entry);
+  entries.sort((a,b)=> new Date(b.date)-new Date(a.date));
+  try{
+    await saveEntry(entry);
+  }catch(e){
+    alert((LANG==='en' ? 'Could not save: ' : 'تعذّر الحفظ: ') + e.message);
+    return;
+  }
+  loadEntryIntoForm();
+  renderRecent();
+  alert(LANG==='en' ? 'Today\u2019s log saved \u2713' : 'تم حفظ تسجيل اليوم ✓');
+});
+
+function resetForm(){
+  selectedMood=null; selectedSymptoms.clear(); selectedPsych.clear();
+  document.querySelectorAll('.pill.selected, .mood-opt.selected').forEach(x=>x.classList.remove('selected'));
+  document.getElementById('feelingText').value='';
+  document.getElementById('triggerText').value='';
+}
+
+const moodEmoji = {1:'😞',2:'😕',3:'😐',4:'🙂',5:'😄'};
+const MOOD_WORD = {
+  ar: {1:'سيئة جدًا',2:'سيئة',3:'عادية',4:'جيدة',5:'رائعة'},
+  en: {1:'Very bad',2:'Bad',3:'Okay',4:'Good',5:'Amazing'},
+};
+const SYMPTOM_TERMS_EN = {
+  'تشنجات':'Cramps','صداع':'Headache','تعب':'Fatigue','انتفاخ':'Bloating','آلام ظهر':'Back pain',
+  'غثيان':'Nausea','اضطراب نوم':'Sleep trouble','رغبة شديدة بالأكل':'Food cravings','حساسية الثدي':'Breast tenderness',
+  'حب الشباب':'Acne','دوخة':'Dizziness','إفرازات':'Discharge','إمساك':'Constipation','إسهال':'Diarrhea',
+  'تقلصات في المعدة':'Stomach cramps','آلام مفاصل':'Joint pain','جفاف الجلد':'Dry skin','زيادة الشهية':'Increased appetite',
+  'فقدان الشهية':'Loss of appetite','خفقان القلب':'Heart palpitations',
+  'قلق':'Anxiety','حزن':'Sadness','عصبية':'Irritability','بكاء بسهولة':'Crying easily','حساسية زائدة':'Overly sensitive',
+  'فرح':'Joy','حماس':'Motivation','هدوء':'Calm',
+};
+function termsForPrompt(arr){
+  if(!arr || arr.length===0) return LANG==='en' ? 'none' : 'لا يوجد';
+  if(LANG==='en') return arr.map(t => SYMPTOM_TERMS_EN[t] || t).join(', ');
+  return arr.join(', ');
+}
+function renderRecent(){
+  const el = document.getElementById('recentEntries');
+  if(entries.length===0){
+    el.innerHTML = LANG==='en'
+      ? '<div class="empty">No entries yet — log your first day 🌿</div>'
+      : '<div class="empty">لا توجد تسجيلات بعد — ابدئي بتسجيل يومك الأول 🌿</div>';
+    return;
+  }
+  const reasonLbl = LANG==='en' ? 'Reason:' : 'السبب:';
+  el.innerHTML = entries.slice(0,8).map(e=>`
+    <div class="entry">
+      <div class="top">
+        <span class="date">${e.date}</span>
+        <span class="tags">${e.mood? moodEmoji[e.mood]:''}</span>
+      </div>
+      <div class="tags">${[...e.symptoms,...e.psych].join(' · ')}</div>
+      ${e.feeling? `<div class="note">"${escapeHtml(e.feeling)}"</div>`:''}
+      ${e.trigger? `<div class="note">${reasonLbl} ${escapeHtml(e.trigger)}</div>`:''}
+    </div>
+  `).join('');
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ================= CYCLE PHASE ENGINE (Flo-style) =================
+const PHASES = [
+  {key:'period',
+    name:'الحيض',          nameEn:'Period',
+    desc:'بطانة الرحم تتساقط، قد تشعرين بتشنجات وتعب — وقت مثالي للراحة والاهتمام بنفسك.',
+    descEn:'The uterine lining sheds — you may feel cramps and fatigue. A good time to rest and take care of yourself.',
+    todayExpect:'طاقتك منخفضة اليوم وهذا طبيعي تمامًا. تناولي الدفء، وابتعدي عن الإرهاق. الراحة ليست كسلًا — هي جزء أساسي من دورة جسمك.',
+    todayExpectEn:'Your energy is naturally lower today — that\'s completely normal. Stay warm, avoid overexerting yourself, and know that rest is not laziness; it\'s part of your cycle.'},
+  {key:'postPeriod',
+    name:'بعد الحيض',      nameEn:'Post-period',
+    desc:'الطاقة تبدأ بالارتفاع تدريجيًا مع زيادة هرمون الإستروجين — وقت جيد للنشاط والتركيز.',
+    descEn:'Energy gradually rises as estrogen increases — a good time for activity and focus.',
+    todayExpect:'الجسم يبدأ بالتجدد. ستلاحظين تحسنًا تدريجيًا بالطاقة والمزاج. وقت مناسب لتبدأي نشاطًا لطيفًا أو تخططي لشيء تحبينه.',
+    todayExpectEn:'Your body is beginning to renew. You\'ll likely notice a gradual lift in energy and mood — a good time to ease into gentle activity or plan something you enjoy.'},
+  {key:'preOvulation',
+    name:'قبل التبويض',    nameEn:'Pre-ovulation',
+    desc:'تقتربين من نافذة الخصوبة، قد تلاحظين تحسّن المزاج والثقة بالنفس.',
+    descEn:'You\'re approaching your fertile window — you may notice improved mood and confidence.',
+    todayExpect:'طاقتك في تصاعد ومزاجك مفتوح. ستجدين التواصل مع الآخرين أسهل اليوم. وقت جيد لمواجهة أي تحدٍّ كنتِ تؤجلينه.',
+    todayExpectEn:'Your energy is rising and your mood is open. Social connection comes more naturally today — a good time to tackle something you\'ve been putting off.'},
+  {key:'ovulation',
+    name:'التبويض',        nameEn:'Ovulation',
+    desc:'يوم تحرر البويضة — أعلى نقطة طاقة وحيوية لدى أغلب النساء.',
+    descEn:'The day the egg is released — usually the peak of energy and vitality.',
+    todayExpect:'أنتِ في قمة طاقتك وحيويتك. ثقتك بنفسك عالية، وقدرتك على التواصل والإقناع في أوجّها. استثمري هذا اليوم بشيء يستحق.',
+    todayExpectEn:'You\'re at your energy peak. Confidence is high, communication feels effortless. Make the most of this day — it\'s one of your strongest windows in the cycle.'},
+  {key:'postOvulation',
+    name:'بعد التبويض',    nameEn:'Post-ovulation',
+    desc:'بداية المرحلة الأصفرية، الجسم يستقر تدريجيًا تمهيدًا للدورة القادمة أو الحمل.',
+    descEn:'The start of the luteal phase — the body gradually settles in preparation for the next period or pregnancy.',
+    todayExpect:'الطاقة تبدأ بالانحسار قليلًا، والتركيز الداخلي يزداد. وقت جيد لإنهاء مشاريع قائمة والاهتمام بالتفاصيل بدل بدء أشياء جديدة.',
+    todayExpectEn:'Energy is beginning to ease and inward focus increases. A good time to finish existing projects and attend to detail rather than starting anything new.'},
+  {key:'prePeriod',
+    name:'قبل الحيض',      nameEn:'Pre-period (PMS)',
+    desc:'المرحلة التي تسبق الدورة مباشرة (PMS) — تقلبات مزاجية وأعراض جسدية واردة، كوني لطيفة مع نفسك.',
+    descEn:'The phase right before your period — mood swings and physical symptoms are common. Be gentle with yourself.',
+    todayExpect:'الجسم يستعد للدورة، وقد تشعرين بحساسية زائدة أو ثقل. هذه الأعراض حقيقية وليست مبالغة. اعتني بنفسك، وقللي التوقعات عن نفسك اليوم.',
+    todayExpectEn:'Your body is preparing for your period and you may feel more sensitive or heavy than usual. These symptoms are real, not an overreaction. Lower expectations of yourself today and be kind to yourself.'},
+];
+
+function daysBetween(a,b){ return Math.round((new Date(b)-new Date(a))/86400000); }
+
+function getLatestStart(){
+  if(!cycleSettings || !cycleSettings.starts || cycleSettings.starts.length===0) return null;
+  const sorted = [...cycleSettings.starts].sort();
+  return sorted[sorted.length-1];
+}
+
+function computePhase(dateStr){
+  if(!cycleSettings) return null;
+  const lastStart = getLatestStart();
+  if(!lastStart) return null;
+  const cycleLen = cycleSettings.cycleLen || 28;
+  const periodLen = cycleSettings.periodLen || 5;
+  let dayInCycle = daysBetween(lastStart, dateStr) + 1;
+  // normalize if multiple cycles have passed without a logged new start
+  if(dayInCycle > cycleLen){
+    // keep capped representation but flag overdue
+  }
+  const ovDay = Math.max(periodLen+2, cycleLen-14); // ovulation day estimate
+  let effDay = dayInCycle > cycleLen ? cycleLen : dayInCycle; // cap for phase classification
+  let phaseKey, dayLabel = dayInCycle;
+  if(effDay <= periodLen) phaseKey='period';
+  else if(effDay <= ovDay-4) phaseKey='postPeriod';
+  else if(effDay <= ovDay-1) phaseKey='preOvulation';
+  else if(effDay <= ovDay) phaseKey='ovulation';
+  else if(effDay <= cycleLen-5) phaseKey='postOvulation';
+  else phaseKey='prePeriod';
+
+  const overdue = dayInCycle > cycleLen ? dayInCycle - cycleLen : 0;
+  return { dayInCycle, cycleLen, periodLen, ovDay, phaseKey, overdue };
+}
+
+function getPeriodDatesSet(){
+  // returns set of date strings that fall within a period, based on logged starts
+  const set = new Set();
+  if(!cycleSettings || !cycleSettings.starts) return set;
+  const periodLen = cycleSettings.periodLen || 5;
+  cycleSettings.starts.forEach(s=>{
+    for(let i=0;i<periodLen;i++){
+      const d = new Date(s); d.setDate(d.getDate()+i);
+      set.add(d.toISOString().slice(0,10));
+    }
+  });
+  return set;
+}
+
+function predictNextPeriods(){
+  if(!cycleSettings) return {predicted:[], avgCycle:null, avgPeriodLen:null};
+  const lastStart = getLatestStart();
+  if(!lastStart) return {predicted:[], avgCycle:null, avgPeriodLen:null};
+  const avgCycle = cycleSettings.cycleLen || 28;
+  const avgPeriodLen = cycleSettings.periodLen || 5;
+  let predicted = [];
+  let next = new Date(lastStart); next.setDate(next.getDate()+avgCycle);
+  for(let c=0;c<4;c++){
+    for(let d=0;d<avgPeriodLen;d++){
+      let dd = new Date(next); dd.setDate(dd.getDate()+d);
+      predicted.push(dd.toISOString().slice(0,10));
+    }
+    next.setDate(next.getDate()+avgCycle);
+  }
+  return {predicted, avgCycle, avgPeriodLen};
+}
+
+// ================= WEEKLY FEATURED CONTENT =================
+// كل مدخل يمثل أسبوع واحد — week: رقم الأسبوع في السنة
+// type: 'article' | 'video' | 'podcast'
+// لإضافة أسبوع جديد: أضيفي مدخل جديد في أول المصفوفة بـ week صحيح
+const WEEKLY_CONTENT = [
+  {
+    week: 27, year: 2026,
+    items: [
+      {
+        type: 'article',
+        icon: '🫧',
+        title: { ar:'الانتفاخ والحلول السريعة', en:'Bloating & Quick Solutions' },
+        desc: { ar:'لماذا يحصل الانتفاخ قبل الدورة وكيف تتعاملين معه بخطوات بسيطة.', en:'Why bloating happens before your period and how to manage it in simple steps.' },
+        link: null, // null = يفتح المقال من قسم المقالات
+        articleIndex: 0,
+      },
+      {
+        type: 'video',
+        icon: '🎥',
+        title: { ar:'تمرين مشي 15 دقيقة في المنزل', en:'15-min Home Walking Workout' },
+        desc: { ar:'مقطع مشي خفيف مثالي لأيام التعب والانتفاخ.', en:'A light walking video perfect for tired, bloated days.' },
+        link: 'https://www.youtube.com/watch?v=84hCIHki1TU',
+      },
+      {
+        type: 'podcast',
+        icon: '🎙️',
+        title: { ar:'بودكاست تدبر القرآن', en:'Qurʼan Reflection Podcast' },
+        desc: { ar:'جلسة تدبر هادئة تساعدك تعودي لمركزك الداخلي.', en:'A calm reflection session to help you return to your inner center.' },
+        link: 'https://www.youtube.com/watch?v=stQjp5bJdEA',
+      },
+    ]
+  },
+  {
+    week: 26, year: 2026,
+    items: [
+      {
+        type: 'article',
+        icon: '💞',
+        title: { ar:'احمي علاقاتك في أيام التقلبات', en:'Guard Your Relationships Through Hormonal Shifts' },
+        desc: { ar:'لماذا تتأثر علاقاتك بالهرمونات وكيف تتجنبين المشاكل المتكررة.', en:'Why your relationships are affected by hormones and how to avoid recurring conflicts.' },
+        link: null,
+        articleIndex: 1,
+      },
+      {
+        type: 'video',
+        icon: '✏️',
+        title: { ar:'دروس رسم مجانية للمبتدئين', en:'Free Drawing Lessons for Beginners' },
+        desc: { ar:'الرسم وسيلة علاجية رائعة في أيام التوتر — ابدئي من الصفر.', en:'Drawing is a wonderful therapeutic outlet on stressful days — start from scratch.' },
+        link: 'https://freedrawingcourses.com/#',
+      },
+    ]
+  },
+];
+
+function getISOWeek(date) {
+  const d = new Date(date);
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+  const week1 = new Date(d.getFullYear(), 0, 4);
+  return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+}
+
+function renderWeeklyFeatured() {
+  const now = new Date();
+  const currentWeek = getISOWeek(now);
+  const currentYear = now.getFullYear();
+
+  const eyebrow = document.getElementById('weeklyFeaturedEyebrow');
+  const archiveEyebrow = document.getElementById('archiveEyebrow');
+  if(eyebrow) eyebrow.textContent = LANG==='en' ? "This Week's Highlights" : 'مقتطفات هذا الأسبوع';
+  if(archiveEyebrow) archiveEyebrow.textContent = LANG==='en' ? 'Archive' : 'الأرشيف';
+
+  const toggleBtn = document.getElementById('archiveToggleBtn');
+  if(toggleBtn) toggleBtn.textContent = LANG==='en' ? 'Archive' : 'الأرشيف';
+
+  const currentEntry = WEEKLY_CONTENT.find(w => w.week === currentWeek && w.year === currentYear)
+    || WEEKLY_CONTENT[0]; // fallback للأحدث
+
+  const pastEntries = WEEKLY_CONTENT.filter(w => !(w.week === currentWeek && w.year === currentYear));
+
+  document.getElementById('weeklyFeaturedContent').innerHTML = renderWeeklyItems(currentEntry.items);
+  document.getElementById('archiveContent').innerHTML = pastEntries.length === 0
+    ? `<p style="color:#9b8a92;font-size:13px;">${LANG==='en'?'No archived content yet.':'لا يوجد أرشيف بعد.'}</p>`
+    : pastEntries.map(entry => `
+        <div style="margin-bottom:10px;">
+          <div style="font-size:11px;color:#9b8a92;margin-bottom:6px;">
+            ${LANG==='en'?'Week':'الأسبوع'} ${entry.week} — ${entry.year}
+          </div>
+          ${renderWeeklyItems(entry.items, true)}
+        </div>
+      `).join('<hr style="border:none;border-top:1px solid var(--line);margin:12px 0;">');
+}
+
+function renderWeeklyItems(items, compact=false) {
+  const typeLbl = { article:{ar:'مقال',en:'Article'}, video:{ar:'فيديو',en:'Video'}, podcast:{ar:'بودكاست',en:'Podcast'} };
+  return `<div style="display:flex;flex-direction:column;gap:${compact?'8':'12'}px;">
+    ${items.map(item => `
+      <div style="background:#fff;border:1.5px solid var(--line);border-radius:${compact?'12':'14'}px;padding:${compact?'10':'14'}px 14px;display:flex;gap:12px;align-items:flex-start;cursor:${item.link||item.articleIndex!==undefined?'pointer':'default'};"
+        onclick="${item.link ? `window.open('${item.link}','_blank')` : item.articleIndex !== undefined ? `openArticleModal(${item.articleIndex})` : ''}">
+        <div style="font-size:${compact?'24':'30'}px;flex-shrink:0;">${item.icon}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <span style="font-size:10px;background:var(--cream);color:var(--rose);border-radius:999px;padding:2px 8px;font-weight:700;">
+              ${typeLbl[item.type][LANG]||item.type}
+            </span>
+          </div>
+          <div style="font-size:${compact?'12':'13'}px;font-weight:700;color:var(--plum);margin-bottom:3px;">${LANG==='en'?item.title.en:item.title.ar}</div>
+          ${!compact?`<div style="font-size:12px;color:#6b5a64;line-height:1.5;">${LANG==='en'?item.desc.en:item.desc.ar}</div>`:''}
+        </div>
+        ${item.link||item.articleIndex!==undefined?`<div style="color:var(--rose);font-size:16px;flex-shrink:0;margin-top:2px;">←</div>`:''}
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+document.getElementById('archiveToggleBtn').addEventListener('click', () => {
+  const sec = document.getElementById('archiveSection');
+  const btn = document.getElementById('archiveToggleBtn');
+  const isVisible = sec.style.display !== 'none';
+  sec.style.display = isVisible ? 'none' : 'block';
+  btn.textContent = isVisible
+    ? (LANG==='en' ? 'Archive' : 'الأرشيف')
+    : (LANG==='en' ? 'Hide archive' : 'إخفاء الأرشيف');
+});
+
+// ================= ARTICLES =================
+const ARTICLES = [
+  {
+    illo: '🫧',
+    color: '#E8F4F8',
+    tag: { ar:'الجسم والدورة', en:'Body & Cycle' },
+    title: { ar:'الانتفاخ والحلول السريعة', en:'Bloating & Quick Solutions' },
+    body: {
+      ar: `<p>الانتفاخ قبل الدورة وأثناءها من أكثر الأعراض شيوعًا، وسببه في الغالب تغيّر مستويات هرمون البروجسترون والإستروجين، اللي يؤثران على قدرة الجسم على التخلص من الماء الزائد. الجسم في هذه الفترة يحتجز سوائل أكثر من المعتاد في الأنسجة، مما يعطيك هذا الإحساس بالثقل والانتفاخ.</p>
+      <p><strong>لماذا يحصل هذا؟</strong><br>عند ارتفاع البروجسترون بعد التبويض وانخفاضه قبيل الدورة، يُحفّز الجسم إفراز مادة الألدوستيرون التي تجعله يحتجز الصوديوم (الملح)، وحيث يذهب الصوديوم يذهب الماء — فالنتيجة: انتفاخ. يُضاف إلى ذلك أن البروجسترون يُبطّئ حركة القناة الهضمية، مما يزيد الغازات والإحساس بالامتلاء.</p>
+      <p><strong>حلول سريعة تنجح فعليًا:</strong></p>
+      <p>🚶‍♀️ <strong>المشي لمدة 20 دقيقة</strong> — يحرّك القناة الهضمية بشكل طبيعي ويساعد على طرد الغازات.</p>
+      <p>💧 <strong>شربي الماء أكثر لا أقل</strong> — يبدو عكسيًا لكن الماء يساعد الكلى على التخلص من الصوديوم الزائد وبالتالي السوائل المحتجزة.</p>
+      <p>🧂 <strong>قللي الملح</strong> — خصوصًا الأطعمة المصنّعة والوجبات السريعة في الأيام الأربعة إلى الخمسة التي تسبق الدورة.</p>
+      <p>🍵 <strong>شاي النعناع أو الزنجبيل</strong> — يساعدان على تهدئة التقلصات وتقليل الغازات.</p>
+      <p>🥦 <strong>تجنّبي مؤقتًا</strong> البروكلي والملفوف والبقوليات والمشروبات الغازية في هذه الأيام — مع إنها صحية عمومًا، لكنها تُضاعف الغازات في هذه الفترة.</p>
+      <p>🧘‍♀️ <strong>وضعية "طفل اليوغا"</strong> — الجلوس بهذه الوضعية خمس دقائق يُخفّف ضغط البطن ويساعد في طرد الغازات بشكل لطيف.</p>
+      <p>الانتفاخ الدوري ليس خطأ فيكِ ولا في تغذيتك — هو استجابة بيولوجية طبيعية، ومعظمه يختفي بمجرد نزول الدورة.</p>`,
+      en: `<p>Bloating before and during your period is one of the most common symptoms, and it's mainly caused by shifting levels of progesterone and estrogen — hormones that affect your body's ability to release excess water. During this time, your body retains more fluid than usual in its tissues, creating that familiar heavy, bloated feeling.</p>
+      <p><strong>Why does this happen?</strong><br>When progesterone rises after ovulation and then drops before your period, it triggers the release of aldosterone — a hormone that causes your body to hold onto sodium (salt). Where sodium goes, water follows — so the result is bloating. Progesterone also slows the digestive tract, increasing gas and that "full" sensation.</p>
+      <p><strong>Quick solutions that actually work:</strong></p>
+      <p>🚶‍♀️ <strong>Walk for 20 minutes</strong> — naturally stimulates the digestive tract and helps release gas.</p>
+      <p>💧 <strong>Drink more water, not less</strong> — counterintuitive, but water helps the kidneys flush out excess sodium and the fluid it's holding onto.</p>
+      <p>🧂 <strong>Reduce salt</strong> — especially processed foods and fast food in the four to five days before your period.</p>
+      <p>🍵 <strong>Peppermint or ginger tea</strong> — soothing for cramps and effective at reducing gas.</p>
+      <p>🥦 <strong>Temporarily avoid</strong> broccoli, cabbage, legumes, and fizzy drinks during these days — healthy foods generally, but they amplify gas during this window.</p>
+      <p>🧘‍♀️ <strong>Child's pose</strong> — five minutes in this yoga position relieves abdominal pressure and helps release gas gently.</p>
+      <p>Cyclical bloating is not a flaw in you or your diet — it's a normal biological response, and most of it disappears as soon as your period starts.</p>`
+    }
+  },
+  {
+    illo: '💞',
+    color: '#FDF0F0',
+    tag: { ar:'العلاقات والهرمونات', en:'Relationships & Hormones' },
+    title: { ar:'احمي علاقاتك في أيام التقلبات', en:'Guard Your Relationships Through Hormonal Shifts' },
+    body: {
+      ar: `<p>من أصعب جوانب التقلبات الهرمونية أنها لا تؤثر فقط على كيفية شعورك بنفسك، بل على كيفية معالجتك للكلمات والنظرات والمواقف التي يتصرف بها من حولك. في أيام معينة من الدورة، وبشكل خاص في المرحلة الأصفرية وقبل الحيض، تصبح الحساسية العاطفية أعلى بشكل ملحوظ — ليس ضعفًا، بل تغيّرًا بيولوجيًا فعليًا في كيفية معالجة الدماغ للمعلومات العاطفية.</p>
+      <p><strong>ما الذي يحصل في الدماغ؟</strong><br>عندما ينخفض الإستروجين قبيل الدورة، تنخفض معه مستويات السيروتونين (هرمون السعادة)، مما يجعل ردود فعلك العاطفية أسرع وأقوى. ما كنتِ تتجاوزينه بسهولة في أيام التبويض قد يثير توترًا حقيقيًا في أيام PMS — والسبب كيميائي، ليس شخصيًا.</p>
+      <p><strong>أشياء تنجح فعليًا في حماية علاقاتك:</strong></p>
+      <p>🗓️ <strong>اعرفي موعد هذه الأيام مسبقًا</strong> — عندما تعرفين أن "هذا الأسبوع حساس"، تصبحين أكثر وعيًا برد فعلك الأول قبل التصرف به.</p>
+      <p>💬 <strong>أخبري من تثقين بهم</strong> — ليس شرطًا الشرح المطوّل. جملة بسيطة مثل "أنا هذه الأيام حساسة أكثر من المعتاد" تُهيّئ الطرف الآخر للتعامل بلطف أكبر.</p>
+      <p>⏸️ <strong>أجّلي المواجهات غير العاجلة</strong> — لو فيه موضوع يضايقك في علاقة معينة، لا تجعلي أيام PMS هي وقت إثارته. اكتبيه وعودي إليه بعد الدورة.</p>
+      <p>🤍 <strong>تعلّمي الفرق بين شعور حقيقي وردة فعل كيميائية</strong> — الشعور قد يكون حقيقيًا، لكن شدته قد تكون مُضخّمة هرمونيًا. سأل نفسك: "هل سأشعر بنفس الشدة بعد ثلاثة أيام؟"</p>
+      <p>العلاقات لا تتضرر من الحساسية — تتضرر من ردود الفعل التي نندم عليها لاحقًا. الوعي يمنحك خيارًا.</p>`,
+      en: `<p>One of the hardest aspects of hormonal shifts is that they don't just affect how you feel — they affect how you process the words, looks, and actions of people around you. On certain days of your cycle, particularly during the luteal phase and before your period, emotional sensitivity rises noticeably. This isn't weakness — it's an actual biological change in how the brain processes emotional information.</p>
+      <p><strong>What's happening in your brain?</strong><br>When estrogen drops before your period, serotonin (the mood-regulating neurotransmitter) drops with it, making emotional reactions faster and more intense. What you'd easily brush off during ovulation can feel genuinely upsetting during PMS — and the reason is chemical, not personal.</p>
+      <p><strong>Things that actually work to protect your relationships:</strong></p>
+      <p>🗓️ <strong>Know when these days are coming</strong> — when you know "this week is sensitive," you become more aware of your first reaction before you act on it.</p>
+      <p>💬 <strong>Tell people you trust</strong> — a simple "I'm more sensitive than usual this week" prepares the other person to respond with more care.</p>
+      <p>⏸️ <strong>Postpone non-urgent confrontations</strong> — if something's bothering you in a relationship, PMS days aren't the time to bring it up. Write it down and return to it after your period.</p>
+      <p>🤍 <strong>Learn the difference between a real feeling and a chemical reaction</strong> — the feeling may be real, but its intensity may be hormonally amplified. Ask yourself: "Will I feel this strongly in three days?"</p>
+      <p>Relationships aren't damaged by sensitivity — they're damaged by reactions we regret later. Awareness gives you a choice.</p>`
+    }
+  },
+  {
+    illo: '🪞',
+    color: '#F0F8F0',
+    tag: { ar:'الصحة النفسية', en:'Mental Wellbeing' },
+    title: { ar:'افهمي نفسك وتصالحي معها', en:'Understand Yourself & Make Peace with Who You Are' },
+    body: {
+      ar: `<p>واحدة من أكثر الجمل التي تكررت في أبحاث علم النفس الإيجابي هي: "معظم المعاناة النفسية لا تأتي من الحياة نفسها، بل من المسافة بين ما نتوقعه من أنفسنا وما نحن عليه فعلًا." بمعنى آخر، كثير من التعب العاطفي الذي تشعرين به لا يأتي من ظروفك — يأتي من حكمك على نفسك بسبب هذه الظروف.</p>
+      <p><strong>الوعي الذاتي ليس نقدًا ذاتيًا</strong><br>كثيرًا ما نخلط بين فهم النفس والجلد الذاتي. فهم النفس يعني مراقبة أنماطك باهتمام وفضول، مثلما تراقبين غريبة تجدينها مثيرة للاهتمام — لا بعيون قاضٍ. لماذا أتصرف هكذا في المواقف الضاغطة؟ لماذا يؤثر في هذا الشيء بالتحديد وليس ذاك؟ ما الذي تحاول هذه ردة الفعل أن تقوله لي؟</p>
+      <p><strong>التصالح لا يعني القبول بكل شيء</strong><br>التصالح مع النفس لا يعني "أنا بخير مع كل ما أفعله." يعني: "أنا أرى نفسي بوضوح، وأعترف بما يحتاج إلى تغيير، وفي نفس الوقت لا أجعل أخطائي تُعرّف قيمتي." هذا التوازن الدقيق — بين المساءلة واللطف مع الذات — هو ما يُميّز الصحة النفسية الحقيقية عن الإنكار أو الجلد الذاتي.</p>
+      <p><strong>خطوة عملية:</strong><br>في المرة القادمة التي تضايقين فيها نفسك بسبب تصرف أو شعور، جرّبي أن تسأل: "لو صديقة مقرّبة جدًا أخبرتني بنفس الموقف، ماذا كنت سأقول لها؟" ثم قولي لنفسك نفس الشيء. الفجوة بين ما نقوله للآخرين وما نقوله لأنفسنا هي مكان كثير من الجرح الداخلي.</p>
+      <p>فهم النفس رحلة، وليست وجهة. كل يوم سجّلتِ فيه ما تشعرين به — حتى لو بجملة واحدة — هو خطوة حقيقية في هذه الرحلة.</p>`,
+      en: `<p>One of the most repeated findings in positive psychology research is: "Most psychological suffering doesn't come from life itself — it comes from the gap between what we expect of ourselves and what we actually are." In other words, much of the emotional exhaustion you feel doesn't come from your circumstances — it comes from how you judge yourself because of those circumstances.</p>
+      <p><strong>Self-awareness is not self-criticism</strong><br>We often confuse understanding ourselves with attacking ourselves. Understanding yourself means observing your own patterns with curiosity and interest — the way you'd observe someone fascinating, not through the eyes of a judge. Why do I act this way under pressure? Why does this particular thing affect me and not that? What is this reaction trying to tell me?</p>
+      <p><strong>Making peace doesn't mean accepting everything</strong><br>Making peace with yourself doesn't mean "I'm fine with everything I do." It means: "I see myself clearly, I acknowledge what needs to change, and at the same time I won't let my mistakes define my worth." This delicate balance — between accountability and self-compassion — is what separates genuine mental health from both denial and self-attack.</p>
+      <p><strong>One practical step:</strong><br>The next time you're harsh with yourself about a feeling or action, try asking: "If a close friend told me about this same situation, what would I say to her?" Then say the same thing to yourself. The gap between what we say to others and what we say to ourselves is where a lot of inner hurt lives.</p>
+      <p>Understanding yourself is a journey, not a destination. Every day you log how you feel — even in just one sentence — is a real step on that journey.</p>`
+    }
+  },
+  {
+    illo: '🌹',
+    color: '#FEF0F6',
+    tag: { ar:'الهرمونات والمشاعر', en:'Hormones & Feelings' },
+    title: { ar:'لماذا نشتاق للحب في أيام معينة؟', en:'Why We Crave Love & Connection on Certain Days' },
+    body: {
+      ar: `<p>إذا لاحظتِ أن رغبتك في القرب من الآخرين، أو حاجتك للتعبير عن المشاعر أو استقبالها، تتفاوت بشكل ملحوظ خلال الشهر — فأنتِ لا تتخيّلين. هذا التفاوت حقيقي تمامًا، وله تفسير هرموني واضح.</p>
+      <p><strong>أيام التبويض: قمة الانجذاب والاتصال</strong><br>في منتصف الدورة تقريبًا، يرتفع هرمون الإستروجين والتستوستيرون معًا لدى المرأة، وهذا يُحفّز دوائر الدماغ المرتبطة بالمكافأة والاتصال الاجتماعي. تصبحين أكثر انجذابًا للآخرين وأكثر رغبة في الاقتراب منهم — وهذا من الناحية التطورية منطقي تمامًا، لأن هذه هي أيام الخصوبة.</p>
+      <p><strong>أيام ما قبل الحيض: الحاجة للأمان والتواصل</strong><br>في المرحلة الأصفرية (بعد التبويض)، يرتفع البروجسترون الذي يُهيّئ الجسم للحمل المحتمل. يُرافق ذلك ارتفاع في الحاجة للأمان والتواصل العاطفي — ليس بالضرورة بالمعنى الرومانسي، بل بمعنى الحاجة للشعور بأنك محبوبة ومفهومة ومدعومة.</p>
+      <p><strong>ماذا تفعل بهذه المعلومة؟</strong><br>أولًا: لا تشعري بالخجل. هذه ليست "ضعفًا" أو "احتياجًا مبالغًا فيه" — هي استجابة طبيعية لتغيّرات كيميائية حقيقية في جسمك.<br>ثانيًا: إذا كنتِ في علاقة، يمكنك أن تخبري شريكك باحتياجك للقرب في هذه الأيام — الوضوح أفضل من التوقع الضمني.<br>ثالثًا: إذا لم تكوني في علاقة، هذه الأيام قد تكون مناسبة لقضاء وقت مع صديقات أو أشخاص تشعرين معهم بالاتصال الحقيقي.</p>
+      <p>فهم "لماذا" يُغيّر علاقتك مع "ماذا تشعرين." عندما تعرفين أن هذا الاشتياق له سبب بيولوجي، يصبح أقل إرهاقًا وأكثر قابلية للتعامل معه بحكمة.</p>`,
+      en: `<p>If you've noticed that your need for closeness, your desire to express or receive affection, and your pull toward connection seem to shift noticeably across the month — you're not imagining things. This variation is entirely real, and it has a clear hormonal explanation.</p>
+      <p><strong>Around ovulation: the peak of attraction and connection</strong><br>In the middle of your cycle, both estrogen and testosterone rise together, activating the brain's reward and social bonding circuits. You become more drawn to others and more open to closeness — and from an evolutionary standpoint, this makes complete sense, because these are your fertile days.</p>
+      <p><strong>Pre-period days: the need for safety and emotional belonging</strong><br>During the luteal phase (after ovulation), progesterone rises as the body prepares for possible pregnancy. This comes with a heightened need for security and emotional connection — not necessarily in a romantic sense, but in the sense of needing to feel loved, understood, and supported.</p>
+      <p><strong>What to do with this information?</strong><br>First: don't feel embarrassed. This isn't weakness or excessive neediness — it's a natural response to real chemical shifts in your body.<br>Second: if you're in a relationship, you can tell your partner you need more closeness during these days. Clarity beats silent expectation every time.<br>Third: if you're not in a relationship, these days may be a good time to spend with friends or people you feel genuinely connected to.</p>
+      <p>Understanding "why" changes your relationship with "what you feel." When you know that this longing has a biological reason, it becomes less overwhelming and more something you can navigate with wisdom.</p>`
+    }
+  },
+  {
+    illo: '🌙',
+    color: '#EAF2F8',
+    tag: { ar:'الإيمان والجسد', en:'Faith & Body' },
+    title: { ar:'تقلباتك رحمة — رحلة مقدسة ونظام إلهي', en:'Your Hormonal Shifts Are a Sacred Design' },
+    body: {
+      ar: `<p>خلق الله سبحانه وتعالى جسم المرأة بنظام فريد، يتغير طوال الشهر مثل فصول السنة الأربعة. هذه التقلبات المزاجية والجسدية ليست عشوائية، وليست عيبًا أو نقصًا، بل هي تصميم إلهي متقن ومهيّأ خصيصًا لحمل أمانة الخلق والإنجاب. إنها رحلة مستمرة من العطاء والتجدد تتطلب تضحية كبيرة، ولكنها تحمل في طياتها رسالة عظيمة.</p>
+      <p><strong>🌸 مرحلة الربيع — النشاط والعطاء</strong><br>يرتفع هرمون الإستروجين بعد الدورة الشهرية، فتشعرين بطاقة عالية وصفاء ذهني ورغبة في الإنجاز. وقت الشكر بالعمل الصالح، واستغلال هذه الطاقة في العبادة وخدمة من حولك.</p>
+      <p><strong>☀️ مرحلة الصيف — الخصوبة والتواصل</strong><br>تصل الهرمونات إلى ذروتها وقت التبويض. أنتِ في أعلى مستويات التواصل والقدرة على العطاء والتعاطف. يوم جيد لمن تحبين.</p>
+      <p><strong>🍂 مرحلة الخريف — الانسحاب والتأمل</strong><br>ينخفض الإستروجين ويرتفع البروجسترون. جسمك يهدأ ويتجه للداخل. وقت الذكر، وطلب الرفق من الله ومن نفسك.</p>
+      <p><strong>❄️ مرحلة الشتاء — التجدد والراحة</strong><br>وهي فترة الحيض، حيث تنخفض الهرمونات إلى أدنى مستوياتها، ويحتاج جسدك إلى الراحة التامة لإعادة بناء نفسه. إذا لم تمتلكي القدرة الجسدية أو النفسية، فيكفي أن تلجئي للاستماع إلى الأذكار والقرآن الكريم — فالسماع عبادة تريح القلب.</p>
+      <p><strong>💡 افهمي نفسك واشتركي معه في الرحلة</strong><br>سجّلي نمطك الشهري بدقة: مشاعرك، أعراضك، طاقتك. ستكتشفين مثلًا أن العصبية تبدأ دائمًا قبل الدورة بأيام معينة، أو أن طاقتك تبلغ ذروتها في الأسبوع الثاني. وعندما تفهمين هذا النمط، شاركي زوجك أو من تعيشين معهم بوضوح: <em>"أنا الآن في أسبوع الخريف الهرموني، وأحتاج دعمك."</em> هذا الوضوح يحول التقلبات من سبب للخلاف إلى لغة مشتركة للتفاهم.</p>
+      <p>جسدك ومشاعرك أمانة. فهمك لهذا النظام الإلهي يحول التعب إلى عبادة، والتقلبات إلى فرصة لعمق التواصل مع الله ومع من تحبين.</p>`,
+      en: `<p>Allah created the female body with a unique system that changes throughout the month like the four seasons of the year. These emotional and physical shifts are not random, not a flaw, not a deficiency — they are a precise divine design, specifically fitted to carry the sacred trust of creation and nurturing. They are an ongoing journey of giving and renewal, demanding great sacrifice, but carrying within them a profound meaning.</p>
+      <p><strong>🌸 Spring — Energy & Giving</strong><br>Estrogen rises after your period, bringing high energy, mental clarity, and a drive to accomplish. A time to thank God through good deeds, and to channel this energy into worship and caring for those around you.</p>
+      <p><strong>☀️ Summer — Fertility & Connection</strong><br>Hormones peak around ovulation. You're at your highest levels of communication, generosity, and empathy. A good day to invest in the people you love.</p>
+      <p><strong>🍂 Autumn — Withdrawal & Reflection</strong><br>Estrogen falls, progesterone rises. Your body quiets and turns inward. A time for dhikr, and for asking gentleness from God and from yourself.</p>
+      <p><strong>❄️ Winter — Renewal & Rest</strong><br>During your period, hormones reach their lowest, and your body needs full rest to rebuild itself. If you don't have the physical or emotional capacity for reading or prayer, it is enough to listen to athkar and the Quran — for listening is worship that settles the heart.</p>
+      <p><strong>💡 Understand yourself — then share the journey</strong><br>Track your monthly pattern carefully: your feelings, symptoms, energy levels. You'll discover, for example, that irritability always starts a certain number of days before your period, or that your energy peaks in the second week. Once you understand this pattern, share it clearly with your spouse or those you live with: <em>"I'm in my hormonal autumn week — I need your support."</em> This clarity turns shifts from a source of conflict into a shared language of understanding.</p>
+      <p>Your body and emotions are a trust. Understanding this divine system turns exhaustion into worship, and shifts into an opportunity for deeper connection with God and with the people you love.</p>`
+    }
+  },
+  {
+    illo: '📔',
+    color: '#F5F0FA',
+    tag: { ar:'المراهقة والنمو', en:'Adolescence & Growth' },
+    title: { ar:'مذكرات مراهقة.. أنا حزينة', en:"A Teenager's Diary... I'm Sad" },
+    body: {
+      ar: `<p style="font-style:italic;color:#7A5A8A;font-size:13px;margin-bottom:16px;">مذكرات سريّة جداً — إلى الفتاة التي تشعر أن كل شيء ينهار من حولها</p>
+      <p>تشعري أن كل شيء ينهار أمامكِ ولا تعودي تعرفي نفسكِ؟ مرحباً بكِ في غرفتكِ، حيث الأفكار تتسارع، والدموع تنزل أحياناً بدون سبب واضح، وحيث تنظري في المرآة وتتساءلي: "من هذه الفتاة؟ ولماذا تغيرت حياتي هكذا فجأة؟" إذا كنتِ تشعري أنكِ تعيشين داخل إعصار، فلستِ وحدكِ. هذه ليست النهاية، بل هي بداية أعظم تحول في حياتكِ.</p>
+      <p><strong>من مذكراتي: "أبكي على كل شيء.. ولا أعرف كيف أرفع نفسيتي!"</strong><br>وجدتُ نفسي مستيقظة في منتصف الليل، والدموع تنهمر دون أي سبب واضح. فجأة بدأتُ أستحضر الماضي كله — مواقف قديمة، وكلمات عابرة قيلت لي قبل سنوات. غمرني شعور غريب بأنني وحيدة تماماً في هذا العالم، حتى وأنا وسط عائلتي التي تحبني.</p>
+      <p><strong>لماذا الهرمونات تُغير مزاجي وتجعلني أسترجع الأحزان؟</strong><br>الهرمونات ليست مجرد مواد كيميائية لتغيير ملامح الجسد — هي موجات تسونامي تُعيد ترتيب الدماغ. عندما تنخفض الهرمونات فجأة، يسحب هذا الانخفاض كيمياء السعادة من دماغكِ، فيصبح عقلكِ أشبه بمغناطيس يبحث عن أي فكرة حزينة أو موقف قديم ليفسر به سبب هذا الضيق. لكن ثقي تماماً: هذا الإعصار سيمر.</p>
+      <p><strong>لماذا أشعر بالوحدة وأنا وسط عائلتي؟</strong><br>لأن عقلكِ ينسلخ الآن عن مرحلة الطفولة ويبحث عن هويتكِ المستقلة. تريدين أن يعاملكِ الناس كشخص واعٍ، وفي نفس الوقت تحنين لأمان الطفولة. هذا التناقض يولّد شعوراً بالفراغ والوحدة — لكن الحقيقة أن كل الفتيات في عمركِ يخضن نفس المعركة الصامتة خلف أبواب غرفهن.</p>
+      <p><strong>لماذا أشعر أن الكل أعدائي؟</strong><br>لأن مركز العواطف في دماغكِ ينضج الآن أسرع من مركز العقل والتحليل. يفسّر دماغكِ نصائح والديكِ على أنها هجوم — الأمر ليس لأنهم يكرهونكِ، بل لأن نظارتكِ المشاعرية تُكبّر الأمور وتجعلها حادة.</p>
+      <p><strong>كيف قدرت أساعد نفسي خطوة بخطوة؟</strong></p>
+      <p>🎧 <strong>تدبّر القرآن في لحظات الانكسار</strong> — كنتُ أضع سماعاتي وأستمع للقرآن والأذكار وأقول لنفسي: "رب الهرمونات والتقلبات هو الذي خلقني، وهو يعلم عمق حزني الآن دون أن أتكلم." سماع الآيات كان يرمم قلبي المكسور.</p>
+      <p>📚 <strong>تعلّمي مهارة أو لغة جديدة</strong> — بدلاً من البقاء في السرير وتقليب الهاتف، كنتُ أجبر نفسي على النهوض. فتحتُ تطبيقات لتعلم لغة جديدة، تعلمتُ التصميم والتطريز، وقرأتُ كتب تطوير الذات. التعلم يعيد توجيه مسارات الدماغ بعيداً عن الحزن.</p>
+      <p>💛 <strong>التوقف مش فشل</strong> — كنتُ أبدأ في تعلم لغة ولا أكملها، وأبدأ في دورة وأتوقف في منتصفها. في البداية جلدتُ ذاتي، ثم فهمتُ أن هذا عادي جداً! المهم أنني بدأتُ وحاولتُ ولم أستسلم للركود.</p>
+      <p style="border-right:3px solid #9A6AAA;padding-right:14px;margin-top:18px;color:#5A3F6A;font-style:italic;">أنتِ لستِ مكسورة، ولستِ سيئة، ولستِ وحدكِ في هذا البكاء المفاجئ. أنتِ تنموين وتزهرين فقط — والنمو أحياناً يكون مؤلماً. كوني رحيمة بنفسكِ، وتذكري أن الله يصنع منكِ الآن امرأة قوية، واعية، وذات أثر.</p>`,
+      en: `<p style="font-style:italic;color:#7A5A8A;font-size:13px;margin-bottom:16px;">A very private diary — to the girl who feels like everything is falling apart</p>
+      <p>Do you feel like everything is collapsing and you no longer recognize yourself? Welcome to your room — where thoughts race, tears fall sometimes for no clear reason, and you look in the mirror and ask: "Who is this girl? Why has my life suddenly changed like this?" If you feel like you're living inside a storm, you are not alone. This is not the end — it's the beginning of the greatest transformation of your life.</p>
+      <p><strong>From my diary: "I cry over everything and I don't know how to lift myself up"</strong><br>I found myself awake in the middle of the night, tears streaming down for no clear reason. Suddenly I started replaying the past — old situations, passing words someone said to me years ago. A strange feeling washed over me that I was completely alone in this world, even surrounded by a family that loves me.</p>
+      <p><strong>Why do hormones change my mood and pull up old sadness?</strong><br>Hormones aren't just chemicals that change your body's features — they're tsunamis that reorganize the brain. When hormones drop suddenly, they pull happiness chemistry out of your brain, making your mind act like a magnet searching for any sad thought or old memory to explain the discomfort. But trust this completely: this storm will pass.</p>
+      <p><strong>Why do I feel lonely even surrounded by my family?</strong><br>Because your mind is separating from childhood right now and searching for your independent identity. You want people to treat you as a self-aware person, and at the same time you long for the safety of childhood. This contradiction creates a feeling of emptiness and loneliness — but the truth is every girl your age is fighting the same silent battle behind their bedroom door.</p>
+      <p><strong>Why do I sometimes feel like everyone is against me?</strong><br>Because the emotional center of your brain is maturing faster than the reasoning center. Your brain interprets your parents' advice as an attack — not because they dislike you, but because your emotional lens right now magnifies everything and makes it feel sharp.</p>
+      <p><strong>How I helped myself, one step at a time:</strong></p>
+      <p>🎧 <strong>Reflecting on the Quran in moments of brokenness</strong> — I'd put my headphones in and listen to Quran and adhkar, telling myself: "The One who created hormones and shifts knows the depth of my sadness right now without me saying a word." Listening to the verses repaired my broken heart and reminded me I was not alone.</p>
+      <p>📚 <strong>Learn a new skill or language</strong> — Instead of staying in bed scrolling (which deepens sadness), I forced myself to get up and direct that intense energy toward learning. Free apps for a new language, design basics, embroidery, self-development books. Learning rewires the brain away from sadness.</p>
+      <p>💛 <strong>Stopping is not failure</strong> — I'd start learning a language and not finish it, start a course and stop halfway. At first I blamed myself, then I understood this is completely normal. What matters is that I started, tried, and moved — I didn't surrender to staying still.</p>
+      <p style="border-left:3px solid #9A6AAA;padding-left:14px;margin-top:18px;color:#5A3F6A;font-style:italic;">You are not broken, you are not bad, you are not alone in this sudden crying. You are growing and blossoming — and growth is sometimes painful. Be gentle with yourself, and remember that God is making you, right now, into a strong, aware woman who leaves her mark.</p>`
+    }
+  },
+];
+
+// SVG cover art definitions per article
+const ARTICLE_COVERS = [
+  // 0: Bloating — water/bubbles on teal-sage gradient
+  `<svg viewBox="0 0 148 110" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="cg0" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#B5D5D0"/><stop offset="100%" stop-color="#7BAAA6"/></linearGradient></defs>
+    <rect width="148" height="110" fill="url(#cg0)"/>
+    <circle cx="40" cy="70" r="28" fill="rgba(255,255,255,.12)"/>
+    <circle cx="110" cy="40" r="22" fill="rgba(255,255,255,.10)"/>
+    <circle cx="74" cy="85" r="14" fill="rgba(255,255,255,.15)"/>
+    <circle cx="120" cy="88" r="9" fill="rgba(255,255,255,.10)"/>
+    <circle cx="25" cy="30" r="10" fill="rgba(255,255,255,.13)"/>
+    <circle cx="60" cy="28" r="6" fill="rgba(255,255,255,.18)"/>
+    <circle cx="90" cy="60" r="4" fill="rgba(255,255,255,.20)"/>
+    <line x1="30" y1="55" x2="120" y2="55" stroke="rgba(255,255,255,.18)" stroke-width="1" stroke-dasharray="4 6"/>
+  </svg>`,
+  // 1: Relationships — interlocking circles on warm rose gradient
+  `<svg viewBox="0 0 148 110" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="cg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#C97B84"/><stop offset="100%" stop-color="#E8A0A8"/></linearGradient></defs>
+    <rect width="148" height="110" fill="url(#cg2)"/>
+    <circle cx="62" cy="52" r="28" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+    <circle cx="88" cy="52" r="28" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+    <ellipse cx="75" cy="52" rx="10" ry="22" fill="rgba(255,255,255,.22)"/>
+    <path d="M74 30 Q78 22 82 30" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>
+    <path d="M74 74 Q78 82 82 74" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>
+    <circle cx="30" cy="20" r="4" fill="rgba(255,255,255,.2)"/>
+    <circle cx="118" cy="88" r="5" fill="rgba(255,255,255,.18)"/>
+  </svg>`,
+  // 3: Know yourself — mirror/reflection on soft gold gradient
+  `<svg viewBox="0 0 148 110" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="cg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#D4A96A"/><stop offset="100%" stop-color="#8A9B7E"/></linearGradient></defs>
+    <rect width="148" height="110" fill="url(#cg3)"/>
+    <ellipse cx="74" cy="48" rx="26" ry="32" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2"/>
+    <ellipse cx="74" cy="48" rx="18" ry="24" fill="rgba(255,255,255,.18)"/>
+    <rect x="68" y="78" width="12" height="16" rx="3" fill="rgba(255,255,255,.35)"/>
+    <rect x="56" y="93" width="36" height="5" rx="2.5" fill="rgba(255,255,255,.35)"/>
+    <line x1="40" y1="15" x2="60" y2="22" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
+    <line x1="108" y1="15" x2="90" y2="22" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
+    <circle cx="30" cy="75" r="6" fill="rgba(255,255,255,.15)"/>
+    <circle cx="118" cy="30" r="5" fill="rgba(255,255,255,.15)"/>
+  </svg>`,
+  // 4: Love craving — heart waves on deep terracotta gradient
+  `<svg viewBox="0 0 148 110" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="cg4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#B5573F"/><stop offset="100%" stop-color="#D4876A"/></linearGradient></defs>
+    <rect width="148" height="110" fill="url(#cg4)"/>
+    <path d="M74 72 C74 72 42 54 42 38 C42 28 52 22 62 30 C66 33 70 37 74 42 C78 37 82 33 86 30 C96 22 106 28 106 38 C106 54 74 72 74 72Z" fill="rgba(255,255,255,.28)" stroke="rgba(255,255,255,.5)" stroke-width="1"/>
+    <path d="M20 60 Q37 52 54 60 Q71 68 88 60 Q105 52 122 60" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>
+    <path d="M20 75 Q37 67 54 75 Q71 83 88 75 Q105 67 122 75" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/>
+    <circle cx="25" cy="25" r="4" fill="rgba(255,255,255,.2)"/>
+    <circle cx="125" cy="90" r="5" fill="rgba(255,255,255,.18)"/>
+    <circle cx="118" cy="20" r="2.5" fill="rgba(255,255,255,.25)"/>
+  </svg>`,
+  // 5: Divine hormonal journey — crescent + rays on deep teal-blue gradient
+  `<svg viewBox="0 0 148 110" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="cg5" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1A3A5C"/><stop offset="100%" stop-color="#2D6E7A"/></linearGradient>
+    </defs>
+    <rect width="148" height="110" fill="url(#cg5)"/>
+    <!-- soft radial glow -->
+    <circle cx="74" cy="50" r="38" fill="rgba(255,255,255,.05)"/>
+    <!-- crescent moon -->
+    <circle cx="74" cy="46" r="22" fill="rgba(255,255,255,.28)"/>
+    <circle cx="84" cy="40" r="18" fill="url(#cg5)"/>
+    <!-- light rays -->
+    <line x1="74" y1="8" x2="74" y2="18" stroke="rgba(255,255,255,.35)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="104" y1="18" x2="97" y2="25" stroke="rgba(255,255,255,.28)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="114" y1="46" x2="104" y2="46" stroke="rgba(255,255,255,.28)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="44" y1="18" x2="51" y2="25" stroke="rgba(255,255,255,.28)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="34" y1="46" x2="44" y2="46" stroke="rgba(255,255,255,.28)" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- dots / stars -->
+    <circle cx="30" cy="22" r="1.5" fill="rgba(255,255,255,.5)"/>
+    <circle cx="118" cy="28" r="1.2" fill="rgba(255,255,255,.45)"/>
+    <circle cx="55" cy="14" r="1" fill="rgba(255,255,255,.4)"/>
+    <circle cx="100" cy="10" r="1.3" fill="rgba(255,255,255,.42)"/>
+    <!-- bottom wave -->
+    <path d="M14 80 Q37 70 60 80 Q83 90 106 80 Q125 72 140 78" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5"/>
+    <path d="M14 92 Q37 82 60 92 Q83 102 106 92 Q125 84 140 90" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="1.5"/>
+  </svg>`,
+  // 5: Teenage diary — notebook, heart doodle, stars, soft purple night
+  `<svg viewBox="0 0 148 110" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="cg6" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4A3060"/><stop offset="100%" stop-color="#9A6AAA"/></linearGradient>
+    </defs>
+    <rect width="148" height="110" fill="url(#cg6)"/>
+    <rect x="36" y="22" width="58" height="72" rx="4" fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.4)" stroke-width="1.2"/>
+    <rect x="36" y="22" width="8" height="72" rx="3" fill="rgba(255,255,255,.12)"/>
+    <line x1="50" y1="40" x2="86" y2="40" stroke="rgba(255,255,255,.25)" stroke-width="1"/>
+    <line x1="50" y1="50" x2="86" y2="50" stroke="rgba(255,255,255,.25)" stroke-width="1"/>
+    <line x1="50" y1="60" x2="86" y2="60" stroke="rgba(255,255,255,.25)" stroke-width="1"/>
+    <line x1="50" y1="70" x2="86" y2="70" stroke="rgba(255,255,255,.25)" stroke-width="1"/>
+    <line x1="50" y1="80" x2="76" y2="80" stroke="rgba(255,255,255,.20)" stroke-width="1"/>
+    <path d="M72 33 C72 33 65 28 65 34 C65 37 68 40 72 44 C76 40 79 37 79 34 C79 28 72 33 72 33Z" fill="rgba(255,255,255,.45)"/>
+    <circle cx="108" cy="30" r="2" fill="rgba(255,255,255,.5)"/>
+    <circle cx="118" cy="50" r="1.5" fill="rgba(255,255,255,.4)"/>
+    <circle cx="112" cy="68" r="1.2" fill="rgba(255,255,255,.35)"/>
+    <circle cx="24" cy="45" r="1.5" fill="rgba(255,255,255,.35)"/>
+    <circle cx="18" cy="70" r="1" fill="rgba(255,255,255,.3)"/>
+    <circle cx="122" cy="20" r="8" fill="rgba(255,255,255,.2)"/>
+    <circle cx="126" cy="17" r="6" fill="url(#cg6)"/>
+  </svg>`,
+];
+
+// gradient per article for the title text
+const ARTICLE_TITLE_GRADS = [
+  'linear-gradient(135deg,#5A9A94,#2E7A74)',
+  'linear-gradient(135deg,#9A4A54,#C97B84)',
+  'linear-gradient(135deg,#8A7340,#5A8A52)',
+  'linear-gradient(135deg,#8A3A24,#C97B60)',
+  'linear-gradient(135deg,#1A3A5C,#2D6E7A)',
+  'linear-gradient(135deg,#4A3060,#9A6AAA)',
+];
+
+function renderArticles(){
+  const scroll = document.getElementById('articlesScroll');
+  if(!scroll) return;
+  const eyebrow = document.getElementById('eyebrowArticles');
+  if(eyebrow) eyebrow.textContent = LANG==='en' ? 'Articles to help you understand your body' : 'مقالات تساعدك تفهمي جسمك';
+  scroll.innerHTML = ARTICLES.map((a,i) => `
+    <div class="article-card" onclick="openArticleModal(${i})">
+      <div class="art-cover">${ARTICLE_COVERS[i]||''}</div>
+      <div class="art-body">
+        <div class="art-title" style="--grad:${ARTICLE_TITLE_GRADS[i]};background:${ARTICLE_TITLE_GRADS[i]};-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${LANG==='en'?a.title.en:a.title.ar}</div>
+        <div class="art-tag">${LANG==='en'?a.tag.en:a.tag.ar}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openArticleModal(index){
+  const a = ARTICLES[index];
+  document.getElementById('articleModalIllo').innerHTML = ARTICLE_COVERS[index]
+    ? `<div style="width:80px;height:80px;border-radius:14px;overflow:hidden;display:inline-block;vertical-align:middle;margin-bottom:8px;">${ARTICLE_COVERS[index]}</div>`
+    : a.illo;
+  document.getElementById('articleModalTitle').textContent = LANG==='en' ? a.title.en : a.title.ar;
+  document.getElementById('articleModalTitle').style.background = ARTICLE_TITLE_GRADS[index]||'';
+  document.getElementById('articleModalTitle').style.webkitBackgroundClip = 'text';
+  document.getElementById('articleModalTitle').style.webkitTextFillColor = 'transparent';
+  document.getElementById('articleModalTitle').style.backgroundClip = 'text';
+  document.getElementById('articleModalBody').innerHTML = LANG==='en' ? a.body.en : a.body.ar;
+  document.getElementById('articleModalOverlay').style.display = 'flex';
+}
+document.getElementById('articleModalClose').addEventListener('click', ()=>{
+  document.getElementById('articleModalOverlay').style.display = 'none';
+});
+
+function renderGreeting(){
+  if(!currentUser) return;
+  const name = currentUser.name || (currentUser.email ? currentUser.email.split('@')[0] : '');
+  document.getElementById('greetingName').textContent = name;
+  document.getElementById('greetingHi').childNodes[0].textContent = LANG==='en' ? 'Hi, ' : 'مرحبًا، ';
+}
+
+function openProfileOverlay(){
+  document.getElementById('profileName').value = currentUser ? (currentUser.name||'') : '';
+  document.getElementById('profileEmail').value = currentUser ? (currentUser.email||'') : '';
+  document.getElementById('profileAge').value = (cycleSettings && cycleSettings.age) ? cycleSettings.age : '';
+  document.getElementById('profileError').style.display = 'none';
+  document.getElementById('profileOverlay').style.display = 'flex';
+}
+document.getElementById('profileSettingsBtn').addEventListener('click', openProfileOverlay);
+document.getElementById('profileCancel').addEventListener('click', ()=>{
+  document.getElementById('profileOverlay').style.display = 'none';
+});
+
+document.getElementById('profileSave').addEventListener('click', async ()=>{
+  const name = document.getElementById('profileName').value.trim();
+  const email = document.getElementById('profileEmail').value.trim();
+  const age = parseInt(document.getElementById('profileAge').value) || null;
+  const errEl = document.getElementById('profileError');
+  errEl.style.display = 'none';
+
+  if(!email){
+    errEl.textContent = LANG==='en' ? 'Email cannot be empty.' : 'البريد الإلكتروني لا يمكن أن يكون فاضي.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('profileSave');
+  const original = btn.textContent;
+  btn.textContent = LANG==='en' ? 'Saving...' : 'جارٍ الحفظ...';
+  btn.disabled = true;
+
+  try{
+    await apiUpdateProfile(name, email);
+    if(cycleSettings){
+      cycleSettings.age = age;
+      await saveCycleSettings();
+    }
+    document.getElementById('profileOverlay').style.display = 'none';
+    renderGreeting();
+  }catch(e){
+    errEl.textContent = e.message || (LANG==='en' ? 'Something went wrong.' : 'حدث خطأ ما.');
+    errEl.style.display = 'block';
+  }finally{
+    btn.textContent = original;
+    btn.disabled = false;
+  }
+});
+
+function renderPhaseCard(){
+  const phaseInfo = computePhase(new Date().toISOString().slice(0,10));
+  if(!phaseInfo){
+    document.getElementById('onboardOverlay').style.display='flex';
+    return;
+  }
+  document.getElementById('onboardOverlay').style.display='none';
+  const p = PHASES.find(x=>x.key===phaseInfo.phaseKey);
+
+  // ---- countdown: days until next period ----
+  const daysUntilPeriod = phaseInfo.overdue > 0
+    ? 0
+    : Math.max(0, phaseInfo.cycleLen - phaseInfo.dayInCycle + 1);
+
+  const countdownNum = document.getElementById('countdownNum');
+  const countdownLbl = document.getElementById('countdownLbl');
+
+  if(phaseInfo.phaseKey === 'period'){
+    countdownNum.textContent = '🩸';
+    countdownLbl.textContent = LANG==='en' ? 'Period days' : 'أيام الحيض';
+  } else if(phaseInfo.overdue > 0){
+    countdownNum.textContent = phaseInfo.overdue;
+    countdownLbl.textContent = LANG==='en' ? 'days late' : 'يوم تأخر';
+  } else {
+    countdownNum.textContent = daysUntilPeriod;
+    countdownLbl.textContent = LANG==='en' ? 'days to period' : 'يومًا للدورة';
+  }
+
+  // ---- phase name, day label, description ----
+  if(LANG==='en'){
+    document.getElementById('phaseDayNo').textContent =
+      phaseInfo.overdue>0
+        ? `Day ${phaseInfo.dayInCycle} of cycle — ${phaseInfo.overdue} day(s) late`
+        : `Day ${phaseInfo.dayInCycle} of ${phaseInfo.cycleLen}`;
+    document.getElementById('phaseName').textContent = p.nameEn;
+    document.getElementById('phaseDesc').textContent = p.descEn;
+  } else {
+    document.getElementById('phaseDayNo').textContent =
+      phaseInfo.overdue>0
+        ? `اليوم ${phaseInfo.dayInCycle} من الدورة — متأخرة ${phaseInfo.overdue} يوم عن المتوقع`
+        : `اليوم ${phaseInfo.dayInCycle} من الدورة (من ${phaseInfo.cycleLen})`;
+    document.getElementById('phaseName').textContent = p.name;
+    document.getElementById('phaseDesc').textContent = p.desc;
+  }
+
+  // ---- today expect box ----
+  const expectBox = document.getElementById('todayExpectBox');
+  const expectText = document.getElementById('todayExpectText');
+  const expectLbl = document.getElementById('todayExpectLbl');
+  expectLbl.textContent = LANG==='en' ? 'What to expect today' : 'توقّعي اليوم';
+  expectText.textContent = LANG==='en' ? p.todayExpectEn : p.todayExpect;
+  expectBox.style.display = 'block';
+
+  // ---- progress track ----
+  const order = PHASES.map(x=>x.key);
+  const currentIdx = order.indexOf(phaseInfo.phaseKey);
+  document.getElementById('phaseTrack').innerHTML = order.map((k,i)=>{
+    let cls='phase-seg';
+    if(i<currentIdx) cls+=' done';
+    if(i===currentIdx) cls+=' current';
+    return `<div class="${cls}" title="${LANG==='en'?PHASES[i].nameEn:PHASES[i].name}"></div>`;
+  }).join('');
+}
+
+document.getElementById('updatePeriodBtn').addEventListener('click', async ()=>{
+  const confirmMsg = LANG==='en'
+    ? 'Confirm: did your period start today? This will update the calculation based on this date.'
+    : 'تأكيد: دورتك بدأت اليوم؟ سيتم تحديث الحساب بناءً على هذا التاريخ.';
+  if(!confirm(confirmMsg)) return;
+  const today = new Date().toISOString().slice(0,10);
+  if(!cycleSettings) cycleSettings = {starts:[], cycleLen:28, periodLen:5};
+  // learn cycle length from previous start if available
+  const prevStart = getLatestStart();
+  if(prevStart){
+    const diff = daysBetween(prevStart, today);
+    if(diff > 10 && diff < 60) cycleSettings.cycleLen = diff; // adapt
+  }
+  cycleSettings.starts.push(today);
+  await saveCycleSettings();
+  renderPhaseCard();
+  renderCalendar();
+  alert(LANG==='en' ? 'Period start updated \u2713' : 'تم تحديث بداية الدورة ✓');
+});
+
+document.getElementById('editCycleBtn').addEventListener('click', ()=>{
+  if(cycleSettings){
+    document.getElementById('obLastPeriod').value = getLatestStart() || '';
+    document.getElementById('obAge').value = cycleSettings.age || '';
+    document.getElementById('obCycleLen').value = cycleSettings.cycleLen || 28;
+    document.getElementById('obPeriodLen').value = cycleSettings.periodLen || 5;
+  }
+  document.getElementById('obCancel').style.display = 'inline-block';
+  document.getElementById('onboardOverlay').style.display = 'flex';
+});
+document.getElementById('obCancel').addEventListener('click', ()=>{
+  document.getElementById('onboardOverlay').style.display = 'none';
+});
+
+document.getElementById('obSave').addEventListener('click', async ()=>{
+  try{
+    const last = document.getElementById('obLastPeriod').value;
+    const age = parseInt(document.getElementById('obAge').value) || null;
+    const cLen = parseInt(document.getElementById('obCycleLen').value) || 28;
+    const pLen = parseInt(document.getElementById('obPeriodLen').value) || 5;
+    if(!last){ alert(LANG==='en' ? 'Please choose the start date of your last period' : 'اختاري تاريخ بداية آخر دورة'); return; }
+    const priorStarts = (cycleSettings && cycleSettings.starts) ? cycleSettings.starts.filter(s=>s!==getLatestStart()) : [];
+    cycleSettings = { starts:[...priorStarts, last], cycleLen:cLen, periodLen:pLen, age };
+    await saveCycleSettings();
+    document.getElementById('obCancel').style.display = 'none';
+    document.getElementById('onboardOverlay').style.display = 'none';
+    renderPhaseCard();
+    renderCalendar();
+  }catch(err){
+    alert((LANG==='en' ? 'Something went wrong: ' : 'حدث خطأ: ') + err.message);
+  }
+});
+
+// ---- calendar ----
+document.getElementById('prevMonth').addEventListener('click', ()=>{ calRefDate.setMonth(calRefDate.getMonth()-1); renderCalendar(); });
+document.getElementById('nextMonth').addEventListener('click', ()=>{ calRefDate.setMonth(calRefDate.getMonth()+1); renderCalendar(); });
+
+function renderCalendar(){
+  const monthNamesAr = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  const monthNamesEn = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const monthNames = LANG==='en' ? monthNamesEn : monthNamesAr;
+  document.getElementById('calMonthLabel').textContent = monthNames[calRefDate.getMonth()]+' '+calRefDate.getFullYear();
+  const grid = document.getElementById('calendarGrid');
+  const periodDates = getPeriodDatesSet();
+  const {predicted, avgCycle, avgPeriodLen} = predictNextPeriods();
+  const predictedSet = new Set(predicted);
+
+  const dayLabelsAr = ['أحد','إثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
+  const dayLabelsEn = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dayLabels = LANG==='en' ? dayLabelsEn : dayLabelsAr;
+  let html = dayLabels.map(l=>`<div class="label">${l}</div>`).join('');
+
+  const year = calRefDate.getFullYear(), month = calRefDate.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const startOffset = firstDay.getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const todayStr = new Date().toISOString().slice(0,10);
+
+  for(let i=0;i<startOffset;i++) html += '<div></div>';
+  for(let d=1; d<=daysInMonth; d++){
+    const dateStr = new Date(year,month,d).toISOString().slice(0,10);
+    let cls = 'd';
+    if(periodDates.has(dateStr)) cls += ' period';
+    else if(predictedSet.has(dateStr)) cls += ' predicted';
+    if(dateStr===todayStr) cls += ' today';
+    html += `<div class="${cls}">${d}</div>`;
+  }
+  grid.innerHTML = html;
+
+  const statEl = document.getElementById('cycleStats');
+  const labels = LANG==='en'
+    ? ['Avg. cycle length (days)','Avg. period length (days)','Total entries logged']
+    : ['متوسط طول الدورة (يوم)','متوسط مدة الحيض (يوم)','عدد التسجيلات الكلي'];
+  statEl.innerHTML = `
+    <div class="stat"><div class="num">${avgCycle||'—'}</div><div class="lbl">${labels[0]}</div></div>
+    <div class="stat"><div class="num">${avgPeriodLen||'—'}</div><div class="lbl">${labels[1]}</div></div>
+    <div class="stat"><div class="num">${entries.length}</div><div class="lbl">${labels[2]}</div></div>
+  `;
+}
+
+// ---- weekly ----
+function lastNDaysEntries(n){
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-n);
+  return entries.filter(e=> new Date(e.date) >= cutoff);
+}
+let weeklyChartObj, monthlyChartObj;
+function renderWeekly(){
+  const week = lastNDaysEntries(7);
+  const avgMood = week.filter(e=>e.mood).reduce((a,e)=>a+e.mood,0) / (week.filter(e=>e.mood).length||1);
+  const symptomCount = {};
+  week.forEach(e=>[...e.symptoms,...e.psych].forEach(s=> symptomCount[s]=(symptomCount[s]||0)+1));
+  const topSymptom = Object.entries(symptomCount).sort((a,b)=>b[1]-a[1])[0];
+  const topSymptomLabel = topSymptom ? (LANG==='en' ? (SYMPTOM_TERMS_EN[topSymptom[0]]||topSymptom[0]) : topSymptom[0]) : '—';
+
+  const labels1 = LANG==='en'
+    ? ['Logs this week','Average mood (out of 5)','Most frequent symptom']
+    : ['تسجيلات هذا الأسبوع','متوسط المزاج (من 5)','العرض الأكثر تكرارًا'];
+  document.getElementById('weeklyStats').innerHTML = `
+    <div class="stat"><div class="num">${week.length}</div><div class="lbl">${labels1[0]}</div></div>
+    <div class="stat"><div class="num">${week.length? avgMood.toFixed(1):'—'}</div><div class="lbl">${labels1[1]}</div></div>
+    <div class="stat"><div class="num">${topSymptomLabel}</div><div class="lbl">${labels1[2]}</div></div>
+  `;
+
+  const sorted = [...week].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const labels = sorted.map(e=>e.date.slice(5));
+  const data = sorted.map(e=>e.mood||null);
+  if(weeklyChartObj) weeklyChartObj.destroy();
+  weeklyChartObj = new Chart(document.getElementById('weeklyChart'), {
+    type:'line',
+    data:{ labels, datasets:[{ label: LANG==='en'?'Mood':'المزاج', data, borderColor:'#C97B84', backgroundColor:'#C97B8433', tension:.35, spanGaps:true }]},
+    options:{ scales:{ y:{ min:1, max:5, ticks:{stepSize:1} } }, plugins:{legend:{display:false}} }
+  });
+}
+
+document.getElementById('genWeeklyAI').addEventListener('click', ()=> runAIReport('weekly'));
+document.getElementById('genMonthlyAI').addEventListener('click', ()=> runAIReport('monthly'));
+
+function renderMonthly(){
+  const month = lastNDaysEntries(30);
+  const sorted = [...month].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const labels = sorted.map(e=>e.date.slice(5));
+  const moodData = sorted.map(e=>e.mood||null);
+
+  if(monthlyChartObj) monthlyChartObj.destroy();
+  monthlyChartObj = new Chart(document.getElementById('monthlyChart'), {
+    type:'line',
+    data:{ labels, datasets:[{ label: LANG==='en'?'Mood':'المزاج', data:moodData, borderColor:'#B5573F', backgroundColor:'#B5573F22', tension:.3, spanGaps:true, fill:true }]},
+    options:{ scales:{ y:{ min:1, max:5, ticks:{stepSize:1} } }, plugins:{legend:{display:false}} }
+  });
+
+  const symptomCount = {};
+  month.forEach(e=>[...e.symptoms,...e.psych].forEach(s=> symptomCount[s]=(symptomCount[s]||0)+1));
+  const top3 = Object.entries(symptomCount).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]).join('، ');
+  const negDays = month.filter(e=>e.mood && e.mood<=2).length;
+  const posDays = month.filter(e=>e.mood && e.mood>=4).length;
+
+  const labels2 = LANG==='en'
+    ? ['Logs this month','Low-mood days','High-mood days']
+    : ['تسجيلات هذا الشهر','أيام مزاج منخفض','أيام مزاج مرتفع'];
+  document.getElementById('monthlyStats').innerHTML = `
+    <div class="stat"><div class="num">${month.length}</div><div class="lbl">${labels2[0]}</div></div>
+    <div class="stat"><div class="num">${negDays}</div><div class="lbl">${labels2[1]}</div></div>
+    <div class="stat"><div class="num">${posDays}</div><div class="lbl">${labels2[2]}</div></div>
+  `;
+}
+
+// ---- AI analysis via Claude API ----
+async function runAIReport(scope){
+  const resultId = scope==='weekly' ? 'weeklyAIResult' : 'monthlyAIResult';
+  const el = document.getElementById(resultId);
+  const days = scope==='weekly' ? 7 : 30;
+  const data = lastNDaysEntries(days);
+
+  if(data.length < 2){
+    el.innerHTML = LANG==='en'
+      ? `<div class="ai-box"><p>You need a few more logs (at least 2 days) for a meaningful analysis. Keep logging and check back ✨</p></div>`
+      : `<div class="ai-box"><p>تحتاجين عدد أكبر من التسجيلات (يومين على الأقل) ليصدر تحليل ذو معنى. سجّلي يومك واستمري ✨</p></div>`;
+    return;
+  }
+
+  el.innerHTML = LANG==='en'
+    ? `<div class="loading"><div class="spinner"></div> Analyzing your data...</div>`
+    : `<div class="loading"><div class="spinner"></div> يحلل البيانات الآن...</div>`;
+
+  const summary = data.map(e=>{
+    const ph = computePhase(e.date);
+    const phaseName = ph ? (LANG==='en' ? PHASES.find(x=>x.key===ph.phaseKey).nameEn : PHASES.find(x=>x.key===ph.phaseKey).name) : '-';
+    if(LANG==='en'){
+      return `${e.date} | Cycle phase: ${phaseName} | Mood: ${e.mood||'-'}/5 | Physical symptoms: ${termsForPrompt(e.symptoms)} | Emotional symptoms: ${termsForPrompt(e.psych)} | Her words: "${e.feeling||'-'}" | Stated reason: "${e.trigger||'-'}"`;
+    }
+    return `${e.date} | مرحلة الدورة: ${phaseName} | المزاج: ${e.mood||'-'}/5 | أعراض جسدية: ${e.symptoms.join(', ')||'-'} | أعراض نفسية: ${e.psych.join(', ')||'-'} | شعورها بكلماتها: "${e.feeling||'-'}" | السبب المذكور: "${e.trigger||'-'}"`;
+  }).join('\n');
+
+  const prompt = LANG==='en'
+    ? (scope==='weekly'
+      ? `You are a supportive women's health companion. Below is a week of cycle and mood tracking data for a user, including her cycle phase each day. Analyze the data and write a short weekly report in clear, natural English that includes:
+1. A general summary of her mood and physical state this week, noting any connection between her cycle phase and her mood.
+2. The main reasons she mentioned that affected her mood going down or up (pull these from the "Stated reason" and "Her words" fields).
+3. One or two warm, supportive, practical tips.
+Do not provide a medical diagnosis. Write warmly and understandingly, without exaggeration, in 120-180 words, addressing her directly as "you". Break the reply into short paragraphs with simple bold markdown headers.
+
+Data:
+${summary}`
+      : `You are a supportive women's health companion. Below is a month (30 days) of cycle and mood tracking data for a user, including her cycle phase each day. Analyze the data and write a monthly pattern report in clear, natural English that includes:
+1. The recurring pattern she experiences during the month, specifically: is her mood or symptoms linked to a particular cycle phase (e.g. before or during her period)?
+2. The most frequently mentioned reasons that lifted her mood (from "Stated reason") — frame these as strengths she can rely on going forward.
+3. The most frequently mentioned reasons that lowered her mood, so she can stay aware of them.
+4. One actionable tip for the month ahead.
+Do not provide a medical diagnosis. Write warmly, in 180-250 words, addressing her directly as "you". Break the reply into short paragraphs with simple bold markdown headers.
+
+Data:
+${summary}`)
+    : (scope==='weekly'
+      ? `أنتِ مساعدة دعم نفسي وصحي متخصصة بصحة المرأة. هذه بيانات تسجيل أسبوعي لمستخدمة تتبع دورتها الشهرية ومزاجها، مع تحديد مرحلة الدورة لكل يوم. حللي البيانات أدناه واكتبي تقريرًا أسبوعيًا قصيرًا بالعربية الفصحى السهلة يتضمن:
+1. ملخص عام عن حالتها المزاجية والجسدية هذا الأسبوع، مع ملاحظة إن وُجد ارتباط بين مرحلة الدورة وحالتها المزاجية.
+2. أهم الأسباب التي ذكرتها وأثّرت على نزول أو ارتفاع مزاجها (استخرجيها من حقل "السبب المذكور" و"شعورها بكلماتها").
+3. نصيحة عملية واحدة أو اثنتين لطيفة وداعمة.
+لا تقدمي تشخيصًا طبيًا. اكتبي بأسلوب دافئ ومتفهم، بدون مبالغة، في حدود 120-180 كلمة، وقسمي الرد لفقرات قصيرة بعناوين بسيطة بخط عريض markdown.
+
+البيانات:
+${summary}`
+      : `أنتِ مساعدة دعم نفسي وصحي متخصصة بصحة المرأة. هذه بيانات تسجيل شهرية (30 يوم) لمستخدمة تتبع دورتها ومزاجها، مع تحديد مرحلة الدورة لكل يوم. حللي البيانات واكتبي تقرير أنماط شهري بالعربية الفصحى السهلة يتضمن:
+1. النمط المشترك الذي تمر فيه المستخدمة خلال الشهر، وبشكل خاص: هل مزاجها أو أعراضها ترتبط بمرحلة معينة من الدورة (مثلًا قبل الحيض أو أثناءه)؟
+2. الأسباب الأكثر تكرارًا التي رفعت مزاجها (من حقل "السبب المذكور") لتكون كنقاط قوة تعتمد عليها مستقبلًا.
+3. الأسباب الأكثر تكرارًا التي خفضت مزاجها، لتتنبه لها.
+4. نصيحة شهرية واحدة قابلة للتطبيق.
+لا تقدمي تشخيصًا طبيًا. اكتبي بأسلوب دافئ، في حدود 180-250 كلمة، وقسمي الرد لفقرات بعناوين بسيطة بخط عريض markdown.
+
+البيانات:
+${summary}`);
+
+  const langInstruction = LANG==='en'
+    ? '\n\n(Reminder: the entire reply must be in English only — no Arabic words.)'
+    : '\n\n(تذكير: الرد بالكامل بالعربية فقط، بدون أي كلمات إنجليزية.)';
+
+  try{
+    const text = await callClaudeAI(prompt + langInstruction, 1000);
+    const titleTxt = LANG==='en' ? '✨ AI insight' : '✨ تحليل ذكي';
+    el.innerHTML = `<div class="ai-box"><div class="ai-title">${titleTxt}</div>${mdToHtml(text)}</div>`;
+  }catch(err){
+    el.innerHTML = LANG==='en'
+      ? `<div class="ai-box"><p>Couldn't generate the analysis right now. Please try again shortly.</p><p style="font-size:11px;color:#9b8a92;">Debug: ${escapeHtml(err.message||String(err))}</p></div>`
+      : `<div class="ai-box"><p>تعذّر توليد التحليل الآن. حاولي مرة أخرى بعد قليل.</p><p style="font-size:11px;color:#9b8a92;">تفاصيل: ${escapeHtml(err.message||String(err))}</p></div>`;
+  }
+}
+
+function mdToHtml(t){
+  return t.split('\n').filter(l=>l.trim()).map(l=>{
+    l = l.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    if(/^\d+\.\s/.test(l) || /^-\s/.test(l)) return `<p>${l}</p>`;
+    return `<p>${l}</p>`;
+  }).join('');
+}
+
+// ================= DAILY REPORT =================
+const RESOURCE_LINKS = [
+  { ar:'احجزي جلسة استماع مجانية مع رفيقة — سكينة', en:'Book a free listening session with a peer — Sakinah', url:'https://sakinah-peer-support.netlify.app/', icon:'💬' },
+  { ar:'تمرين مشي 15 دقيقة في المنزل', en:'15-minute home walking workout', url:'https://www.youtube.com/watch?v=84hCIHki1TU', icon:'🚶‍♀️' },
+  { ar:'تعلمي الرسم من الصفر — دروس مجانية', en:'Learn to draw from scratch — free courses', url:'https://freedrawingcourses.com/#', icon:'✏️' },
+  { ar:'كورس تعليم الرسم من الصفر للمبتدئين', en:'Drawing course for absolute beginners', url:'https://www.youtube.com/watch?v=fllDlSnvD9E', icon:'🎨' },
+  { ar:'بودكاست تدبر القرآن الكريم', en:'Qur\u2019an reflection (tadabbur) podcast', url:'https://www.youtube.com/watch?v=stQjp5bJdEA', icon:'📖' },
+  { ar:'تمارين تنفس لتقليل التوتر', en:'Breathing exercises to reduce stress', url:'https://www.youtube.com/watch?v=frN2YcBA23NA', icon:'🧘‍♀️' },
+];
+
+function renderResourceChips(){
+  return `<div class="resource-chips">${RESOURCE_LINKS.map(r=>
+    `<a class="resource-chip" href="${r.url}" target="_blank" rel="noopener">${r.icon} ${LANG==='en'?r.en:r.ar}</a>`
+  ).join('')}</div>`;
+}
+
+// ---- Curated books (original summaries written for هَدَأ — not copied from any source) ----
+const BOOKS = [
+  {
+    title: { ar:'الذكاء العاطفي', en:'Emotional Intelligence' },
+    author: 'Daniel Goleman',
+    summary: {
+      ar:'يكشف جولمان أن الذكاء العاطفي أهم من معدل الذكاء في تحديد من سينجح ومن سيبني علاقات حقيقية. يعلّمك تسمية مشاعرك قبل أن تتحكم فيك، والتوقف قبل ردة الفعل.',
+      en:'Goleman reveals that emotional intelligence matters more than IQ in predicting success and meaningful relationships. Teaches you to name your feelings before they control you, and to pause before reacting.'
+    },
+    longSummary: {
+      ar:`<p><strong>📌 فرضية الكتاب</strong><br>
+الذكاء العقلي (IQ) وحده لا يكفي لتفسير النجاح في الحياة. دانيال جولمان يطرح أن "الذكاء العاطفي" — القدرة على فهم مشاعرك وإدارتها وفهم مشاعر الآخرين — هو العامل الأكثر تأثيرًا في نجاح الإنسان مهنيًا واجتماعيًا وأسريًا. قدّر أن الذكاء العاطفي يفسّر ما بين 80-90% من الفارق بين الناجحين وغيرهم في بيئات العمل.</p>
+
+<p><strong>🔑 النقاط الرئيسية</strong></p>
+<p><strong>1. الذكاء العاطفي مكوّن من 5 قدرات:</strong><br>
+• <strong>الوعي الذاتي:</strong> معرفة ما تشعرين به في اللحظة الراهنة بدقة، لا بعد ساعات.<br>
+• <strong>التنظيم الذاتي:</strong> القدرة على تهدئة انفعالاتك قبل التصرف بها — وهذا ما يميّز الشخص الناضج.<br>
+• <strong>التحفيز الذاتي:</strong> استخدام المشاعر كوقود للأمام، لا عائق يوقفك.<br>
+• <strong>التعاطف:</strong> قراءة مشاعر الآخرين من تعابير وجوههم وأصواتهم حتى حين يصمتون.<br>
+• <strong>المهارات الاجتماعية:</strong> بناء علاقات، حل خلافات، قيادة الآخرين بأثر إيجابي.</p>
+
+<p><strong>2. اختطاف اللوزة الدماغية (Amygdala Hijack):</strong><br>
+في دماغك جزء قديم جدًا اسمه "اللوزة الدماغية" مهمته إطلاق استجابة فورية للتهديد — قبل أن تفكر عقلك المنطقي. هذا يفسّر لماذا "تنفجرين" أو تقولين كلامًا تندمين عليه في ثوانٍ. اللوزة تتصرف أسرع من قشرة المخ المنطقية بـ milliseconds.</p>
+
+<p><strong>3. الفرق بين IQ والذكاء العاطفي:</strong><br>
+IQ يُقاس بالولادة تقريبًا ويبقى شبه ثابت. الذكاء العاطفي قابل للتطوير في أي عمر — هذه نقطة تحويلية في الكتاب، لأنها تعني أنكِ لستِ "محكوم عليك" بطريقة تعاملك مع مشاعرك.</p>
+
+<p><strong>📊 أهم النتائج والأبحاث في الكتاب</strong><br>
+• دراسة على خريجي هارفارد أثبتت أن من حققوا نجاحًا أكبر في حياتهم لم يكونوا الأعلى IQ، بل الأعلى وعيًا بمشاعرهم.<br>
+• أبحاث على الأطفال: من تعلّموا إدارة مشاعرهم مبكرًا حققوا درجات أكاديمية أفضل، وعلاقات أكثر استقرارًا، وصحة أفضل.<br>
+• الأزواج الذين يمتلكون ذكاءً عاطفيًا عاليًا يحلّون خلافاتهم أسرع ويبنون علاقات أطول.<br>
+• القادة ذوو الذكاء العاطفي المرتفع يحققون نتائج أفضل من القادة الأعلى IQ في بيئات العمل المعقدة.</p>
+
+<p><strong>💡 الحلول والتوصيات العملية</strong><br>
+🔸 <strong>سمّي مشعرك بدقة:</strong> بدل "أنا تعبانة" قولي "أنا خائفة من الرفض" أو "أنا محبطة لأن جهدي لم يُلاحَظ". الدقة في التسمية تُخفّف شدة الشعور فعليًا.<br>
+🔸 <strong>قاعدة الـ 90 ثانية:</strong> أي استجابة عاطفية في الجسم تستمر 90 ثانية فيزيولوجيًا ثم تخفت — لو تجاوزت هذه المدة فأنتِ تُغذّينها بأفكارك. توقفي، تنفسي، انتظري.<br>
+🔸 <strong>مارسي التعاطف بوعي:</strong> قبل أن تردّي على شخص، اسأل: "ماذا يشعر هو/هي الآن؟ ما الذي يحتاجه في هذه اللحظة؟"<br>
+🔸 <strong>راقبي أنماطك:</strong> في أي مواقف "تُختطفين" عاطفيًا بشكل متكرر؟ تتبع هذه الأنماط هو أول خطوة لكسرها.<br>
+🔸 <strong>تعلمي من كل انفجار:</strong> بعد كل ردة فعل تندمين عليها، اسألي: ما الذي أشعلها؟ ما الحاجة غير المُلبّاة خلفها؟</p>
+
+<p><strong>✅ خلاصة ما تغيّرينه بعد قراءة هذا الكتاب</strong><br>
+تبدئين تعيشين مع مشاعرك بدل أن تعيشي ضدها. تفهمين أن الغضب والحزن والخوف ليست أعداء — هي معلومات. والفرق بين من يتحكم في حياته ومن تتحكم فيه المشاعر ليس الطبيعة، بل التدريب.</p>`,
+
+      en:`<p><strong>📌 The Book's Premise</strong><br>
+IQ alone cannot explain success in life. Daniel Goleman argues that "emotional intelligence" — the ability to understand and manage your own emotions, and to understand the emotions of others — is the most influential factor in professional, social, and relational success. He estimated that emotional intelligence accounts for 80–90% of what differentiates high performers from others in workplace environments.</p>
+
+<p><strong>🔑 Main Points</strong></p>
+<p><strong>1. Emotional intelligence consists of 5 abilities:</strong><br>
+• <strong>Self-awareness:</strong> Knowing precisely what you feel in the present moment — not hours later.<br>
+• <strong>Self-regulation:</strong> The ability to calm your emotional reactions before acting on them — this is what distinguishes emotional maturity.<br>
+• <strong>Self-motivation:</strong> Using emotions as forward fuel, not as a roadblock.<br>
+• <strong>Empathy:</strong> Reading others' feelings from their expressions and tone even when they stay silent.<br>
+• <strong>Social skills:</strong> Building relationships, resolving conflict, and leading others with positive impact.</p>
+
+<p><strong>2. The Amygdala Hijack:</strong><br>
+Deep in your brain is a very old structure called the amygdala — its job is to fire an immediate threat response, before your rational mind can weigh in. This explains why you sometimes "explode" or say things you regret within seconds. The amygdala acts faster than the logical prefrontal cortex by milliseconds.</p>
+
+<p><strong>3. IQ vs. Emotional Intelligence:</strong><br>
+IQ is largely fixed from birth. Emotional intelligence can be developed at any age — this is a pivotal point in the book, because it means you are not "sentenced" to your current way of relating to your emotions.</p>
+
+<p><strong>📊 Key Research Findings</strong><br>
+• A study of Harvard graduates showed that those who achieved greater life success were not the highest IQ scorers, but the most self-aware.<br>
+• Research on children: those who learned emotion regulation early achieved better academic results, more stable relationships, and better health outcomes.<br>
+• Couples with high emotional intelligence resolve conflicts faster and build longer-lasting relationships.<br>
+• Leaders with high emotional intelligence consistently outperform higher-IQ leaders in complex work environments.</p>
+
+<p><strong>💡 Practical Solutions & Recommendations</strong><br>
+🔸 <strong>Name your feeling precisely:</strong> Instead of "I feel bad," say "I'm afraid of rejection" or "I'm frustrated because my effort went unnoticed." Precision in naming actually reduces the intensity of the feeling.<br>
+🔸 <strong>The 90-second rule:</strong> Any emotional response in the body lasts physiologically for about 90 seconds, then subsides — if it goes on longer, you are fueling it with your thoughts. Stop, breathe, wait.<br>
+🔸 <strong>Practice conscious empathy:</strong> Before responding to someone, ask: "What are they feeling right now? What do they need in this moment?"<br>
+🔸 <strong>Track your patterns:</strong> In which situations do you consistently get "hijacked" emotionally? Identifying these patterns is the first step to breaking them.<br>
+🔸 <strong>Learn from every outburst:</strong> After every reaction you regret, ask: what triggered it? What unmet need was behind it?</p>
+
+<p><strong>✅ What changes after reading this book</strong><br>
+You start living with your emotions instead of against them. You understand that anger, sadness, and fear aren't enemies — they're information. And the difference between someone who manages their life and someone whose life is managed by their feelings isn't nature — it's training.</p>`
+    },
+    link: 'https://www.jarir.com/jarir-publication-292492.html',
+    icon: '🧠'
+  },
+  {
+    title: { ar:'الذكاء العاطفي لدى المرأة', en:'Emotional Intelligence for Women' },
+    author: 'Cornelia Topf',
+    summary: {
+      ar:'يُثبت الكتاب أن كثيرًا من النساء يتعلمن قراءة مشاعر الآخرين بتفوق، لكن يهملن قراءة مشاعرهن هن. يعلّمك تبني صلابة داخلية حقيقية بدون أن تفقدي لطفك.',
+      en:'The book shows that many women excel at reading others\' emotions while neglecting their own. It teaches you to build genuine inner resilience without losing your warmth.'
+    },
+    longSummary: {
+      ar:`<p><strong>📌 فرضية الكتاب</strong><br>
+كورنيليا توبف تنطلق من ملاحظة دقيقة: المرأة غالبًا مدرّبة اجتماعيًا على الاستجابة لاحتياجات الآخرين بشكل فوري ودقيق، لكنها نادرًا ما تعلّمت أن تطبّق نفس المهارة على نفسها. النتيجة: نساء يمتلكن ذكاءً عاطفيًا خارجيًا عاليًا، لكن ذكاءهن العاطفي الداخلي — تجاه أنفسهن — ضعيف. الكتاب يُعيد التوازن بين الاثنين.</p>
+
+<p><strong>🔑 النقاط الرئيسية</strong></p>
+<p><strong>1. نوعان من "اللطف":</strong><br>
+• <strong>لطف حقيقي:</strong> يأتي من اختيار واعٍ ومكان داخلي مستقر. تعطين لأنكِ تريدين.<br>
+• <strong>لطف دفاعي:</strong> يأتي من الخوف — خوف من الرفض، من خيبة أمل الآخرين، من وصف "الأنانية" أو "الصعوبة". تعطين لأنكِ تخافين. هذا النوع يستنزفك بصمت.</p>
+
+<p><strong>2. الصلابة الداخلية ≠ القسوة:</strong><br>
+الكتاب يميّز بوضوح بين "الصلابة الداخلية" و"القسوة". الصلابة الداخلية هي قدرتك على البقاء متصلة بمشاعرك الحقيقية حتى حين يضغط عليك المحيط لتشعري بشيء مختلف. لا تعني عدم الاكتراث — تعني معرفة من أنتِ وسط الضجيج.</p>
+
+<p><strong>3. "ما يُتوقع مني" vs. "ما أشعر به فعلًا":</strong><br>
+هذا التمييز هو لبّ الكتاب. نساء كثيرات يعشن في هذه الفجوة دون أن يُسمّينها: يبتسمن في اجتماعات تستنزفهن، يوافقن على مواعيد لا يريدنها، يكتمن انزعاجًا حقيقيًا. الكتاب يُعلّمك أن تجلسي مع السؤال: "هل هذا ما أريده فعلًا؟"</p>
+
+<p><strong>4. استنزاف الطاقة العاطفية:</strong><br>
+الطاقة العاطفية محدودة كالطاقة الجسدية تمامًا. حين تصرفينها كلها في إرضاء من حولك، لا يبقى شيء لك — لمشاعرك، لأحلامك، لصحتك النفسية. الكتاب يُعامل هذا كحقيقة بيولوجية لا كأنانية.</p>
+
+<p><strong>📊 أهم النتائج والأبحاث</strong><br>
+• النساء اللواتي يتعلّمن رسم حدود صحية يُبلّغن عن مستويات أقل من القلق والإرهاق العاطفي في 6 أشهر.<br>
+• الرضا في العلاقات يرتفع حين تتوقف المرأة عن "قراءة" احتياجات الآخرين بشكل مستمر وتبدأ بالتعبير عن احتياجاتها هي بوضوح.<br>
+• "متلازمة المُرضِي" (People-pleasing) مرتبطة بارتفاع الكورتيزول (هرمون التوتر) على المدى الطويل — أي أن الإرضاء المستمر له تكلفة فيزيولوجية حقيقية.</p>
+
+<p><strong>💡 الحلول والتوصيات العملية</strong><br>
+🔸 <strong>تمرين "السؤال الأول":</strong> قبل أن توافقي على أي طلب، خذي ثانية وجوابي نفسك على سؤال واحد: "هل أريد هذا فعلًا؟" وليس "هل يتوقعون أن أوافق؟"<br>
+🔸 <strong>سمّي ما تشعرين به قبل أن تردّي:</strong> في المواقف المتوترة، خذي لحظة قبل الرد. "أنا منزعجة من هذا" ليست نقطة ضعف — هي وضوح.<br>
+🔸 <strong>الحد الصحي ليس رفضًا — هو وضوح:</strong> "لا أستطيع هذا الأسبوع" لا تعني "لا أريدك". تعلّمي فصل رفض الطلب عن رفض الشخص.<br>
+🔸 <strong>راجعي ميزانيتك العاطفية أسبوعيًا:</strong> من الذي أخذ أكثر مما أعطى؟ أين تصرّفتِ من مكان خوف لا اختيار؟<br>
+🔸 <strong>ابدئي بـ"أحتاج":</strong> تدرّبي على جملة "أحتاج ..." في علاقاتك بدل انتظار أن يُخمّن الآخرون احتياجاتك.</p>
+
+<p><strong>✅ ما يتغير بعد قراءة هذا الكتاب</strong><br>
+تبدئين تميّزين بين "أنا لطيفة باختيار" و"أنا لطيفة خوفًا". هذا التمييز يُحرّرك. تعطين أكثر، لكن من مكان أقوى — ولا تنتهين في كل مرة بالإرهاق والمرارة.</p>`,
+
+      en:`<p><strong>📌 The Book's Premise</strong><br>
+Cornelia Topf starts from a sharp observation: women are typically socialized to respond to others' needs immediately and precisely — yet they rarely apply that same skill to themselves. The result: women with high outward emotional intelligence but weak inner emotional intelligence — toward themselves. The book restores the balance between the two.</p>
+
+<p><strong>🔑 Main Points</strong></p>
+<p><strong>1. Two types of "kindness":</strong><br>
+• <strong>Genuine kindness:</strong> Comes from conscious choice and a stable inner place. You give because you want to.<br>
+• <strong>Defensive kindness:</strong> Comes from fear — fear of rejection, of disappointing others, of being called "selfish" or "difficult." You give because you're afraid. This kind quietly drains you.</p>
+
+<p><strong>2. Inner resilience ≠ coldness:</strong><br>
+The book clearly distinguishes between "inner resilience" and "hardness." Inner resilience is your ability to stay connected to your real feelings even when the people around you are pressuring you to feel something different. It doesn't mean not caring — it means knowing who you are amid the noise.</p>
+
+<p><strong>3. "What's expected of me" vs. "what I actually feel":</strong><br>
+This distinction is the heart of the book. Many women live in this gap without naming it: smiling in meetings that drain them, agreeing to commitments they don't want, suppressing genuine discomfort. The book teaches you to sit with the question: "Is this what I actually want?"</p>
+
+<p><strong>4. Emotional energy depletion:</strong><br>
+Emotional energy is finite, just like physical energy. When you spend it all meeting everyone else's needs, nothing remains for you — for your feelings, your aspirations, your mental health. The book treats this as a biological reality, not selfishness.</p>
+
+<p><strong>📊 Key Research Findings</strong><br>
+• Women who learn to set healthy boundaries report significantly lower levels of anxiety and emotional burnout within 6 months.<br>
+• Relationship satisfaction rises when a woman stops constantly "reading" others' needs and starts clearly expressing her own.<br>
+• People-pleasing is linked to chronically elevated cortisol (stress hormone) — meaning constant appeasement carries a real physiological cost.</p>
+
+<p><strong>💡 Practical Solutions & Recommendations</strong><br>
+🔸 <strong>The "first question" practice:</strong> Before agreeing to any request, take a second and answer yourself honestly: "Do I actually want this?" — not "Do they expect me to say yes?"<br>
+🔸 <strong>Name what you feel before you respond:</strong> In tense moments, pause before replying. "I'm uncomfortable with this" is not weakness — it's clarity.<br>
+🔸 <strong>A healthy boundary isn't rejection — it's clarity:</strong> "I can't do this week" doesn't mean "I don't want you." Practice separating refusal of the request from refusal of the person.<br>
+🔸 <strong>Review your emotional budget weekly:</strong> Who took more than they gave? Where did you act from fear rather than choice?<br>
+🔸 <strong>Start sentences with "I need":</strong> Practice saying "I need..." in your relationships instead of waiting for others to guess your needs.</p>
+
+<p><strong>✅ What changes after reading this book</strong><br>
+You start distinguishing between "I'm kind by choice" and "I'm kind out of fear." That distinction frees you. You give more, but from a stronger place — and you no longer end every cycle exhausted and quietly bitter.</p>`
+    },
+    link: 'https://www.amazon.sa/s?k=' + encodeURIComponent('الذكاء العاطفي لدى المرأة كورنيليا توبف'),
+    icon: '💗'
+  },
+  {
+    title: { ar:'قوة الدورة الشهرية', en:'Period Power' },
+    author: 'Maisie Hill',
+    summary: {
+      ar:'مايزي هيل تُثبت أن دورتك الشهرية ليست عبئًا — هي نظام معلومات متقن يمكن استخدامه لصالحك. تعلّمين فيه كيف تتوافقين مع كل مرحلة بدل أن تحاربيها.',
+      en:'Maisie Hill proves your cycle isn\'t a burden — it\'s a sophisticated information system you can use to your advantage. You learn how to align with each phase instead of fighting it.'
+    },
+    longSummary: {
+      ar:`<p><strong>📌 فرضية الكتاب</strong><br>
+"قوة الدورة الشهرية" يقوم على فكرة واحدة محورية: المرأة لا تعيش حياة خطّية ثابتة كالرجل — جسمها يمر بأربعة "فصول" هرمونية كل شهر، كل منها له طاقته وقوته الفريدة. الخطأ ليس في الدورة؛ الخطأ في محاولة العيش بنفس الطاقة طوال الشهر. الكتاب يُعلّمك "استراتيجية الدورة" (Cycle Strategy) — وهي فن التوافق مع هرموناتك بدل محاربتها.</p>
+
+<p><strong>🔑 النقاط الرئيسية — فصول جسمك الأربعة</strong></p>
+<p><strong>1. 🌱 المرحلة الجريبية ("الربيع الداخلي") — من اليوم 1 إلى التبويض:</strong><br>
+بعد انتهاء الحيض، يبدأ الإستروجين بالارتفاع. طاقتك تعود تدريجيًا، ذهنك يصفو، ورغبتك في بدء أشياء جديدة تشتعل. <em>أفضل وقت لـ:</em> وضع الخطط، بدء مشاريع جديدة، تعلّم مهارات، اتخاذ قرارات مهمة.</p>
+
+<p><strong>2. ☀️ مرحلة التبويض ("الصيف الداخلي") — 3-5 أيام حول منتصف الدورة:</strong><br>
+الإستروجين والتستوستيرون يبلغان ذروتهما معًا. هذه أعلى نقطة في طاقتك، ثقتك بنفسك، ومقدرتك الاجتماعية خلال الشهر. <em>أفضل وقت لـ:</em> المحادثات الصعبة، الاجتماعات المهمة، العروض التقديمية، طلب زيادة الراتب، اللقاءات الاجتماعية التي تتطلب حضورًا.</p>
+
+<p><strong>3. 🍂 المرحلة الأصفرية ("الخريف الداخلي") — بعد التبويض حتى بداية الحيض:</strong><br>
+البروجسترون يسيطر. الطاقة تبدأ في الانحسار، والتركيز يتحول للداخل. في النصف الثاني من هذه المرحلة تبدأ أعراض ما قبل الدورة (PMS). <em>أفضل وقت لـ:</em> إنهاء المشاريع القائمة، الاهتمام بالتفاصيل، التقييم والمراجعة.</p>
+
+<p><strong>4. ❄️ مرحلة الحيض ("الشتاء الداخلي") — أيام الدورة:</strong><br>
+الهرمونات في أدنى مستوياتها. الطاقة الجسدية منخفضة، لكن الحدس والوضوح الداخلي في أعلاها. <em>أفضل وقت لـ:</em> الراحة الحقيقية، التأمل، اتخاذ قرارات شخصية عميقة (ليس الانشغال بالعمل).</p>
+
+<p><strong>📊 أهم نتائج الكتاب</strong><br>
+• PMS ليست حتمًا مؤلمة — كثير من أعراضها ترتبط بنمط حياة قابل للتعديل (نوم، تغذية، توتر). الكتاب يُقدّم بروتوكولًا لتخفيف PMS من خلال تغييرات عملية.<br>
+• المرأة التي تتتبع دورتها وتفهم أنماطها تُبلّغ عن شعور أقل بالضياع والمفاجأة، وقدرة أعلى على التخطيط.<br>
+• هناك فارق كبير بين "الأعراض الطبيعية" للدورة وبين الأعراض المؤلمة غير الضرورية — وكثير مما تعانيه النساء ينتمي للفئة الثانية ويمكن تحسينه.</p>
+
+<p><strong>💡 الحلول والتوصيات العملية</strong><br>
+🔸 <strong>ابدئي بتتبع دورتك لـ 3 أشهر متتالية:</strong> سجّلي مزاجك وطاقتك وأعراضك كل يوم. بعد 3 أشهر ستبدأين ترين نمطك الشخصي بوضوح.<br>
+🔸 <strong>خططي مواعيدك حسب مرحلتك:</strong> مقابلات مهمة في أيام التبويض، مهام تحليلية دقيقة في الأصفرية، استراحة حقيقية أيام الحيض.<br>
+🔸 <strong>قللي السكر والكافيين قبل الدورة بـ 5 أيام:</strong> هذا التعديل الغذائي وحده يُحسّن PMS عند كثير من النساء بشكل ملحوظ.<br>
+🔸 <strong>لا تتخذي قرارات مصيرية في المرحلة الأصفرية المتأخرة:</strong> الدماغ في هذه المرحلة يميل للتشاؤم والتضخيم — انتظري بعد الدورة.<br>
+🔸 <strong>أخبري من حولك بنمطك:</strong> ليس اعتذارًا — هو وضوح. "الأسبوع القادم طاقتي ستكون منخفضة" معلومة مفيدة للعمل والعلاقات.</p>
+
+<p><strong>✅ ما يتغير بعد قراءة هذا الكتاب</strong><br>
+تتوقفين عن تلوم نفسك على تغيّر طاقتك ومزاجك — وتبدئين تخططين حياتك بذكاء حولها. دورتك من مصدر ضعف إلى أداة معلومات تعملين معها.</p>`,
+
+      en:`<p><strong>📌 The Book's Premise</strong><br>
+Period Power rests on one central idea: women don't live a flat, linear existence like men — the female body moves through four hormonal "seasons" every month, each with its own unique energy and strengths. The problem isn't the cycle; the problem is trying to maintain the same energy all month long. The book teaches you "The Cycle Strategy" — the art of aligning with your hormones instead of fighting them.</p>
+
+<p><strong>🔑 Main Points — Your Body's Four Seasons</strong></p>
+<p><strong>1. 🌱 Follicular Phase ("Inner Spring") — Day 1 to ovulation:</strong><br>
+After your period ends, estrogen begins rising. Energy gradually returns, mental clarity sharpens, and a drive to start new things kicks in. <em>Best time for:</em> planning, starting new projects, learning new skills, making important decisions.</p>
+
+<p><strong>2. ☀️ Ovulatory Phase ("Inner Summer") — 3-5 days around mid-cycle:</strong><br>
+Estrogen and testosterone both peak together. This is your highest energy, confidence, and social capacity point of the month. <em>Best time for:</em> difficult conversations, important meetings, presentations, salary negotiations, high-presence social engagements.</p>
+
+<p><strong>3. 🍂 Luteal Phase ("Inner Autumn") — Post-ovulation to period start:</strong><br>
+Progesterone takes over. Energy begins easing, attention turns inward. In the second half of this phase, PMS symptoms often surface. <em>Best time for:</em> finishing existing projects, detail-oriented work, reviewing and evaluating.</p>
+
+<p><strong>4. ❄️ Menstrual Phase ("Inner Winter") — Period days:</strong><br>
+Hormones at their lowest. Physical energy is low, but inner clarity and intuition are at their highest. <em>Best time for:</em> genuine rest, reflection, making deep personal decisions (not overloading yourself with work).</p>
+
+<p><strong>📊 Key Findings</strong><br>
+• PMS is not inevitably painful — many of its symptoms are linked to lifestyle factors that are adjustable (sleep, nutrition, stress). The book presents a protocol for reducing PMS through practical changes.<br>
+• Women who track their cycles and understand their patterns report less confusion and surprise, and a greater ability to plan meaningfully.<br>
+• There is a meaningful difference between "normal" cycle symptoms and unnecessary painful ones — much of what women suffer falls into the second category and can be significantly improved.</p>
+
+<p><strong>💡 Practical Solutions & Recommendations</strong><br>
+🔸 <strong>Start tracking your cycle for 3 consecutive months:</strong> Log your mood, energy, and symptoms daily. After 3 months, your personal pattern will become clearly visible.<br>
+🔸 <strong>Schedule your commitments around your phase:</strong> Important meetings during ovulation, detail-oriented analytical tasks during the luteal phase, genuine rest during your period.<br>
+🔸 <strong>Reduce sugar and caffeine 5 days before your period:</strong> This dietary adjustment alone noticeably improves PMS for many women.<br>
+🔸 <strong>Avoid major decisions in the late luteal phase:</strong> The brain during this phase leans toward pessimism and magnification — wait until after your period.<br>
+🔸 <strong>Tell those around you about your pattern:</strong> Not as an apology — as information. "My energy will be lower next week" is useful data for both work and relationships.</p>
+
+<p><strong>✅ What changes after reading this book</strong><br>
+You stop blaming yourself for fluctuating energy and mood — and start planning your life intelligently around them. Your cycle shifts from a source of weakness to an information tool you work with.</p>`
+    },
+    link: 'https://www.amazon.com/Period-Power-Harness-Hormones-Working/dp/147296361X',
+    icon: '🌙'
+  },
+  {
+    title: { ar:'الاحتراق النفسي', en:'Burnout' },
+    author: 'Emily & Amelia Nagoski',
+    summary: {
+      ar:'الأختان ناغوسكي تكشفان أن التوتر والإرهاق شيئان مختلفان تمامًا — وهذا هو سبب بقاء كثيرات منّا متعبات حتى بعد حل المشاكل. يُعلّمك الكتاب كيف "تُكمِلي" دورة التوتر حتى يرتاح جسمك فعليًا.',
+      en:'The Nagoski sisters reveal that stress and burnout are entirely different things — which is why so many of us stay exhausted even after problems are resolved. The book teaches you how to "complete" the stress cycle so your body can genuinely rest.'
+    },
+    longSummary: {
+      ar:`<p><strong>📌 فرضية الكتاب</strong><br>
+إميلي وأميليا ناغوسكي يُقدّمان فكرة مفصلية يغفل عنها معظم الناس: <em>حل مصدر التوتر ≠ الانتهاء من التوتر نفسه.</em> جسمك يُشغّل "دورة توتر" بيولوجية كاملة في كل مرة يواجه ضغطًا، وهذه الدورة تحتاج أن تكتمل فيزيولوجيًا قبل أن يرتاح جسمك فعلًا. حين تنتهي من المشكلة لكن الدورة تبقى مفتوحة — الجسم يظل في حالة طوارئ. وهذا هو جوهر الاحتراق النفسي.</p>
+
+<p><strong>🔑 النقاط الرئيسية</strong></p>
+<p><strong>1. التوتر vs. الاحتراق النفسي — الفرق الجوهري:</strong><br>
+• <strong>التوتر (Stress):</strong> استجابة بيولوجية لمؤثر محدد — موعد، خلاف، خبر مزعج. يمكن حله بإزالة المؤثر.<br>
+• <strong>الاحتراق النفسي (Burnout):</strong> تراكم دورات توتر لم تُكتمل. لا يزول بإزالة المشكلة — يزول فقط حين تُكمل الدورة البيولوجية.</p>
+
+<p><strong>2. دورة التوتر البيولوجية:</strong><br>
+الجسم يمر بدورة كاملة: مؤثر ← استجابة جسدية ← إكمال ← راحة. معظمنا يتوقف عند الاستجابة ولا يُكملها. الجسم يبقى "في وضع الحرب" حتى يُشعره بأن "الخطر انتهى".</p>
+
+<p><strong>3. متلازمة "المعطي الإنساني" (Human Giver Syndrome):</strong><br>
+ثقافة ضمنية تقول للمرأة: عليكِ أن تعطي باستمرار (وقتك، طاقتك، رعايتك، جمالك) — وقيمتك مرتبطة بمدى استمرارك في العطاء. هذه المتلازمة تجعل "التوقف عن العطاء ولو مؤقتًا" مصدر ذنب، مما يمنع الاسترداد الحقيقي للطاقة.</p>
+
+<p><strong>4. الجسم لا يفرّق بين الخطر الحقيقي والخطر المتخيّل:</strong><br>
+سواء كان تهديدًا فيزيائيًا حقيقيًا أو قلقًا من الأداء في العمل — الجسم يُشغّل نفس الاستجابة البيولوجية. هذا يفسّر لماذا القلق المزمن يُنهك الجسم كما لو كان في خطر دائم.</p>
+
+<p><strong>📊 أهم نتائج الكتاب</strong><br>
+• النساء يُعانين من الاحتراق النفسي بنسبة أعلى من الرجال، وأحد أسباب ذلك بنيوي وليس شخصيًا: يُتوقع منهن العطاء بلا توقف مقابل قبول اجتماعي.<br>
+• الاحتراق النفسي يُضعف جهاز المناعة، يُعطّل النوم، ويرفع خطر الأمراض المزمنة على المدى الطويل — ليس مجرد شعور بالتعب.<br>
+• الاسترخاء التقليدي (مشاهدة TV، التمرير على الهاتف) لا يُكمل دورة التوتر في معظم الأحيان — قد يُخدّر الشعور دون أن يعالج الجذر البيولوجي.</p>
+
+<p><strong>💡 الحلول والتوصيات — كيف تُكمِلين دورة التوتر</strong><br>
+الكتاب يُقدّم وسائل فيزيولوجية مُثبتة علميًا لإكمال الدورة:</p>
+<p>🔸 <strong>الحركة الجسدية (الأكثر فعالية):</strong> حتى المشي السريع لـ 20 دقيقة أو الرقص أو الجري. الجسم يحتاج أن "يُشعر" أنه نجا من التهديد وتحرّك.<br>
+🔸 <strong>البكاء الكامل:</strong> ليس كبح البكاء ولا إيقافه — بل السماح له أن يأخذ مجراه الطبيعي حتى يهدأ بنفسه. البكاء وسيلة بيولوجية حقيقية لإكمال الدورة.<br>
+🔸 <strong>التنفس العميق البطيء:</strong> تنفّس على إيقاع 4 ثوانٍ شهيق، 6 ثوانٍ زفير، لـ 5 دقائق — يُخبر الجهاز العصبي أن "الخطر انتهى".<br>
+🔸 <strong>الضحك الحقيقي:</strong> مع شخص تحبينه، ليس ابتسامة اجتماعية — ضحك حقيقي من القلب. له تأثير فيزيولوجي موثّق في تخفيف التوتر.<br>
+🔸 <strong>العناق الطويل:</strong> 20 ثانية على الأقل مع شخص تثقين به. يُطلق الأوكسيتوسين ويُعطي الجسم إشارة الأمان.<br>
+🔸 <strong>التعبير الإبداعي:</strong> الرسم، الكتابة، الموسيقى — حين تُعطين المشاعر شكلًا خارجيًا، تتحرر من السجن الداخلي.</p>
+
+<p><strong>توصية إضافية — إعادة تعريف "العطاء":</strong><br>
+الكتاب يطلب منك أن تُعاملي احتياجاتك الجسدية والعاطفية بنفس الجدية التي تُعاملين بها احتياجات من حولك. ليس ترفًا — ضرورة بيولوجية.</p>
+
+<p><strong>✅ ما يتغير بعد قراءة هذا الكتاب</strong><br>
+تتوقفين عن انتظار حل كل المشاكل لتشعري بالراحة — وتبدئين تُعطين جسمك ما يحتاجه لإعادة ضبط نفسه يوميًا. الراحة ليست مكافأة تنتظرين أن "تستحقيها" — هي جزء من الصيانة اليومية.</p>`,
+
+      en:`<p><strong>📌 The Book's Premise</strong><br>
+Emily and Amelia Nagoski introduce a pivotal idea most people miss: <em>solving the source of stress ≠ finishing the stress itself.</em> Your body runs a complete biological "stress cycle" every time it faces pressure, and this cycle needs to physiologically complete before your body can genuinely rest. When you resolve the problem but the cycle stays open — your body remains on high alert. This is the core of burnout.</p>
+
+<p><strong>🔑 Main Points</strong></p>
+<p><strong>1. Stress vs. Burnout — the fundamental difference:</strong><br>
+• <strong>Stress:</strong> A biological response to a specific trigger — a deadline, a conflict, upsetting news. Solved by removing the trigger.<br>
+• <strong>Burnout:</strong> An accumulation of uncompleted stress cycles. It doesn't go away when the problem is removed — it only goes away when you complete the biological cycle.</p>
+
+<p><strong>2. The biological stress cycle:</strong><br>
+The body moves through a complete loop: trigger → physical response → completion → rest. Most of us stop at the response and never complete it. The body stays "at war" until it gets a signal that "the danger has passed."</p>
+
+<p><strong>3. Human Giver Syndrome:</strong><br>
+An implicit cultural belief tells women: you must continuously give (your time, energy, care, appearance) — and your worth is tied to how endlessly you can keep giving. This syndrome makes "stopping giving, even temporarily" a source of guilt, which blocks genuine energy recovery.</p>
+
+<p><strong>4. The body doesn't distinguish between real and imagined threats:</strong><br>
+Whether it's a physical threat or anxiety about work performance — the body runs the same biological response. This is why chronic worry exhausts the body as though it were in constant danger.</p>
+
+<p><strong>📊 Key Findings</strong><br>
+• Women experience burnout at higher rates than men, and one reason is structural, not personal: they are expected to give without stopping in exchange for social acceptance.<br>
+• Burnout weakens the immune system, disrupts sleep, and raises long-term risk of chronic illness — it is not merely a feeling of tiredness.<br>
+• Traditional relaxation (watching TV, scrolling a phone) usually does not complete the stress cycle — it may numb the feeling without addressing the biological root.</p>
+
+<p><strong>💡 Solutions & Recommendations — How to Complete the Stress Cycle</strong><br>
+The book presents scientifically validated physiological methods for completing the stress cycle:</p>
+<p>🔸 <strong>Physical movement (most effective):</strong> Even a brisk 20-minute walk, dancing, or running. The body needs to physically "feel" that it survived the threat and moved.<br>
+🔸 <strong>Full crying:</strong> Not suppressing or stopping a cry — but letting it run its natural course until it quiets on its own. Crying is a genuine biological mechanism for completing the cycle.<br>
+🔸 <strong>Slow deep breathing:</strong> Breathe on a rhythm of 4 seconds inhale, 6 seconds exhale, for 5 minutes — this signals the nervous system that "the danger has passed."<br>
+🔸 <strong>Real laughter:</strong> With someone you love, not a social smile — genuine laughter from the chest. It has documented physiological effects in stress reduction.<br>
+🔸 <strong>Long hugs:</strong> At least 20 seconds with someone you trust. Releases oxytocin and gives the body a safety signal.<br>
+🔸 <strong>Creative expression:</strong> Drawing, writing, music — when you give feelings an external form, they are released from their internal prison.</p>
+
+<p><strong>Additional recommendation — redefining "giving":</strong><br>
+The book asks you to treat your physical and emotional needs with the same seriousness you give to the needs of those around you. Not a luxury — a biological necessity.</p>
+
+<p><strong>✅ What changes after reading this book</strong><br>
+You stop waiting for all your problems to be solved before you allow yourself to rest — and start giving your body what it needs to reset itself daily. Rest is not a reward you wait to "deserve" — it is part of your daily maintenance.</p>`
+    },
+    link: 'https://www.amazon.com/Burnout-Secret-Unlocking-Stress-Cycle/dp/1984818325',
+    icon: '🔥'
+  },
+];
+
+
+function renderBooksSection(){
+  const cap = LANG==='en' ? 'Books to help you understand yourself' : 'كتب تساعدك تفهمي نفسك';
+  const buyLbl = LANG==='en' ? '🛍️ Buy the book' : '🛍️ تسوّقي الكتاب كامل';
+  const readLbl = LANG==='en' ? '📖 Read summary' : '📖 اقرأي الملخص';
+  return `
+    <div class="cap" style="font-size:12px;color:#6b5a64;margin:18px 0 8px;">${cap}</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      ${BOOKS.map((b,i) => `
+        <div style="background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;">
+          <div style="font-weight:700;font-size:14px;color:var(--plum);">${b.icon} ${LANG==='en'?b.title.en:b.title.ar} <span style="font-weight:400;color:#9b8a92;font-size:12px;">— ${b.author}</span></div>
+          <p style="font-size:13px;color:#4a3c44;margin:8px 0;line-height:1.6;">${LANG==='en'?b.summary.en:b.summary.ar}</p>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+            <button class="btn secondary small" onclick="openBookModal(${i})" style="width:100%;">${readLbl}</button>
+            <a class="btn small" href="${b.link}" target="_blank" rel="noopener" style="width:100%;text-align:center;text-decoration:none;display:block;box-sizing:border-box;">${buyLbl}</a>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function bookParagraphsHtml(text){
+  return text.split('\n\n').filter(p=>p.trim()).map(p=>{
+    const withBold = p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    return `<p style="margin:0 0 14px;line-height:1.8;font-size:14.5px;color:#3D2B3D;">${withBold}</p>`;
+  }).join('');
+}
+
+function openBookModal(index){
+  const b = BOOKS[index];
+  const buyLbl = LANG==='en' ? '🛍️ Buy the book' : '🛍️ تسوّقي الكتاب كامل';
+  document.getElementById('bookModalTitle').textContent = (LANG==='en'?b.title.en:b.title.ar) + ' — ' + b.author;
+  document.getElementById('bookModalBody').innerHTML = bookParagraphsHtml(LANG==='en'?b.longSummary.en:b.longSummary.ar);
+  document.getElementById('bookModalBuyLink').href = b.link;
+  document.getElementById('bookModalBuyLink').textContent = buyLbl;
+  document.getElementById('bookModalOverlay').style.display = 'flex';
+}
+document.getElementById('bookModalClose').addEventListener('click', ()=>{
+  document.getElementById('bookModalOverlay').style.display = 'none';
+});
+
+
+
+function renderDailyMiniChart(canvasId){
+  const week = lastNDaysEntries(7);
+  const sorted = [...week].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const labels = sorted.map(e=>e.date.slice(5));
+  const data = sorted.map(e=>e.mood||null);
+  const todayStr = new Date().toISOString().slice(0,10);
+  const pointColors = sorted.map(e=> e.date===todayStr ? '#B5573F' : '#C97B84');
+  const pointRadii = sorted.map(e=> e.date===todayStr ? 7 : 3);
+  if(window._dailyMiniChart) window._dailyMiniChart.destroy();
+  window._dailyMiniChart = new Chart(document.getElementById(canvasId), {
+    type:'line',
+    data:{ labels, datasets:[{ label: LANG==='en'?'Mood':'المزاج', data, borderColor:'#C97B84', backgroundColor:'#C97B8422', tension:.35, spanGaps:true, pointBackgroundColor:pointColors, pointRadius:pointRadii }]},
+    options:{ scales:{ y:{ min:1, max:5, ticks:{stepSize:1} } }, plugins:{legend:{display:false}} }
+  });
+}
+
+document.getElementById('genActivitiesOnly').addEventListener('click', ()=>{
+  const el = document.getElementById('dailyReportResult');
+  const linksCap = LANG==='en' ? 'Activities that may help today' : 'أنشطة قد تساعدك اليوم';
+  el.innerHTML = `
+    <div class="ai-box">
+      <div class="cap" style="font-size:12px;color:#6b5a64;margin-bottom:6px;">${linksCap}</div>
+      ${renderResourceChips()}
+      ${renderBooksSection()}
+    </div>
+  `;
+});
+
+// ================= DAILY CHAT (30-minute budget, resets daily) =================
+let chatRemainingSeconds = 30*60;
+let chatCountdownTimer = null;
+
+function formatMMSS(totalSeconds){
+  const m = Math.floor(totalSeconds/60);
+  const s = totalSeconds%60;
+  return `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+function renderChatMessage(role, content){
+  const el = document.createElement('div');
+  el.className = 'chat-bubble ' + (role==='user' ? 'user' : 'assistant');
+  el.textContent = content;
+  document.getElementById('chatMessages').appendChild(el);
+  document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+}
+
+function updateChatTimerDisplay(){
+  const box = document.getElementById('chatTimerBox');
+  if(chatRemainingSeconds <= 0){
+    document.getElementById('chatInputRow').style.display = 'none';
+    document.getElementById('chatLockedMsg').style.display = 'block';
+    document.getElementById('chatLockedMsg').textContent = LANG==='en'
+      ? "Today's chat time is up — come back tomorrow for a new 30-minute session 🌙"
+      : 'خلص وقت محادثة اليوم — ارجعي بكرة لجلسة جديدة لمدة 30 دقيقة 🌙';
+    box.textContent = '';
+    if(chatCountdownTimer){ clearInterval(chatCountdownTimer); chatCountdownTimer=null; }
+  } else {
+    document.getElementById('chatInputRow').style.display = 'flex';
+    document.getElementById('chatLockedMsg').style.display = 'none';
+    box.textContent = (LANG==='en' ? '⏱️ Time left today: ' : '⏱️ الوقت المتبقي اليوم: ') + formatMMSS(chatRemainingSeconds);
+  }
+}
+
+function startChatCountdown(){
+  if(chatCountdownTimer) clearInterval(chatCountdownTimer);
+  chatCountdownTimer = setInterval(()=>{
+    chatRemainingSeconds = Math.max(0, chatRemainingSeconds-1);
+    updateChatTimerDisplay();
+  }, 1000);
+}
+
+async function loadChatStatus(){
+  try{
+    const data = await apiFetch('/api/chat-status');
+    chatRemainingSeconds = data.remainingSeconds;
+    document.getElementById('chatMessages').innerHTML = '';
+    (data.messages||[]).forEach(m => renderChatMessage(m.role, m.content));
+    updateChatTimerDisplay();
+    if(chatRemainingSeconds > 0) startChatCountdown();
+  }catch(e){}
+}
+
+async function sendChatMessage(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  const btn = document.getElementById('chatSendBtn');
+
+  renderChatMessage('user', text);
+  input.value = '';
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.textContent = LANG==='en' ? '...' : '...';
+
+  try{
+    const data = await apiFetch('/api/chat', { method:'POST', body: JSON.stringify({ message:text, lang:LANG }) });
+    renderChatMessage('assistant', data.reply);
+    chatRemainingSeconds = data.remainingSeconds;
+    if(chatCountdownTimer===null && chatRemainingSeconds>0) startChatCountdown();
+    updateChatTimerDisplay();
+  }catch(e){
+    if(String(e.message).includes('TIME_UP')){
+      chatRemainingSeconds = 0;
+      updateChatTimerDisplay();
+    } else {
+      renderChatMessage('assistant', (LANG==='en' ? 'Something went wrong: ' : 'حدث خطأ: ') + e.message);
+    }
+  }finally{
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
+}
+
+document.getElementById('chatSendBtn').addEventListener('click', sendChatMessage);
+document.getElementById('chatInput').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter') sendChatMessage();
+});
+
+document.getElementById('genDailyReport').addEventListener('click', async ()=>{
+  const todayStr = new Date().toISOString().slice(0,10);
+  const todayEntry = entries.find(e=>e.date===todayStr);
+  const el = document.getElementById('dailyReportResult');
+
+  if(!todayEntry){
+    el.innerHTML = LANG==='en'
+      ? `<div class="ai-box"><p>You haven't logged today yet. Fill in the form above first, then come back for your report ✨</p></div>`
+      : `<div class="ai-box"><p>لم تسجلي بيانات اليوم بعد. عبّي النموذج بالأعلى أولًا ثم رجعي لتقريرك ✨</p></div>`;
+    return;
+  }
+
+  el.innerHTML = LANG==='en'
+    ? `<div class="loading"><div class="spinner"></div> Analyzing today's data...</div>`
+    : `<div class="loading"><div class="spinner"></div> يحلل بيانات اليوم...</div>`;
+
+  const ph = computePhase(todayStr);
+  const phaseName = ph ? (LANG==='en' ? PHASES.find(x=>x.key===ph.phaseKey).nameEn : PHASES.find(x=>x.key===ph.phaseKey).name) : '-';
+
+  const moodWord = MOOD_WORD[LANG][todayEntry.mood] || '-';
+
+  const prompt = LANG==='en'
+    ? `You are a supportive women's health companion. Analyze the user's state today based on the data below and write "Today's Report" in clear, natural English, including:
+1. A detailed, friendly analysis of her mood and physical state today, connecting it to her current cycle phase where relevant.
+2. One specific practical tip based on her state: if her mood is low (very bad or bad), suggest she talk to a close friend or someone she trusts about how she feels. If her mood is good or amazing, suggest a 20-minute walk outdoors to make the most of that positive energy. If her mood is okay, suggest a simple activity to lift it.
+3. One additional activity suggestion suited to her state, chosen from: exercise, drawing, Qur'an reflection, breathing exercises, or talking to a peer in a listening session — and explain why it specifically fits today.
+Do not provide a medical diagnosis. Write warmly, personally, and directly (addressing her as "you"), in 130-180 words. Break the reply into short paragraphs with simple bold markdown headers.
+
+Today's data:
+Date: ${todayStr}
+Cycle phase: ${phaseName}
+Mood: ${moodWord} (${todayEntry.mood||'-'}/5)
+Physical symptoms: ${termsForPrompt(todayEntry.symptoms)}
+Emotional symptoms: ${termsForPrompt(todayEntry.psych)}
+Her words: "${todayEntry.feeling||'-'}"
+Stated reason: "${todayEntry.trigger||'-'}"`
+    : `أنتِ مساعدة دعم نفسي وصحي متخصصة بصحة المرأة. حللي حالة المستخدمة اليوم بناءً على البيانات أدناه واكتبي "تقرير اليوم" بالعربية الفصحى السهلة يتضمن:
+1. تحليل مفصل وودود لحالتها المزاجية والجسدية اليوم، مع ربطها بمرحلة الدورة الحالية إن كان ذلك مناسبًا.
+2. نصيحة عملية واحدة محددة بحسب حالتها: إذا كان مزاجها منخفضًا (سيئة جدًا أو سيئة)، اقترحي عليها التحدث مع صديقة مقربة أو شخص تثق به عن شعورها. إذا كان مزاجها جيدًا أو رائعًا، اقترحي عليها ممارسة المشي لمدة 20 دقيقة في مكان مفتوح للاستفادة من هذي الطاقة الإيجابية. إذا كان مزاجها عاديًا، اقترحي نشاطًا بسيطًا يرفع مزاجها.
+3. اقتراح نشاط إضافي واحد مناسب لحالتها من بين: الرياضة، الرسم، تدبر القرآن، تمارين التنفس، أو التحدث مع رفيقة في جلسة استماع — واذكري لماذا يناسبها اليوم بالتحديد.
+لا تقدمي تشخيصًا طبيًا. اكتبي بأسلوب دافئ شخصي مباشر (خاطبيها بصيغة المخاطبة)، في حدود 130-180 كلمة، وقسمي الرد لفقرات قصيرة بعناوين بسيطة بخط عريض markdown.
+
+بيانات اليوم:
+التاريخ: ${todayStr}
+مرحلة الدورة: ${phaseName}
+المزاج: ${moodWord} (${todayEntry.mood||'-'}/5)
+الأعراض الجسدية: ${todayEntry.symptoms.join(', ')||'لا يوجد'}
+الأعراض النفسية: ${todayEntry.psych.join(', ')||'لا يوجد'}
+شعورها بكلماتها: "${todayEntry.feeling||'-'}"
+السبب المذكور: "${todayEntry.trigger||'-'}"`;
+
+  const langInstruction = LANG==='en'
+    ? '\n\n(Reminder: the entire reply must be in English only — no Arabic words.)'
+    : '\n\n(تذكير: الرد بالكامل بالعربية فقط، بدون أي كلمات إنجليزية.)';
+
+  try{
+    const text = await callClaudeAI(prompt + langInstruction, 900);
+
+    const titleTxt = LANG==='en' ? '📋 Today\u2019s report' : '📋 تقرير اليوم';
+    const chartCap = LANG==='en' ? 'Your mood over the last 7 days (today highlighted)' : 'مزاجك خلال آخر 7 أيام (اليوم محدد)';
+    const linksCap = LANG==='en' ? 'Activities that may help today' : 'أنشطة قد تساعدك اليوم';
+
+    el.innerHTML = `
+      <div class="ai-box">
+        <div class="ai-title">${titleTxt}</div>
+        ${mdToHtml(text)}
+      </div>
+      <div class="mini-chart-wrap">
+        <div class="cap">${chartCap}</div>
+        <canvas id="dailyMiniChart" height="90"></canvas>
+      </div>
+      <div style="margin-top:14px;">
+        <div class="cap" style="font-size:12px;color:#6b5a64;margin-bottom:6px;">${linksCap}</div>
+        ${renderResourceChips()}
+      </div>
+    `;
+    renderDailyMiniChart('dailyMiniChart');
+  }catch(err){
+    el.innerHTML = LANG==='en'
+      ? `<div class="ai-box"><p>Couldn't generate the report right now. Please try again shortly.</p><p style="font-size:11px;color:#9b8a92;">Debug: ${escapeHtml(err.message||String(err))}</p></div>`
+      : `<div class="ai-box"><p>تعذّر توليد التقرير الآن. حاولي مرة أخرى بعد قليل.</p><p style="font-size:11px;color:#9b8a92;">تفاصيل: ${escapeHtml(err.message||String(err))}</p></div>`;
+  }
+});
+
+// ---- PWA service worker registration ----
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  });
+}
+
+// ================= INSTALL PROMPT BANNER =================
+let deferredInstallPrompt = null;
+
+function isStandalone(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+function isIOS(){
+  return /iphone|ipad|ipod/i.test(navigator.userAgent);
+}
+
+function showInstallBanner(){
+  if(isStandalone()) return; // already installed, don't nag
+  if(localStorage.getItem('hada_install_dismissed')==='1') return;
+
+  const banner = document.getElementById('installBanner');
+  const textEl = document.getElementById('installBannerText');
+  const btn = document.getElementById('installBannerBtn');
+
+  if(deferredInstallPrompt){
+    // Android/Chrome: real install button
+    textEl.textContent = LANG==='en'
+      ? '📲 Install Hada\u2019 on your home screen for quick access anytime.'
+      : '📲 ثبّتي هَدَأ على شاشتك الرئيسية للوصول السريع لها في أي وقت.';
+    document.getElementById('installBannerBtnLbl').textContent = LANG==='en' ? 'Install app' : 'تثبيت التطبيق';
+    btn.style.display = 'inline-flex';
+  } else if(isIOS()){
+    // iOS Safari: no native prompt, show manual instructions
+    textEl.textContent = LANG==='en'
+      ? '📲 Add Hada\u2019 to your Home Screen: tap the Share icon, then "Add to Home Screen".'
+      : '📲 لإضافة هَدَأ على شاشتك الرئيسية: اضغطي على أيقونة المشاركة (⬆️)، ثم "Add to Home Screen".';
+    btn.style.display = 'none';
+  } else {
+    // Other browsers: generic hint
+    textEl.textContent = LANG==='en'
+      ? '📲 Open this site in Chrome to install it on your home screen.'
+      : '📲 افتحي الموقع بمتصفح Chrome عشان تقدرين تثبتينه على شاشتك الرئيسية.';
+    btn.style.display = 'none';
+  }
+  banner.style.display = 'flex';
+}
+
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  showInstallBanner();
+});
+
+document.getElementById('installBannerBtn').addEventListener('click', async ()=>{
+  if(!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  document.getElementById('installBanner').style.display = 'none';
+});
+
+document.getElementById('installBannerClose').addEventListener('click', ()=>{
+  document.getElementById('installBanner').style.display = 'none';
+  try{ localStorage.setItem('hada_install_dismissed','1'); }catch(e){}
+});
+
+// Show banner shortly after load (gives Chrome a moment to fire beforeinstallprompt if eligible)
+window.addEventListener('load', ()=>{
+  setTimeout(showInstallBanner, 1500);
+});
+
+// ================= AUTH UI =================
+let authTab = 'login';
+
+function updateAuthTabUI(){
+  document.getElementById('authTabLogin').classList.toggle('selected', authTab==='login');
+  document.getElementById('authTabSignup').classList.toggle('selected', authTab==='signup');
+  document.getElementById('authNameRow').style.display = authTab==='signup' ? 'block' : 'none';
+  document.getElementById('authTitle').textContent = authTab==='login'
+    ? (LANG==='en' ? 'Log in' : 'تسجيل الدخول')
+    : (LANG==='en' ? 'Create account' : 'إنشاء حساب جديد');
+  document.getElementById('authSubmit').textContent = authTab==='login'
+    ? (LANG==='en' ? 'Log in' : 'دخول')
+    : (LANG==='en' ? 'Create account' : 'إنشاء الحساب');
+  document.getElementById('authError').style.display = 'none';
+}
+
+document.getElementById('authTabLogin').addEventListener('click', ()=>{ authTab='login'; updateAuthTabUI(); });
+document.getElementById('authTabSignup').addEventListener('click', ()=>{ authTab='signup'; updateAuthTabUI(); });
+
+document.getElementById('authSubmit').addEventListener('click', async ()=>{
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const name = document.getElementById('authName').value.trim();
+  const errEl = document.getElementById('authError');
+  errEl.style.display = 'none';
+
+  if(!email || !password){
+    errEl.textContent = LANG==='en' ? 'Please fill in email and password.' : 'عبّي البريد وكلمة المرور.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('authSubmit');
+  const originalText = btn.textContent;
+  btn.textContent = LANG==='en' ? 'Please wait...' : 'لحظة...';
+  btn.disabled = true;
+
+  try{
+    if(authTab==='signup'){
+      await apiSignup(email, password, name);
+    } else {
+      await apiLogin(email, password);
+    }
+    document.getElementById('authOverlay').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'inline-block';
+    await loadAppData();
+  }catch(e){
+    errEl.textContent = e.message || (LANG==='en' ? 'Something went wrong.' : 'حدث خطأ ما.');
+    errEl.style.display = 'block';
+  }finally{
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', ()=>{
+  const msg = LANG==='en' ? 'Log out of your account?' : 'تسجيل الخروج من حسابك؟';
+  if(!confirm(msg)) return;
+  clearTokenFromStorage();
+  location.reload();
+});
+
+// ---- password visibility toggles ----
+function wireTogglePassword(btnId, inputId){
+  document.getElementById(btnId).addEventListener('click', ()=>{
+    const input = document.getElementById(inputId);
+    const btn = document.getElementById(btnId);
+    if(input.type === 'password'){ input.type = 'text'; btn.textContent = '🙈'; }
+    else { input.type = 'password'; btn.textContent = '👁️'; }
+  });
+}
+wireTogglePassword('togglePasswordBtn', 'authPassword');
+wireTogglePassword('toggleResetPasswordBtn', 'resetPassword');
+
+// ---- forgot password ----
+document.getElementById('forgotPasswordLink').addEventListener('click', ()=>{
+  document.getElementById('forgotEmail').value = document.getElementById('authEmail').value.trim();
+  document.getElementById('forgotMsg').style.display = 'none';
+  document.getElementById('forgotOverlay').style.display = 'flex';
+});
+document.getElementById('forgotCancel').addEventListener('click', ()=>{
+  document.getElementById('forgotOverlay').style.display = 'none';
+});
+document.getElementById('forgotSubmit').addEventListener('click', async ()=>{
+  const email = document.getElementById('forgotEmail').value.trim();
+  const msgEl = document.getElementById('forgotMsg');
+  if(!email){
+    msgEl.style.color = '#B5573F';
+    msgEl.textContent = LANG==='en' ? 'Please enter your email.' : 'عبّي بريدك الإلكتروني.';
+    msgEl.style.display = 'block';
+    return;
+  }
+  const btn = document.getElementById('forgotSubmit');
+  btn.disabled = true;
+  try{
+    const res = await fetch(API_BASE + '/api/forgot-password', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, lang: LANG })
+    });
+    const data = await res.json();
+    msgEl.style.color = 'var(--sage)';
+    msgEl.textContent = (LANG==='en'
+      ? 'If that email is registered, a reset link has been sent. Check your inbox.'
+      : 'لو هذا البريد مسجّل، تم إرسال رابط إعادة التعيين. تفقدي بريدك.')
+      + ' [DEBUG: ' + JSON.stringify(data.debugInfo) + ']';
+    msgEl.style.display = 'block';
+  }catch(e){
+    msgEl.style.color = '#B5573F';
+    msgEl.textContent = LANG==='en' ? 'Something went wrong. Try again.' : 'حدث خطأ. حاولي مرة أخرى.';
+    msgEl.style.display = 'block';
+  }finally{
+    btn.disabled = false;
+  }
+});
+
+// ---- reset password (when arriving via emailed link ?reset=TOKEN) ----
+const urlResetToken = new URLSearchParams(location.search).get('reset');
+if(urlResetToken){
+  document.getElementById('resetOverlay').style.display = 'flex';
+}
+document.getElementById('resetSubmit').addEventListener('click', async ()=>{
+  const newPassword = document.getElementById('resetPassword').value;
+  const msgEl = document.getElementById('resetMsg');
+  if(!newPassword || newPassword.length < 6){
+    msgEl.style.color = '#B5573F';
+    msgEl.textContent = LANG==='en' ? 'Password must be at least 6 characters.' : 'كلمة المرور لازم تكون 6 أحرف على الأقل.';
+    msgEl.style.display = 'block';
+    return;
+  }
+  const btn = document.getElementById('resetSubmit');
+  btn.disabled = true;
+  try{
+    const res = await fetch(API_BASE + '/api/reset-password', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token: urlResetToken, newPassword })
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error || 'Failed');
+    msgEl.style.color = 'var(--sage)';
+    msgEl.textContent = LANG==='en'
+      ? 'Password updated! You can now log in.'
+      : 'تم تحديث كلمة المرور! تقدرين تسجلين دخولك الآن.';
+    msgEl.style.display = 'block';
+    setTimeout(()=>{
+      window.location.href = window.location.origin + window.location.pathname;
+    }, 2000);
+  }catch(e){
+    msgEl.style.color = '#B5573F';
+    msgEl.textContent = (LANG==='en' ? 'Error: ' : 'خطأ: ') + e.message;
+    msgEl.style.display = 'block';
+  }finally{
+    btn.disabled = false;
+  }
+});
+
+async function loadAppData(){
+  await loadEntries();
+  await loadCycleSettings();
+  await loadDhikrSettings();
+  appDataLoaded = true;
+  loadEntryIntoForm();
+  applyLang();
+  renderGreeting();
+  renderArticles();
+  renderWeeklyFeatured();
+  renderDhikrToggle();
+  updateEnablePushButton();
+  loadChatStatus();
+  if(dhikrSettings.enabled) startDhikrInterval();
+}
+
+// ---- init ----
+(async function init(){
+  loadTokenFromStorage();
+  const user = await apiCheckSession();
+  updateAuthTabUI();
+
+  if(urlResetToken){
+    document.getElementById('authOverlay').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'none';
+    applyLang();
+  } else if(user){
+    document.getElementById('authOverlay').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'inline-block';
+    await loadAppData();
+  } else {
+    document.getElementById('authOverlay').style.display = 'flex';
+    document.getElementById('logoutBtn').style.display = 'none';
+    applyLang();
+  }
+})();
+</script>
+</body>
+</html>
