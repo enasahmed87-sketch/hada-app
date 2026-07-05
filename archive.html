@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>هَدَأ — مكتبة المحتوى</title>
+<style>
+:root{
+  --cream:#FBF4EE;--plum:#3D2B3D;--rose:#C97B84;--terracotta:#B5573F;
+  --sage:#8A9B7E;--line:#E3D4CB;--gold:#C8956D;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--cream);color:var(--plum);font-family:'Tajawal','Segoe UI',Arial,sans-serif;font-size:14px;line-height:1.6;}
+a{color:inherit;text-decoration:none;}
+h1,h2,h3{font-family:Georgia,serif;font-weight:400;margin:0;}
+
+.header{background:#fff;border-bottom:2px solid var(--line);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.brand{display:flex;align-items:center;gap:10px;}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--terracotta);}
+.brand h1{font-size:20px;}
+.back-btn{background:transparent;border:1.5px solid var(--line);border-radius:10px;padding:6px 14px;font-size:12px;cursor:pointer;color:#9b8a92;font-family:inherit;}
+.back-btn:hover{border-color:var(--rose);color:var(--rose);}
+
+.page{max-width:700px;margin:0 auto;padding:24px 16px 60px;}
+
+.section-title{
+  font-size:18px;font-family:Georgia,serif;
+  background:linear-gradient(135deg,var(--plum),var(--rose));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin:32px 0 14px;padding-bottom:8px;border-bottom:1.5px solid var(--line);
+}
+.section-title:first-child{margin-top:0;}
+.eyebrow{font-size:10px;color:var(--rose);font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;}
+
+/* Article cards */
+.article-card{background:#fff;border:1.5px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:14px;cursor:pointer;transition:.2s;}
+.article-card:hover{box-shadow:0 4px 16px rgba(61,43,61,.10);transform:translateY(-1px);}
+.article-card .cover{height:90px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.article-card .cover svg{position:absolute;inset:0;width:100%;height:100%;}
+.article-card .body{padding:12px 14px 14px;}
+.article-card .atitle{font-size:14px;font-weight:700;margin-bottom:4px;}
+.article-card .adesc{font-size:12.5px;color:#6b5a64;line-height:1.5;}
+.article-card .atag{font-size:10px;color:var(--rose);font-weight:600;margin-top:6px;}
+
+/* Book cards */
+.book-card{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;}
+.book-card .icon{font-size:28px;margin-bottom:8px;}
+.book-card h3{font-size:15px;margin-bottom:2px;}
+.book-card .author{font-size:12px;color:#9b8a92;margin-bottom:8px;}
+.book-card .summary{font-size:13px;color:#4a3c44;line-height:1.6;margin-bottom:12px;}
+.book-card .actions{display:flex;gap:8px;flex-wrap:wrap;}
+.btn{background:var(--plum);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-block;}
+.btn.secondary{background:transparent;color:var(--plum);border:1.5px solid var(--plum);}
+
+/* Resource links */
+.resource-link{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:.15s;}
+.resource-link:hover{border-color:var(--rose);}
+.resource-link .icon{font-size:22px;flex-shrink:0;}
+.resource-link .title{font-size:13px;font-weight:700;color:var(--plum);}
+.resource-link .type{font-size:10px;color:var(--rose);font-weight:600;margin-bottom:2px;}
+.resource-link .arrow{color:var(--rose);margin-right:auto;font-size:14px;}
+
+/* Medical articles */
+.med-card{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.med-card .symptom{font-size:10px;color:var(--rose);font-weight:700;margin-bottom:2px;}
+.med-card .title{font-size:13px;font-weight:600;color:var(--plum);}
+.med-card .src{font-size:10px;color:#9b8a92;}
+
+/* Weekly archive */
+.week-block{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;}
+.week-label{font-size:11px;color:#9b8a92;margin-bottom:10px;font-weight:600;}
+.week-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F3EAE3;}
+.week-item:last-child{border-bottom:none;}
+.week-item .icon{font-size:20px;flex-shrink:0;}
+.week-item .info .title{font-size:13px;font-weight:700;color:var(--plum);}
+.week-item .info .desc{font-size:12px;color:#6b5a64;margin-top:2px;}
+.type-badge{font-size:9px;background:var(--cream);color:var(--rose);border-radius:999px;padding:2px 7px;font-weight:700;margin-left:6px;}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-start;justify-content:center;padding:20px 16px;z-index:99;overflow-y:auto;}
+.modal.open{display:flex;}
+.modal-box{background:#fff;border-radius:20px;padding:24px;max-width:580px;width:100%;max-height:90vh;overflow-y:auto;text-align:right;}
+.modal-box h2{font-family:Georgia,serif;font-size:18px;margin-bottom:14px;}
+.modal-box p{font-size:14px;line-height:1.8;color:#3D2B3D;margin:0 0 12px;}
+.modal-box strong{color:var(--plum);}
+.close-btn{background:var(--plum);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;cursor:pointer;width:100%;margin-top:14px;font-family:inherit;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">
+    <div class="dot"></div>
+    <h1>هَدَأ</h1>
+  </div>
+  <button class="back-btn" onclick="history.back()">← رجوع للتطبيق</button>
+</div>
+
+<div class="page">
+
+  <!-- ===== قسم 1: مقالاتنا ===== -->
+  <div class="section-title">📝 مقالاتنا</div>
+  <p style="font-size:12.5px;color:#6b5a64;margin:0 0 14px;">مقالات كتبناها لك خصيصًا لمساعدتك تفهمي جسمك ومشاعرك.</p>
+
+  <div class="article-card" onclick="openModal(0)">
+    <div class="cover"><svg viewBox="0 0 400 90" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="a0" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#B5D5D0"/><stop offset="100%" stop-color="#7BAAA6"/></linearGradient></defs><rect width="400" height="90" fill="url(#a0)"/><circle cx="60" cy="55" r="28" fill="rgba(255,255,255,.12)"/><circle cx="340" cy="35" r="22" fill="rgba(255,255,255,.10)"/><circle cx="200" cy="70" r="14" fill="rgba(255,255,255,.15)"/></svg></div>
+    <div class="body">
+      <div class="eyebrow">الجسم والدورة</div>
+      <div class="atitle">🫧 الانتفاخ والحلول السريعة</div>
+      <div class="adesc">لماذا يحصل الانتفاخ قبل الدورة وكيف تتعاملين معه بخطوات بسيطة.</div>
+    </div>
+  </div>
+
+  <div class="article-card" onclick="openModal(1)">
+    <div class="cover"><svg viewBox="0 0 400 90" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="a1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#C97B84"/><stop offset="100%" stop-color="#E8A0A8"/></linearGradient></defs><rect width="400" height="90" fill="url(#a1)"/><circle cx="160" cy="45" r="28" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/><circle cx="240" cy="45" r="28" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/></svg></div>
+    <div class="body">
+      <div class="eyebrow">العلاقات والهرمونات</div>
+      <div class="atitle">💞 احمي علاقاتك في أيام التقلبات</div>
+      <div class="adesc">لماذا تتأثر علاقاتك بالهرمونات وكيف تتجنبين المشاكل المتكررة.</div>
+    </div>
+  </div>
+
+  <div class="article-card" onclick="openModal(2)">
+    <div class="cover"><svg viewBox="0 0 400 90" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="a2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#D4A96A"/><stop offset="100%" stop-color="#8A9B7E"/></linearGradient></defs><rect width="400" height="90" fill="url(#a2)"/><ellipse cx="200" cy="40" rx="26" ry="32" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2"/><ellipse cx="200" cy="40" rx="18" ry="24" fill="rgba(255,255,255,.18)"/></svg></div>
+    <div class="body">
+      <div class="eyebrow">الصحة النفسية</div>
+      <div class="atitle">🪞 افهمي نفسك وتصالحي معها</div>
+      <div class="adesc">رحلة الوعي الذاتي والتصالح مع من أنتِ فعلًا.</div>
+    </div>
+  </div>
+
+  <div class="article-card" onclick="openModal(3)">
+    <div class="cover"><svg viewBox="0 0 400 90" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="a3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#B5573F"/><stop offset="100%" stop-color="#D4876A"/></linearGradient></defs><rect width="400" height="90" fill="url(#a3)"/><path d="M200 72 C200 72 162 54 162 38 C162 28 172 22 182 30 C186 33 190 37 200 42 C210 37 214 33 218 30 C228 22 238 28 238 38 C238 54 200 72 200 72Z" fill="rgba(255,255,255,.28)"/></svg></div>
+    <div class="body">
+      <div class="eyebrow">الهرمونات والمشاعر</div>
+      <div class="atitle">🌹 لماذا نشتاق للحب في أيام معينة؟</div>
+      <div class="adesc">التفسير الهرموني لرغبتنا في القرب والتواصل في أوقات مختلفة من الدورة.</div>
+    </div>
+  </div>
+
+  <div class="article-card" onclick="openModal(4)">
+    <div class="cover"><svg viewBox="0 0 400 90" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="a4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1A3A5C"/><stop offset="100%" stop-color="#2D6E7A"/></linearGradient></defs><rect width="400" height="90" fill="url(#a4)"/><circle cx="200" cy="38" r="22" fill="rgba(255,255,255,.28)"/><circle cx="215" cy="32" r="18" fill="url(#a4)"/><line x1="200" y1="6" x2="200" y2="14" stroke="rgba(255,255,255,.35)" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="body">
+      <div class="eyebrow">الإيمان والجسد</div>
+      <div class="atitle">🌙 تقلباتك رحمة — رحلة مقدسة ونظام إلهي</div>
+      <div class="adesc">كيف تفهمين دورتك الشهرية كنعمة وتصميم إلهي متقن.</div>
+    </div>
+  </div>
+
+  <div class="article-card" onclick="openModal(5)">
+    <div class="cover"><svg viewBox="0 0 400 90" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="a5" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4A3060"/><stop offset="100%" stop-color="#9A6AAA"/></linearGradient></defs><rect width="400" height="90" fill="url(#a5)"/><rect x="140" y="15" width="58" height="65" rx="4" fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.4)" stroke-width="1.2"/><path d="M170 30 C170 30 163 25 163 31 C163 34 166 37 170 41 C174 37 177 34 177 31 C177 25 170 30 170 30Z" fill="rgba(255,255,255,.45)"/></svg></div>
+    <div class="body">
+      <div class="eyebrow">المراهقة والنمو</div>
+      <div class="atitle">📔 مذكرات مراهقة.. أنا حزينة</div>
+      <div class="adesc">إلى الفتاة التي تشعر أن كل شيء ينهار — رسالة صادقة عن تجربة حقيقية.</div>
+    </div>
+  </div>
+
+  <!-- ===== قسم 2: ملخصات الكتب ===== -->
+  <div class="section-title">📚 ملخصات الكتب</div>
+  <p style="font-size:12.5px;color:#6b5a64;margin:0 0 14px;">ملخصات أصيلة كتبناها لتغنيك عن القراءة مع رابط الشراء لمن تريد الأصل.</p>
+
+  <div class="book-card">
+    <div class="icon">🧠</div>
+    <h3>الذكاء العاطفي</h3>
+    <div class="author">Daniel Goleman</div>
+    <div class="summary">يكشف جولمان أن الذكاء العاطفي أهم من معدل الذكاء في تحديد من سينجح ومن سيبني علاقات حقيقية. يعلّمك تسمية مشاعرك قبل أن تتحكم فيك، والتوقف قبل ردة الفعل.</div>
+    <div class="actions">
+      <button class="btn secondary" onclick="openBookModal(0)">📖 اقرأي الملخص الكامل</button>
+      <a class="btn" href="https://www.jarir.com/jarir-publication-292492.html" target="_blank">🛍️ تسوّقي الكتاب</a>
+    </div>
+  </div>
+
+  <div class="book-card">
+    <div class="icon">💗</div>
+    <h3>الذكاء العاطفي لدى المرأة</h3>
+    <div class="author">Cornelia Topf</div>
+    <div class="summary">يُثبت الكتاب أن كثيرًا من النساء يتعلمن قراءة مشاعر الآخرين بتفوق، لكن يهملن قراءة مشاعرهن هن. يعلّمك تبني صلابة داخلية حقيقية بدون أن تفقدي لطفك.</div>
+    <div class="actions">
+      <button class="btn secondary" onclick="openBookModal(1)">📖 اقرأي الملخص الكامل</button>
+      <a class="btn" href="https://www.amazon.sa/s?k=%D8%A7%D9%84%D8%B0%D9%83%D8%A7%D8%A1+%D8%A7%D9%84%D8%B9%D8%A7%D8%B7%D9%81%D9%8A+%D9%84%D8%AF%D9%89+%D8%A7%D9%84%D9%85%D8%B1%D8%A3%D8%A9+%D9%83%D9%88%D8%B1%D9%86%D9%8A%D9%84%D9%8A%D8%A7+%D8%AA%D9%88%D8%A8%D9%81" target="_blank">🛍️ تسوّقي الكتاب</a>
+    </div>
+  </div>
+
+  <div class="book-card">
+    <div class="icon">🌙</div>
+    <h3>قوة الدورة الشهرية</h3>
+    <div class="author">Maisie Hill</div>
+    <div class="summary">مايزي هيل تُثبت أن دورتك الشهرية ليست عبئًا — هي نظام معلومات متقن يمكن استخدامه لصالحك. تعلّمين فيه كيف تتوافقين مع كل مرحلة بدل أن تحاربيها.</div>
+    <div class="actions">
+      <button class="btn secondary" onclick="openBookModal(2)">📖 اقرأي الملخص الكامل</button>
+      <a class="btn" href="https://www.amazon.com/Period-Power-Harness-Hormones-Working/dp/147296361X" target="_blank">🛍️ تسوّقي الكتاب</a>
+    </div>
+  </div>
+
+  <div class="book-card">
+    <div class="icon">🔥</div>
+    <h3>الاحتراق النفسي</h3>
+    <div class="author">Emily & Amelia Nagoski</div>
+    <div class="summary">الأختان ناغوسكي تكشفان أن التوتر والإرهاق شيئان مختلفان تمامًا — وهذا هو سبب بقاء كثيرات منّا متعبات حتى بعد حل المشاكل. يُعلّمك الكتاب كيف "تُكمِلي" دورة التوتر.</div>
+    <div class="actions">
+      <button class="btn secondary" onclick="openBookModal(3)">📖 اقرأي الملخص الكامل</button>
+      <a class="btn" href="https://www.amazon.com/Burnout-Secret-Unlocking-Stress-Cycle/dp/1984818325" target="_blank">🛍️ تسوّقي الكتاب</a>
+    </div>
+  </div>
+
+  <!-- ===== قسم 3: فيديوهات وبودكاست ===== -->
+  <div class="section-title">🎥 فيديوهات وبودكاست</div>
+
+  <a href="https://www.youtube.com/watch?v=84hCIHki1TU" target="_blank" class="resource-link">
+    <span class="icon">🚶‍♀️</span>
+    <div>
+      <div class="type">فيديو</div>
+      <div class="title">تمرين مشي 15 دقيقة في المنزل</div>
+    </div>
+    <span class="arrow">←</span>
+  </a>
+
+  <a href="https://freedrawingcourses.com/#" target="_blank" class="resource-link">
+    <span class="icon">✏️</span>
+    <div>
+      <div class="type">موقع تعليمي</div>
+      <div class="title">تعلمي الرسم من الصفر — دروس مجانية</div>
+    </div>
+    <span class="arrow">←</span>
+  </a>
+
+  <a href="https://www.youtube.com/watch?v=stQjp5bJdEA" target="_blank" class="resource-link">
+    <span class="icon">📖</span>
+    <div>
+      <div class="type">بودكاست</div>
+      <div class="title">بودكاست تدبر القرآن الكريم</div>
+    </div>
+    <span class="arrow">←</span>
+  </a>
+
+  <a href="https://www.youtube.com/watch?v=frN2YcBA23NA" target="_blank" class="resource-link">
+    <span class="icon">🧘‍♀️</span>
+    <div>
+      <div class="type">فيديو</div>
+      <div class="title">تمارين تنفس لتقليل التوتر</div>
+    </div>
+    <span class="arrow">←</span>
+  </a>
+
+  <a href="https://sakinah-f5g.pages.dev" target="_blank" class="resource-link">
+    <span class="icon">💬</span>
+    <div>
+      <div class="type">خدمة</div>
+      <div class="title">احجزي جلسة استماع مجانية مع رفيقة — سكينة</div>
+    </div>
+    <span class="arrow">←</span>
+  </a>
+
+  <!-- ===== قسم 4: مقالات طبية موثوقة ===== -->
+  <div class="section-title">🏥 مقالات طبية موثوقة</div>
+  <p style="font-size:12.5px;color:#6b5a64;margin:0 0 14px;">مقالات من مواقع طبية معتمدة عن الأعراض الأكثر شيوعًا.</p>
+
+  <div class="eyebrow" style="margin-bottom:8px;">أعراض جسدية</div>
+
+  <a href="https://www.webteb.com/articles/%D8%A7%D8%B3%D8%A8%D8%A7%D8%A8-%D8%A7%D9%86%D8%AA%D9%81%D8%A7%D8%AE-%D8%A7%D9%84%D8%A8%D8%B7%D9%86-%D9%82%D8%A8%D9%84-%D8%A7%D9%84%D8%AF%D9%88%D8%B1%D8%A9-%D8%A7%D9%84%D8%B4%D9%87%D8%B1%D9%8A%D8%A9_27732" target="_blank" class="med-card">
+    <span style="font-size:20px;">🫧</span>
+    <div>
+      <div class="symptom">الانتفاخ · ويب طب</div>
+      <div class="title">لماذا تنتفخين قبل الدورة وكيف تتعاملين معه؟</div>
+    </div>
+    <span style="color:var(--rose);margin-right:auto;font-size:14px;">←</span>
+  </a>
+
+  <a href="https://www.webteb.com/woman-health/diseases/%D8%A7%D9%84%D8%A7%D9%85-%D8%A7%D9%84%D8%AF%D9%88%D8%B1%D9%87-%D8%A7%D9%84%D8%B4%D9%87%D8%B1%D9%8A%D8%A9" target="_blank" class="med-card">
+    <span style="font-size:20px;">🌀</span>
+    <div>
+      <div class="symptom">التشنجات والآلام · ويب طب</div>
+      <div class="title">آلام الدورة الشهرية — الأسباب والعلاج</div>
+    </div>
+    <span style="color:var(--rose);margin-right:auto;font-size:14px;">←</span>
+  </a>
+
+  <a href="https://www.webteb.com/articles/%D8%B5%D8%AF%D8%A7%D8%B9-%D8%A7%D9%84%D8%AF%D9%88%D8%B1%D8%A9-%D8%A7%D9%84%D8%B4%D9%87%D8%B1%D9%8A%D8%A9_31807" target="_blank" class="med-card">
+    <span style="font-size:20px;">🤕</span>
+    <div>
+      <div class="symptom">الصداع · ويب طب</div>
+      <div class="title">صداع الدورة الشهرية — أسبابه وعلاجه</div>
+    </div>
+    <span style="color:var(--rose);margin-right:auto;font-size:14px;">←</span>
+  </a>
+
+  <a href="https://ouraring.com/blog/ar/why-am-i-so-tired-on-my-period/" target="_blank" class="med-card">
+    <span style="font-size:20px;">😴</span>
+    <div>
+      <div class="symptom">التعب والإرهاق · Oura</div>
+      <div class="title">لماذا تشعرين بالإرهاق الشديد أثناء الدورة؟</div>
+    </div>
+    <span style="color:var(--rose);margin-right:auto;font-size:14px;">←</span>
+  </a>
+
+  <a href="https://www.andalusiaclinic.com/%D8%B5%D8%AF%D8%A7%D8%B9-%D8%A7%D9%84%D8%AF%D9%88%D8%B1%D8%A9-%D8%A7%D9%84%D8%B4%D9%87%D8%B1%D9%8A%D8%A9" target="_blank" class="med-card">
+    <span style="font-size:20px;">💫</span>
+    <div>
+      <div class="symptom">الدوخة · أندلسية كلينيك</div>
+      <div class="title">أسباب الدوخة أثناء الدورة الشهرية</div>
+    </div>
+    <span style="color:var(--rose);margin-right:auto;font-size:14px;">←</span>
+  </a>
+
+  <a href="https://www.aljazeera.net/health/2024/6/24/%D9%87%D9%84-%D9%8A%D8%AA%D8%A3%D8%AB%D8%B1-%D9%86%D9%88%D9%85%D9%83-%D8%A3%D8%AB%D9%86%D8%A7%D8%A1-%D8%A7%D9%84%D8%AF%D9%88%D8%B1%D8%A9-%D8%A7%D9%84%D8%B4%D9%87%D8%B1%D9%8A%D8%A9-4" target="_blank" class="med-card">
+    <span style="font-size:20px;">🌙</span>
+    <div>
+      <div class="symptom">اضطراب النوم · الجزيرة نت</div>
+      <div class="title">هل تتأثر قدرتك على النوم أثناء الدورة؟</div>
+    </div>
+    <span style="color:var(--rose);margin-right:auto;font-size:14px;">←</span>
+  </a>
+
+  <div class="eyebrow" style="margin:16px 0 8px;">أعراض نفسية</div>
+
+  <a href="https://blog.arabtherapy.com/%D8%B9%D8%B5%D8%A8%D9%8A%D8%A9-%D9%85%D8%A7-%D9%82%D8%A8%D9%84-%D8%A7%D9%84%D8%AF%D9%88%D8%B1%D8%A9-%D8%A7%D9%84%D8%B4%D9%87%D8%B1%D9%8A%D8%A9/" target="_blank" class="med-card">
+    <span style="font-size:20px;">😤</span>
+    <div>
+      <div class="symptom">العصبية · عرب ثيرابي</div>
+      <div class="title">عصبية ما قبل الدورة — أسبابها وكيفية إيقافها</div>
+    </div>
+    <span style="color:var(--rose);margin-right:auto;font-size:14px;">←</span>
+  </a>
+
+  <a href="https://www.webteb.com/articles/%D8%A7%D9%84%D8%AD%D8%A7%D9%84%D8%A9-%D8%A7%D9%84%D9%86%D9%81%D8%B3%D9%8A%D8%A9-%D9%84%D9%84%D9%85%D8%B1%D8%A7%D8%A9-%D8%A7%D8%AB%D9%86%D8%A7%D8%A1-%D8%A7%D9%84%D8%AF%D9%88%D8%B1%D8%A9-%D8%A7%D9%84%D8%B4%D9%87%D8%B1%D9%8A%D8%A9_25992" target="_blank" class="med-card">
+    <span style="font-size:20px;">😰</span>
+    <div>
+      <div class="symptom">القلق والحساسية · ويب طب</div>
+      <div class="title">الحالة النفسية للمرأة أثناء الدورة الشهرية</div>
+    </div>
+    <span style="color:var(--rose);margin-right:auto;font-size:14px;">←</span>
+  </a>
+
+  <a href="https://cura.sa/ar/articles/how-deal-depression-menstrual-cycle/" target="_blank" class="med-card">
+    <span style="font-size:20px;">💙</span>
+    <div>
+      <div class="symptom">الحزن واليأس · كيورا</div>
+      <div class="title">كيف تتعاملين مع الاكتئاب المصاحب للدورة؟</div>
+    </div>
+    <span style="color:var(--rose);margin-right:auto;font-size:14px;">←</span>
+  </a>
+
+  <a href="https://tebcan.com/ar/Egypt/article/%D8%A7%D9%84%D8%AF%D9%88%D8%B1%D8%A9-%D8%A7%D9%84%D8%B4%D9%87%D8%B1%D9%8A%D8%A9-%D9%88%D8%A7%D9%84%D8%A7%D8%B6%D8%B7%D8%B1%D8%A7%D8%A8%D8%A7%D8%AA-%D8%A7%D9%84%D9%86%D9%81%D8%B3%D9%8A%D8%A9-%D9%85%D8%A7-%D8%A7%D9%84%D8%B9%D9%84%D8%A7%D9%82%D8%A9-%D8%A8%D9%8A%D9%86%D9%87%D9%85%D8%A7_1533" target="_blank" class="med-card">
+    <span style="font-size:20px;">😢</span>
+    <div>
+      <div class="symptom">البكاء والمشاعر · تبكان</div>
+      <div class="title">الدورة الشهرية والاضطرابات النفسية — ما العلاقة؟</div>
+    </div>
+    <span style="color:var(--rose);margin-right:auto;font-size:14px;">←</span>
+  </a>
+
+  <a href="https://altibbi.com/%D9%85%D8%B5%D8%B7%D9%84%D8%AD%D8%A7%D8%AA-%D8%B7%D8%A8%D9%8A%D8%A9/%D8%B5%D8%AD%D8%A9-%D8%A7%D9%84%D9%85%D8%B1%D8%A3%D8%A9/%D9%85%D8%AA%D9%84%D8%A7%D8%B2%D9%85%D8%A9-%D9%85%D8%A7-%D9%82%D8%A8%D9%84-%D8%A7%D9%84%D8%AD%D9%8A%D8%B6" target="_blank" class="med-card">
+    <span style="font-size:20px;">📋</span>
+    <div>
+      <div class="symptom">PMS عام · الطبي</div>
+      <div class="title">متلازمة ما قبل الحيض — كل ما تحتاجين معرفته</div>
+    </div>
+    <span style="color:var(--rose);margin-right:auto;font-size:14px;">←</span>
+  </a>
+
+</div><!-- end .page -->
+
+<!-- Article Modal -->
+<div class="modal" id="articleModal" onclick="if(event.target===this)closeModal('articleModal')">
+  <div class="modal-box">
+    <div id="articleModalIllo" style="font-size:36px;text-align:center;margin-bottom:10px;"></div>
+    <h2 id="articleModalTitle"></h2>
+    <div id="articleModalBody"></div>
+    <button class="close-btn" onclick="closeModal('articleModal')">إغلاق</button>
+  </div>
+</div>
+
+<!-- Book Modal -->
+<div class="modal" id="bookModal" onclick="if(event.target===this)closeModal('bookModal')">
+  <div class="modal-box">
+    <h2 id="bookModalTitle"></h2>
+    <div id="bookModalBody"></div>
+    <a id="bookModalBuyLink" href="#" target="_blank" class="btn" style="display:block;text-align:center;margin-top:14px;margin-bottom:8px;">🛍️ تسوّقي الكتاب كامل</a>
+    <button class="close-btn" onclick="closeModal('bookModal')">إغلاق</button>
+  </div>
+</div>
+
+<script>
+// ===== Article data (mirrors ARTICLES in index.html) =====
+const ARTICLES = [
+  { illo:'🫧', title:'الانتفاخ والحلول السريعة', body:`<p>الانتفاخ قبل الدورة وأثناءها من أكثر الأعراض شيوعًا، وسببه في الغالب تغيّر مستويات هرمون البروجسترون والإستروجين.</p><p><strong>🚶‍♀️ المشي 20 دقيقة</strong> يحرّك القناة الهضمية بشكل طبيعي.</p><p><strong>💧 شربي الماء أكثر</strong> يساعد الكلى على التخلص من الصوديوم الزائد.</p><p><strong>🧂 قللي الملح</strong> في الأيام التي تسبق الدورة.</p><p><strong>🍵 شاي النعناع أو الزنجبيل</strong> يساعد على تهدئة التقلصات وتقليل الغازات.</p>` },
+  { illo:'💞', title:'احمي علاقاتك في أيام التقلبات', body:`<p>في أيام PMS، الحساسية العاطفية أعلى بيولوجيًا — ليس ضعفًا، بل تغيّر كيميائي حقيقي في كيفية معالجة الدماغ للمعلومات العاطفية.</p><p><strong>🗓️ اعرفي موعد هذه الأيام مسبقًا</strong> لتكوني أكثر وعيًا برد فعلك الأول قبل التصرف به.</p><p><strong>⏸️ أجّلي المواجهات غير العاجلة</strong> — اكتبيها وعودي إليها بعد الدورة.</p><p><strong>🤍 الفرق بين شعور حقيقي وردة فعل كيميائية</strong> — سأل نفسك: "هل سأشعر بنفس الشدة بعد ثلاثة أيام؟"</p>` },
+  { illo:'🪞', title:'افهمي نفسك وتصالحي معها', body:`<p>معظم المعاناة النفسية تأتي من المسافة بين ما نتوقعه من أنفسنا وما نحن عليه فعلًا.</p><p>التصالح مع النفس لا يعني القبول بكل شيء — يعني رؤية نفسك بوضوح مع الاعتراف بما يحتاج تغيير، دون أن تجعلي أخطاءك تُعرّف قيمتك.</p><p><strong>خطوة عملية:</strong> في المرة القادمة التي تضايقين فيها نفسك، اسأل: "لو صديقة مقرّبة أخبرتني بنفس الموقف، ماذا كنت سأقول لها؟" ثم قولي لنفسك نفس الشيء.</p>` },
+  { illo:'🌹', title:'لماذا نشتاق للحب في أيام معينة؟', body:`<p>رغبتك في القرب تتفاوت خلال الشهر — وهذا حقيقي تمامًا وله تفسير هرموني واضح.</p><p><strong>في أيام التبويض:</strong> الإستروجين والتستوستيرون يحفّزان دوائر الاتصال والانجذاب في الدماغ.</p><p><strong>في أيام ما قبل الحيض:</strong> الحاجة للأمان العاطفي ترتفع — وهذا طبيعي تمامًا.</p><p>فهم "لماذا" يُغيّر علاقتك مع "ماذا تشعرين." عندما تعرفين أن هذا الاشتياق له سبب بيولوجي، يصبح أقل إرهاقًا وأكثر قابلية للتعامل معه بحكمة.</p>` },
+  { illo:'🌙', title:'تقلباتك رحمة — رحلة مقدسة ونظام إلهي', body:`<p>خلق الله سبحانه وتعالى جسم المرأة بنظام فريد. هذه التقلبات ليست عشوائية، وليست عيبًا أو نقصًا، بل هي تصميم إلهي متقن.</p><p><strong>🌸 الربيع:</strong> طاقة تتصاعد بعد الدورة — وقت الشكر والعمل الصالح.<br><strong>☀️ الصيف:</strong> قمة العطاء والتواصل حول التبويض.<br><strong>🍂 الخريف:</strong> وقت الذكر والتأمل.<br><strong>❄️ الشتاء:</strong> الراحة والتجدد — السماع للقرآن عبادة تريح القلب.</p><p>جسدك ومشاعرك أمانة. فهمك لهذا النظام الإلهي يحول التعب إلى عبادة.</p>` },
+  { illo:'📔', title:'مذكرات مراهقة.. أنا حزينة', body:`<p style="font-style:italic;color:#7A5A8A;">إلى الفتاة التي تشعر أن كل شيء ينهار من حولها.</p><p>لماذا الهرمونات تُغير مزاجي وتجعلني أسترجع الأحزان؟ الهرمونات ليست مجرد مواد كيميائية — هي موجات تسونامي تُعيد ترتيب الدماغ. لكن ثقي تمامًا: هذا الإعصار سيمر.</p><p><strong>🎧 تدبّر القرآن في لحظات الانكسار</strong> — رب الهرمونات والتقلبات هو الذي خلقكِ، وهو يعلم عمق حزنكِ دون أن تتكلمي.</p><p><strong>📚 تعلّمي مهارة جديدة</strong> بدلًا من البقاء في السرير.</p><p style="border-right:3px solid #9A6AAA;padding-right:14px;color:#5A3F6A;font-style:italic;">أنتِ لستِ مكسورة، ولستِ وحدكِ. أنتِ تنموين وتزهرين فقط.</p>` },
+];
+
+// ===== Book data (shortened summaries for archive) =====
+const BOOKS = [
+  { title:'الذكاء العاطفي — Daniel Goleman', link:'https://www.jarir.com/jarir-publication-292492.html',
+    body:`<p><strong>📌 فرضية الكتاب:</strong> الذكاء العاطفي أهم من معدل الذكاء في النجاح والسعادة.</p><p><strong>🔑 المكوّنات الخمس:</strong> الوعي الذاتي، التنظيم الذاتي، التحفيز الذاتي، التعاطف، المهارات الاجتماعية.</p><p><strong>💡 الفكرة المحورية — اختطاف اللوزة الدماغية:</strong> جزء قديم من دماغك يستجيب للتهديد قبل أن يتدخل عقلك المنطقي — وهذا يفسّر لماذا "تنفجرين" أحيانًا وتندمين بعد ثوانٍ.</p><p><strong>✅ قاعدة الـ 90 ثانية:</strong> أي استجابة عاطفية تستمر 90 ثانية فيزيولوجيًا ثم تخفت — لو استمرت فأنتِ تُغذّينها بأفكارك. توقفي، تنفسي، انتظري.</p>` },
+  { title:'الذكاء العاطفي لدى المرأة — Cornelia Topf', link:'https://www.amazon.sa/s?k=%D8%A7%D9%84%D8%B0%D9%83%D8%A7%D8%A1+%D8%A7%D9%84%D8%B9%D8%A7%D8%B7%D9%81%D9%8A+%D9%84%D8%AF%D9%89+%D8%A7%D9%84%D9%85%D8%B1%D8%A3%D8%A9',
+    body:`<p><strong>📌 فرضية الكتاب:</strong> النساء يتقنّ قراءة مشاعر الآخرين، لكن يهملن قراءة مشاعرهن هن.</p><p><strong>نوعان من اللطف:</strong><br>• لطف حقيقي: تعطين لأنكِ تريدين.<br>• لطف دفاعي: تعطين لأنكِ تخافين — وهذا يستنزفك بصمت.</p><p><strong>💡 تمرين "السؤال الأول":</strong> قبل أن توافقي على أي طلب، اسأل نفسك أولًا: "هل أريد هذا فعلًا؟" — وليس "هل يتوقعون أن أوافق؟"</p>` },
+  { title:'قوة الدورة الشهرية — Maisie Hill', link:'https://www.amazon.com/Period-Power-Harness-Hormones-Working/dp/147296361X',
+    body:`<p><strong>📌 فرضية الكتاب:</strong> دورتك الشهرية ليست عبئًا — هي نظام معلومات متقن لصالحك.</p><p><strong>فصول جسمك الأربعة:</strong><br>🌱 <strong>الربيع</strong> — بعد الدورة: طاقة وتخطيط.<br>☀️ <strong>الصيف</strong> — التبويض: قمة الطاقة والثقة.<br>🍂 <strong>الخريف</strong> — ما بعد التبويض: إنهاء المشاريع.<br>❄️ <strong>الشتاء</strong> — الحيض: راحة وتأمل.</p><p><strong>💡 نصيحة عملية:</strong> خططي مواعيدك المهمة حسب مرحلتك — اجتماعات مهمة في التبويض، راحة أيام الحيض.</p>` },
+  { title:'الاحتراق النفسي — Emily & Amelia Nagoski', link:'https://www.amazon.com/Burnout-Secret-Unlocking-Stress-Cycle/dp/1984818325',
+    body:`<p><strong>📌 فرضية الكتاب:</strong> حل مصدر التوتر لا يعني انتهاء التوتر — جسمك يحتاج أن "يُكمل" الدورة البيولوجية أولًا.</p><p><strong>كيف تكملين دورة التوتر؟</strong><br>🔸 الحركة الجسدية (حتى مشي 20 دقيقة).<br>🔸 البكاء الكامل دون إيقافه.<br>🔸 التنفس العميق البطيء (4 شهيق، 6 زفير) لـ 5 دقائق.<br>🔸 الضحك الحقيقي مع شخص تحبينه.<br>🔸 العناق الطويل (20 ثانية على الأقل).</p><p><strong>✅ الراحة ليست مكافأة تنتظرين أن "تستحقيها" — هي جزء من الصيانة اليومية.</strong></p>` },
+];
+
+function openModal(i) {
+  const a = ARTICLES[i];
+  document.getElementById('articleModalIllo').textContent = a.illo;
+  document.getElementById('articleModalTitle').textContent = a.title;
+  document.getElementById('articleModalBody').innerHTML = a.body;
+  document.getElementById('articleModal').classList.add('open');
+}
+
+function openBookModal(i) {
+  const b = BOOKS[i];
+  document.getElementById('bookModalTitle').textContent = b.title;
+  document.getElementById('bookModalBody').innerHTML = b.body;
+  document.getElementById('bookModalBuyLink').href = b.link;
+  document.getElementById('bookModal').classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+</script>
+</body>
+</html>
