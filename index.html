@@ -401,6 +401,18 @@ body.lang-en .toggle-switch.on .knob{left:23px;}
     </div>
   </div>
 
+  <!-- AI CONSENT -->
+  <div class="onboard-overlay" id="aiConsentOverlay" style="display:none;">
+    <div class="onboard-box">
+      <h2 id="aiConsentTitle">استخدام الذكاء الاصطناعي في التطبيق</h2>
+      <p id="aiConsentText">يستخدم هَدَأ خدمة الذكاء الاصطناعي (Claude من Anthropic) لتحليل بياناتك اليومية وتوليد تقاريرك الأسبوعية والشهرية والمحادثة اليومية. عند استخدام هذي الميزات، تُرسل بياناتك (مزاجك، أعراضك، مذكراتك) لخدمة Anthropic بشكل مشفّر لتحليلها. لا تُستخدم بياناتك لتدريب أي نموذج ذكاء اصطناعي.</p>
+      <div class="row-end" style="margin-top:18px;">
+        <button class="btn secondary" id="aiConsentDecline">أرفض</button>
+        <button class="btn" id="aiConsentAgree">أوافق وأكمل</button>
+      </div>
+    </div>
+  </div>
+
   <!-- BOOK SUMMARY MODAL -->
   <div class="onboard-overlay" id="bookModalOverlay" style="display:none;align-items:flex-start;padding-top:30px;padding-bottom:30px;">
     <div class="onboard-box" style="max-width:640px;max-height:88vh;overflow-y:auto;text-align:right;">
@@ -789,6 +801,32 @@ async function callClaudeAI(prompt, maxTokens){
   }
 }
 
+// ================= AI CONSENT =================
+const AI_CONSENT_KEY = 'hada_ai_consent';
+
+function hasAIConsent(){
+  return localStorage.getItem(AI_CONSENT_KEY) === 'granted';
+}
+
+function aiConsentDeclinedMessage(){
+  return LANG==='en' ? 'This feature requires your consent to use AI.' : 'هذي الميزة تحتاج موافقتك على استخدام AI';
+}
+
+function maybeShowAIConsent(){
+  if(localStorage.getItem(AI_CONSENT_KEY) === null){
+    document.getElementById('aiConsentOverlay').style.display = 'flex';
+  }
+}
+
+document.getElementById('aiConsentAgree').addEventListener('click', ()=>{
+  localStorage.setItem(AI_CONSENT_KEY, 'granted');
+  document.getElementById('aiConsentOverlay').style.display = 'none';
+});
+document.getElementById('aiConsentDecline').addEventListener('click', ()=>{
+  localStorage.setItem(AI_CONSENT_KEY, 'denied');
+  document.getElementById('aiConsentOverlay').style.display = 'none';
+});
+
 document.getElementById('entryDate').value = todayStr();
 document.getElementById('entryDate').addEventListener('change', loadEntryIntoForm);
 
@@ -931,6 +969,10 @@ const I18N = {
   mood4lbl2:       { ar:"اللهم لك الحمد", en:"Praise be" },
   mood5lbl:        { ar:"رائعة", en:"Amazing" },
   mood5lbl2:       { ar:"ياربي لك الحمد والشكر", en:"All praise and thanks" },
+  aiConsentTitle:  { ar:"استخدام الذكاء الاصطناعي في التطبيق", en:"AI Usage in the App" },
+  aiConsentText:   { ar:"يستخدم هَدَأ خدمة الذكاء الاصطناعي (Claude من Anthropic) لتحليل بياناتك اليومية وتوليد تقاريرك الأسبوعية والشهرية والمحادثة اليومية. عند استخدام هذي الميزات، تُرسل بياناتك (مزاجك، أعراضك، مذكراتك) لخدمة Anthropic بشكل مشفّر لتحليلها. لا تُستخدم بياناتك لتدريب أي نموذج ذكاء اصطناعي.", en:"Hada’ uses an AI service (Claude by Anthropic) to analyze your daily entries and generate your weekly and monthly reports and your daily chat. When you use these features, your data (your mood, symptoms, notes) is sent to Anthropic's service, encrypted, for analysis. Your data is never used to train any AI model." },
+  aiConsentDecline:{ ar:"أرفض", en:"Decline" },
+  aiConsentAgree:  { ar:"أوافق وأكمل", en:"I agree and continue" },
 };
 
 const PLACEHOLDERS = {
@@ -2289,6 +2331,10 @@ async function runAIReport(scope){
   if(!requireAuth()) return;
   const resultId = scope==='weekly' ? 'weeklyAIResult' : 'monthlyAIResult';
   const el = document.getElementById(resultId);
+  if(!hasAIConsent()){
+    el.innerHTML = `<div class="ai-box"><p>${aiConsentDeclinedMessage()}</p></div>`;
+    return;
+  }
   const days = scope==='weekly' ? 7 : 30;
   const data = lastNDaysEntries(days);
 
@@ -2831,6 +2877,10 @@ async function loadChatStatus(){
 
 async function sendChatMessage(){
   if(!requireAuth()) return;
+  if(!hasAIConsent()){
+    renderChatMessage('assistant', aiConsentDeclinedMessage());
+    return;
+  }
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
   if(!text) return;
@@ -2871,6 +2921,10 @@ document.getElementById('genDailyReport').addEventListener('click', async ()=>{
   const todayD = todayStr();
   const todayEntry = entries.find(e=>e.date===todayD);
   const el = document.getElementById('dailyReportResult');
+  if(!hasAIConsent()){
+    el.innerHTML = `<div class="ai-box"><p>${aiConsentDeclinedMessage()}</p></div>`;
+    return;
+  }
 
   if(!todayEntry){
     el.innerHTML = LANG==='en'
@@ -3214,6 +3268,7 @@ async function loadAppData(){
   updateEnablePushButton();
   loadChatStatus();
   if(dhikrSettings.enabled) startDhikrInterval();
+  maybeShowAIConsent();
 }
 
 // ---- init ----
