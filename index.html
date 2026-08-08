@@ -268,14 +268,6 @@ body.lang-en .toggle-switch.on .knob{left:23px;}
     <span id="bannerText">🔒 بياناتك محفوظة بأمان بحسابك الخاص، ولن تُشارك مع أي شخص آخر.</span>
   </div>
 
-  <div class="banner" id="installBanner" style="display:none;background:linear-gradient(135deg,#FBF1EC,#F4ECE3);border-color:var(--gold);">
-    <span id="installBannerText"></span>
-    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
-      <button class="btn small" id="installBannerBtn" style="display:none;">📲 <span id="installBannerBtnLbl">تثبيت التطبيق</span></button>
-      <button class="settings-gear" id="installBannerClose" style="width:32px;height:32px;font-size:14px;">✕</button>
-    </div>
-  </div>
-
   <!-- AUTH (LOGIN / SIGNUP) -->
   <div class="onboard-overlay" id="authOverlay" style="display:none;">
     <div class="onboard-box">
@@ -1038,7 +1030,6 @@ function applyLang(){
     if(document.getElementById('tab-weekly').classList.contains('active')) renderWeekly();
     if(document.getElementById('tab-monthly').classList.contains('active')) renderMonthly();
   }
-  if(typeof showInstallBanner==='function') showInstallBanner();
 }
 
 document.getElementById('langToggle').addEventListener('click', ()=>{
@@ -3041,71 +3032,6 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('/sw.js').catch(()=>{});
   });
 }
-
-// ================= INSTALL PROMPT BANNER =================
-let deferredInstallPrompt = null;
-
-function isStandalone(){
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-}
-function isIOS(){
-  return /iphone|ipad|ipod/i.test(navigator.userAgent);
-}
-
-function showInstallBanner(){
-  if(isStandalone()) return; // already installed, don't nag
-  if(localStorage.getItem('hada_install_dismissed')==='1') return;
-
-  const banner = document.getElementById('installBanner');
-  const textEl = document.getElementById('installBannerText');
-  const btn = document.getElementById('installBannerBtn');
-
-  if(deferredInstallPrompt){
-    // Android/Chrome: real install button
-    textEl.textContent = LANG==='en'
-      ? '📲 Install Hada\u2019 on your home screen for quick access anytime.'
-      : '📲 ثبّتي هَدَأ على شاشتك الرئيسية للوصول السريع لها في أي وقت.';
-    document.getElementById('installBannerBtnLbl').textContent = LANG==='en' ? 'Install app' : 'تثبيت التطبيق';
-    btn.style.display = 'inline-flex';
-  } else if(isIOS()){
-    // iOS Safari: no native prompt, show manual instructions
-    textEl.textContent = LANG==='en'
-      ? '📲 Add Hada\u2019 to your Home Screen: tap the Share icon, then "Add to Home Screen".'
-      : '📲 لإضافة هَدَأ على شاشتك الرئيسية: اضغطي على أيقونة المشاركة (⬆️)، ثم "Add to Home Screen".';
-    btn.style.display = 'none';
-  } else {
-    // Other browsers: generic hint
-    textEl.textContent = LANG==='en'
-      ? '📲 Open this site in Chrome to install it on your home screen.'
-      : '📲 افتحي الموقع بمتصفح Chrome عشان تقدرين تثبتينه على شاشتك الرئيسية.';
-    btn.style.display = 'none';
-  }
-  banner.style.display = 'flex';
-}
-
-window.addEventListener('beforeinstallprompt', (e)=>{
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  showInstallBanner();
-});
-
-document.getElementById('installBannerBtn').addEventListener('click', async ()=>{
-  if(!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt = null;
-  document.getElementById('installBanner').style.display = 'none';
-});
-
-document.getElementById('installBannerClose').addEventListener('click', ()=>{
-  document.getElementById('installBanner').style.display = 'none';
-  try{ localStorage.setItem('hada_install_dismissed','1'); }catch(e){}
-});
-
-// Show banner shortly after load (gives Chrome a moment to fire beforeinstallprompt if eligible)
-window.addEventListener('load', ()=>{
-  setTimeout(showInstallBanner, 1500);
-});
 
 // ================= AUTH UI =================
 let authTab = 'login';
