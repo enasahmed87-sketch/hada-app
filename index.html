@@ -177,9 +177,11 @@ footer{text-align:center;font-size:12px;color:#a89aa0;margin-top:30px;}
   position:fixed;inset:0;background:rgba(61,43,61,.55);display:flex;align-items:center;justify-content:center;
   z-index:50;padding:20px;
 }
-.onboard-box{background:#fff;border-radius:20px;padding:30px;max-width:420px;width:100%;}
+.onboard-box{background:#fff;border-radius:20px;padding:30px;max-width:420px;width:100%;position:relative;}
 .onboard-box h2{margin-bottom:8px;}
 .onboard-box p{font-size:13.5px;color:#6b5a64;margin-bottom:18px;}
+.close-x{position:absolute;top:14px;left:14px;background:transparent;border:none;border-radius:50%;width:34px;height:34px;font-size:20px;line-height:1;cursor:pointer;color:#6b5a64;display:flex;align-items:center;justify-content:center;transition:.15s;}
+.close-x:hover{background:rgba(61,43,61,.08);color:var(--plum);}
 .update-link{font-size:12px;color:var(--rose);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;}
 
 /* English mode */
@@ -277,6 +279,7 @@ body.lang-en .toggle-switch.on .knob{left:23px;}
   <!-- AUTH (LOGIN / SIGNUP) -->
   <div class="onboard-overlay" id="authOverlay" style="display:none;">
     <div class="onboard-box">
+      <button type="button" id="authCloseBtn" class="close-x" aria-label="Close">×</button>
       <h2 id="authTitle">تسجيل الدخول</h2>
       <p id="authSub">سجّلي دخولك للوصول لبياناتك من أي جهاز.</p>
 
@@ -3145,6 +3148,21 @@ document.getElementById('ageConfirmCheckbox').addEventListener('change', updateA
 document.getElementById('authTabLogin').addEventListener('click', ()=>{ authTab='login'; updateAuthTabUI(); });
 document.getElementById('authTabSignup').addEventListener('click', ()=>{ authTab='signup'; updateAuthTabUI(); });
 
+function closeAuthOverlay(){
+  if(urlResetToken) return; // لازم تعيّن كلمة مرور جديدة أول
+  document.getElementById('authOverlay').style.display = 'none';
+  enterGuestMode();
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authPassword').value = '';
+  document.getElementById('authName').value = '';
+}
+document.getElementById('authCloseBtn').addEventListener('click', closeAuthOverlay);
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape' && document.getElementById('authOverlay').style.display === 'flex'){
+    closeAuthOverlay();
+  }
+});
+
 document.getElementById('authSubmit').addEventListener('click', async ()=>{
   const email = document.getElementById('authEmail').value.trim();
   const password = document.getElementById('authPassword').value;
@@ -3258,6 +3276,7 @@ document.getElementById('forgotSubmit').addEventListener('click', async ()=>{
 const urlResetToken = new URLSearchParams(location.search).get('reset');
 if(urlResetToken){
   document.getElementById('resetOverlay').style.display = 'flex';
+  document.getElementById('authCloseBtn').style.display = 'none';
 }
 document.getElementById('resetSubmit').addEventListener('click', async ()=>{
   const newPassword = document.getElementById('resetPassword').value;
