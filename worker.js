@@ -4,7 +4,7 @@
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
 };
 
 function json(body, status = 200) {
@@ -566,6 +566,26 @@ export default {
         const hash = await hashPassword(newPassword);
         await env.DB.prepare("UPDATE users SET password_hash = ? WHERE id = ?").bind(hash, reset.user_id).run();
         await env.DB.prepare("UPDATE password_resets SET used = 1 WHERE token = ?").bind(token).run();
+
+        return json({ ok: true });
+      }
+
+      // ---- DELETE ACCOUNT (Google Play requirement: full in-app account deletion) ----
+      if (path === "/api/account" && request.method === "DELETE") {
+        const uid = await getAuthUser(request, env);
+        if (!uid) return json({ error: "Unauthorized" }, 401);
+
+        // env.DB.batch() runs every statement as a single atomic transaction (all-or-nothing).
+        await env.DB.batch([
+          env.DB.prepare("DELETE FROM entries WHERE user_id = ?").bind(uid),
+          env.DB.prepare("DELETE FROM cycle_settings WHERE user_id = ?").bind(uid),
+          env.DB.prepare("DELETE FROM dhikr_settings WHERE user_id = ?").bind(uid),
+          env.DB.prepare("DELETE FROM push_subscriptions WHERE user_id = ?").bind(uid),
+          env.DB.prepare("DELETE FROM chat_sessions WHERE user_id = ?").bind(uid),
+          env.DB.prepare("DELETE FROM chat_messages WHERE user_id = ?").bind(uid),
+          env.DB.prepare("DELETE FROM password_resets WHERE user_id = ?").bind(uid),
+          env.DB.prepare("DELETE FROM users WHERE id = ?").bind(uid),
+        ]);
 
         return json({ ok: true });
       }

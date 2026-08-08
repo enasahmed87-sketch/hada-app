@@ -406,6 +406,33 @@ body.lang-en .toggle-switch.on .knob{left:23px;}
         <button class="btn secondary small" id="profileCancel">إغلاق</button>
         <button class="btn" id="profileSave">حفظ التعديلات</button>
       </div>
+
+      <div id="deleteAccountRow" style="display:none;margin-top:22px;padding-top:16px;border-top:1px solid var(--line);text-align:center;">
+        <button type="button" id="deleteAccountBtn" style="background:none;border:none;color:var(--terracotta);font-size:12.5px;font-weight:700;cursor:pointer;padding:4px;">🗑️ <span id="deleteAccountBtnLbl">حذف حسابي نهائيًا</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE ACCOUNT CONFIRMATION -->
+  <div class="onboard-overlay" id="deleteAccountOverlay" style="display:none;">
+    <div class="onboard-box">
+      <div id="deleteAccountFormState">
+        <h2 id="deleteAccountTitle" style="color:var(--terracotta);">حذف الحساب نهائيًا</h2>
+        <p id="deleteAccountMsg">هل أنتِ متأكدة؟ راح تُحذف بياناتك بالكامل من خوادمنا وما يمكن استرجاعها، بما في ذلك: سجلاتك اليومية، إعدادات دورتك، وتاريخ محادثاتك مع الذكاء الاصطناعي.</p>
+
+        <label id="deleteAccountConfirmLbl">للتأكيد، اكتبي كلمة "حذف"</label>
+        <input type="text" id="deleteAccountConfirmInput" autocomplete="off">
+
+        <p id="deleteAccountError" style="color:var(--terracotta);font-size:12.5px;margin:10px 0 0;display:none;"></p>
+
+        <div class="row-end" style="margin-top:18px;">
+          <button class="btn secondary small" id="deleteAccountCancel">إلغاء</button>
+          <button class="btn" id="deleteAccountConfirmBtn" style="background:var(--terracotta);" disabled>حذف نهائيًا</button>
+        </div>
+      </div>
+      <div id="deleteAccountSuccessState" style="display:none;text-align:center;padding:10px 0;">
+        <p id="deleteAccountSuccessMsg" style="font-size:15px;color:var(--plum);margin:0;">تم حذف حسابك. شكرًا لاستخدامك هَدَأ 🌷</p>
+      </div>
     </div>
   </div>
 
@@ -678,6 +705,7 @@ body.lang-en .toggle-switch.on .knob{left:23px;}
   </div>
 
   <footer id="footerText">هَدَأ — نسخة تجريبية تعليمية. هذا التطبيق لا يقدّم تشخيصًا طبيًا أو نفسيًا، ولا يُغني عن استشارة مختصة عند الحاجة.</footer>
+  <p id="appFooterLinks" style="text-align:center;font-size:12px;color:#a89aa0;margin:10px 0 0;"></p>
 </div>
 
 <script>
@@ -776,6 +804,9 @@ async function apiUpdateProfile(name, email){
   const data = await apiFetch('/api/profile', { method:'POST', body: JSON.stringify({ name, email }) });
   currentUser = data.user;
   return data.user;
+}
+async function apiDeleteAccount(){
+  return apiFetch('/api/account', { method:'DELETE' });
 }
 
 // ================= AI CALL ABSTRACTION =================
@@ -906,6 +937,13 @@ const I18N = {
   profileAgeLbl:   { ar:"عمرك", en:"Your age" },
   profileCancel:   { ar:"إغلاق", en:"Close" },
   profileSave:     { ar:"حفظ التعديلات", en:"Save changes" },
+  deleteAccountBtnLbl: { ar:"حذف حسابي نهائيًا", en:"Delete my account permanently" },
+  deleteAccountTitle:  { ar:"حذف الحساب نهائيًا", en:"Permanently Delete Account" },
+  deleteAccountMsg:    { ar:"هل أنتِ متأكدة؟ راح تُحذف بياناتك بالكامل من خوادمنا وما يمكن استرجاعها، بما في ذلك: سجلاتك اليومية، إعدادات دورتك، وتاريخ محادثاتك مع الذكاء الاصطناعي.", en:"Are you sure? All your data will be permanently deleted from our servers with no way to recover it, including: your daily logs, cycle settings, and AI chat history." },
+  deleteAccountConfirmLbl: { ar:'للتأكيد، اكتبي كلمة "حذف"', en:'To confirm, type "DELETE"' },
+  deleteAccountCancel:     { ar:"إلغاء", en:"Cancel" },
+  deleteAccountConfirmBtn: { ar:"حذف نهائيًا", en:"Delete permanently" },
+  deleteAccountSuccessMsg: { ar:"تم حذف حسابك. شكرًا لاستخدامك هَدَأ 🌷", en:"Your account has been deleted. Thank you for using Hada’ 🌷" },
   dhikrEyebrow:    { ar:"تذكير", en:"Reminder" },
   dhikrTitle:      { ar:"ذكّرني بالذكر كل ساعة (12 ظهرًا - 10 مساءً)", en:"Remind me hourly (12 PM - 10 PM)" },
   dhikrIstighfarLbl:{ ar:"استغفار", en:"Istighfar" },
@@ -970,6 +1008,7 @@ const I18N = {
   monthlyTitle:    { ar:"تقريرك الشهري", en:"Your monthly report" },
   genMonthlyAI:    { ar:"✨ توليد تحليل الأنماط الشهرية", en:"✨ Generate monthly pattern insight" },
   footerText:      { ar:"هَدَأ — نسخة تجريبية تعليمية. هذا التطبيق لا يقدّم تشخيصًا طبيًا أو نفسيًا، ولا يُغني عن استشارة مختصة عند الحاجة.", en:"Hada\u2019 — an educational demo. This app does not provide medical or psychological diagnosis and is not a substitute for professional care." },
+  appFooterLinks:  { ar:'<a href="/privacy.html" style="color:#a89aa0;text-decoration:underline;">سياسة الخصوصية</a> · <a href="mailto:support@hadaa-app.com" style="color:#a89aa0;text-decoration:underline;">تواصلي معنا</a>', en:'<a href="/privacy.html" style="color:#a89aa0;text-decoration:underline;">Privacy Policy</a> · <a href="mailto:support@hadaa-app.com" style="color:#a89aa0;text-decoration:underline;">Contact us</a>' },
   mood1lbl:        { ar:"سيئة جدًا", en:"Very bad" },
   mood1lbl2:       { ar:"الحمدلله على كل حال", en:"Grateful regardless" },
   mood2lbl:        { ar:"سيئة", en:"Bad" },
@@ -2062,6 +2101,7 @@ function openProfileOverlay(){
   document.getElementById('profileEmail').value = currentUser ? (currentUser.email||'') : '';
   document.getElementById('profileAge').value = (cycleSettings && cycleSettings.age) ? cycleSettings.age : '';
   document.getElementById('profileError').style.display = 'none';
+  document.getElementById('deleteAccountRow').style.display = authToken ? 'block' : 'none';
   document.getElementById('profileOverlay').style.display = 'flex';
 }
 document.getElementById('profileSettingsBtn').addEventListener('click', openProfileOverlay);
@@ -2101,6 +2141,56 @@ document.getElementById('profileSave').addEventListener('click', async ()=>{
   }finally{
     btn.textContent = original;
     btn.disabled = false;
+  }
+});
+
+// ================= DELETE ACCOUNT =================
+function openDeleteAccountOverlay(){
+  document.getElementById('deleteAccountConfirmInput').value = '';
+  document.getElementById('deleteAccountError').style.display = 'none';
+  document.getElementById('deleteAccountConfirmBtn').disabled = true;
+  document.getElementById('deleteAccountFormState').style.display = 'block';
+  document.getElementById('deleteAccountSuccessState').style.display = 'none';
+  document.getElementById('profileOverlay').style.display = 'none';
+  document.getElementById('deleteAccountOverlay').style.display = 'flex';
+}
+document.getElementById('deleteAccountBtn').addEventListener('click', openDeleteAccountOverlay);
+
+document.getElementById('deleteAccountCancel').addEventListener('click', ()=>{
+  document.getElementById('deleteAccountOverlay').style.display = 'none';
+});
+
+document.getElementById('deleteAccountConfirmInput').addEventListener('input', (e)=>{
+  const expected = LANG==='en' ? 'DELETE' : 'حذف';
+  const typed = e.target.value.trim();
+  const matches = LANG==='en' ? typed.toUpperCase()===expected : typed===expected;
+  document.getElementById('deleteAccountConfirmBtn').disabled = !matches;
+});
+
+document.getElementById('deleteAccountConfirmBtn').addEventListener('click', async ()=>{
+  const errEl = document.getElementById('deleteAccountError');
+  errEl.style.display = 'none';
+  const btn = document.getElementById('deleteAccountConfirmBtn');
+  const original = btn.textContent;
+  btn.textContent = LANG==='en' ? 'Deleting...' : 'جارٍ الحذف...';
+  btn.disabled = true;
+  document.getElementById('deleteAccountCancel').disabled = true;
+
+  try{
+    await apiDeleteAccount();
+    document.getElementById('deleteAccountSuccessMsg').textContent = LANG==='en'
+      ? 'Your account has been deleted. Thank you for using Hada’ 🌷'
+      : 'تم حذف حسابك. شكرًا لاستخدامك هَدَأ 🌷';
+    document.getElementById('deleteAccountFormState').style.display = 'none';
+    document.getElementById('deleteAccountSuccessState').style.display = 'block';
+    clearTokenFromStorage();
+    setTimeout(()=>{ window.location.href = '/'; }, 3000);
+  }catch(e){
+    errEl.textContent = e.message || (LANG==='en' ? 'Something went wrong.' : 'حدث خطأ ما.');
+    errEl.style.display = 'block';
+    btn.textContent = original;
+    btn.disabled = false;
+    document.getElementById('deleteAccountCancel').disabled = false;
   }
 });
 

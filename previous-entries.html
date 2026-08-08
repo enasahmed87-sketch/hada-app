@@ -58,6 +58,8 @@ header .tag{font-size:12px;color:var(--rose);margin-top:2px;}
   </header>
 
   <div id="content"><div class="loading" id="loadingText">جاري تحميل السجلات...</div></div>
+
+  <p id="appFooterLinks" style="text-align:center;font-size:12px;color:#a89aa0;margin:24px 0 0;"></p>
 </div>
 
 <script>
@@ -75,6 +77,10 @@ const T = {
   loadFail: { ar:'تعذّر تحميل السجلات. حاولي مرة أخرى.', en:'Could not load your logs. Please try again.' },
   improved: { ar:'حسّن نفسيتها:', en:'Improved her mood:' },
   lowered: { ar:'نزّل نفسيتها:', en:'Lowered her mood:' },
+  appFooterLinks: {
+    ar:'<a href="/privacy.html" style="color:#a89aa0;text-decoration:underline;">سياسة الخصوصية</a> · <a href="mailto:support@hadaa-app.com" style="color:#a89aa0;text-decoration:underline;">تواصلي معنا</a>',
+    en:'<a href="/privacy.html" style="color:#a89aa0;text-decoration:underline;">Privacy Policy</a> · <a href="mailto:support@hadaa-app.com" style="color:#a89aa0;text-decoration:underline;">Contact us</a>',
+  },
 };
 
 const MONTH_NAMES = {
@@ -93,6 +99,7 @@ function applyStaticLang(){
   document.getElementById('pageTag').textContent = T.pageTag[LANG];
   document.getElementById('backLink').textContent = T.backLink[LANG];
   document.getElementById('loadingText').textContent = T.loadingText[LANG];
+  document.getElementById('appFooterLinks').innerHTML = T.appFooterLinks[LANG];
 }
 
 document.getElementById('langToggle').addEventListener('click', ()=>{

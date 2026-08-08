@@ -359,6 +359,8 @@ h1,h2,h3{font-family:Georgia,serif;font-weight:400;margin:0;}
     <span style="color:var(--rose);margin-right:auto;font-size:14px;">←</span>
   </a>
 
+  <p id="appFooterLinks" style="text-align:center;font-size:12px;color:#a89aa0;margin:24px 0 0;"></p>
+
 </div><!-- end .page -->
 
 <!-- Article Modal -->
@@ -423,6 +425,15 @@ function openBookModal(i) {
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
 }
+
+(function renderFooterLinks(){
+  const lang = localStorage.getItem('hada_lang') || 'ar';
+  const links = {
+    ar:'<a href="/privacy.html" style="color:#a89aa0;text-decoration:underline;">سياسة الخصوصية</a> · <a href="mailto:support@hadaa-app.com" style="color:#a89aa0;text-decoration:underline;">تواصلي معنا</a>',
+    en:'<a href="/privacy.html" style="color:#a89aa0;text-decoration:underline;">Privacy Policy</a> · <a href="mailto:support@hadaa-app.com" style="color:#a89aa0;text-decoration:underline;">Contact us</a>',
+  };
+  document.getElementById('appFooterLinks').innerHTML = links[lang] || links.ar;
+})();
 </script>
 </body>
 </html>
