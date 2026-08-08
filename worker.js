@@ -209,8 +209,9 @@ export default {
     try {
       // ---- SIGNUP ----
       if (path === "/api/signup" && request.method === "POST") {
-        const { email, password, name } = await request.json();
+        const { email, password, name, age_confirmed } = await request.json();
         if (!email || !password) return json({ error: "Missing email or password" }, 400);
+        if (age_confirmed !== true) return json({ error: "Age confirmation required" }, 400);
 
         const existing = await env.DB.prepare("SELECT id FROM users WHERE email = ?").bind(email).first();
         if (existing) return json({ error: "Email already registered" }, 409);
@@ -218,8 +219,8 @@ export default {
         const id = newId();
         const hash = await hashPassword(password);
         await env.DB.prepare(
-          "INSERT INTO users (id, email, name, password_hash) VALUES (?, ?, ?, ?)"
-        ).bind(id, email, name || "", hash).run();
+          "INSERT INTO users (id, email, name, password_hash, age_confirmed) VALUES (?, ?, ?, ?, ?)"
+        ).bind(id, email, name || "", hash, 1).run();
 
         const token = await signToken({ uid: id, exp: Date.now() + 1000 * 60 * 60 * 24 * 90 }, env.TOKEN_SECRET);
         return json({ token, user: { id, email, name: name || "" } });
