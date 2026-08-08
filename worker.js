@@ -209,7 +209,9 @@ export default {
     try {
       // ---- SIGNUP ----
       if (path === "/api/signup" && request.method === "POST") {
-        const { email, password, name, age_confirmed } = await request.json();
+        const body = await request.json();
+        const email = (body.email || "").trim().toLowerCase();
+        const { password, name, age_confirmed } = body;
         if (!email || !password) return json({ error: "Missing email or password" }, 400);
         if (age_confirmed !== true) return json({ error: "Age confirmation required" }, 400);
 
@@ -228,7 +230,9 @@ export default {
 
       // ---- LOGIN ----
       if (path === "/api/login" && request.method === "POST") {
-        const { email, password } = await request.json();
+        const loginBody = await request.json();
+        const email = (loginBody.email || "").trim().toLowerCase();
+        const { password } = loginBody;
         if (!email || !password) return json({ error: "Missing email or password" }, 400);
 
         const user = await env.DB.prepare("SELECT * FROM users WHERE email = ?").bind(email).first();
@@ -253,7 +257,9 @@ export default {
       if (path === "/api/profile" && request.method === "POST") {
         const uid = await getAuthUser(request, env);
         if (!uid) return json({ error: "Unauthorized" }, 401);
-        const { name, email } = await request.json();
+        const profileBody = await request.json();
+        const email = (profileBody.email || "").trim().toLowerCase();
+        const { name } = profileBody;
         if (!email) return json({ error: "Email cannot be empty" }, 400);
 
         const existing = await env.DB.prepare(
@@ -504,7 +510,9 @@ export default {
 
       // ---- FORGOT PASSWORD: send a reset link by email ----
       if (path === "/api/forgot-password" && request.method === "POST") {
-        const { email, lang } = await request.json();
+        const forgotBody = await request.json();
+        const email = (forgotBody.email || "").trim().toLowerCase();
+        const { lang } = forgotBody;
         if (!email) return json({ error: "Missing email" }, 400);
 
         const user = await env.DB.prepare("SELECT id FROM users WHERE email = ?").bind(email).first();

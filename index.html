@@ -2111,7 +2111,7 @@ document.getElementById('profileCancel').addEventListener('click', ()=>{
 
 document.getElementById('profileSave').addEventListener('click', async ()=>{
   const name = document.getElementById('profileName').value.trim();
-  const email = document.getElementById('profileEmail').value.trim();
+  const email = document.getElementById('profileEmail').value.trim().toLowerCase();
   const age = parseInt(document.getElementById('profileAge').value) || null;
   const errEl = document.getElementById('profileError');
   errEl.style.display = 'none';
@@ -3159,6 +3159,15 @@ function updateAuthSubmitState(){
 ['authEmail','authPassword','authName'].forEach(id=>{
   document.getElementById(id).addEventListener('input', updateAuthSubmitState);
 });
+
+// إيميلات غير حساسة لحالة الأحرف — نحوّلها لحروف صغيرة تلقائيًا وقت الكتابة لمنع حسابات مكررة
+['authEmail','forgotEmail','profileEmail'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', (e)=>{
+    const pos = e.target.selectionStart;
+    e.target.value = e.target.value.toLowerCase();
+    if(pos !== null) e.target.setSelectionRange(pos, pos);
+  });
+});
 document.getElementById('ageConfirmCheckbox').addEventListener('change', updateAuthSubmitState);
 
 document.getElementById('authTabLogin').addEventListener('click', ()=>{ authTab='login'; updateAuthTabUI(); });
@@ -3180,7 +3189,7 @@ document.addEventListener('keydown', (e)=>{
 });
 
 document.getElementById('authSubmit').addEventListener('click', async ()=>{
-  const email = document.getElementById('authEmail').value.trim();
+  const email = document.getElementById('authEmail').value.trim().toLowerCase();
   const password = document.getElementById('authPassword').value;
   const name = document.getElementById('authName').value.trim();
   const ageConfirmed = document.getElementById('ageConfirmCheckbox').checked;
@@ -3257,7 +3266,7 @@ document.getElementById('forgotCancel').addEventListener('click', ()=>{
   document.getElementById('forgotOverlay').style.display = 'none';
 });
 document.getElementById('forgotSubmit').addEventListener('click', async ()=>{
-  const email = document.getElementById('forgotEmail').value.trim();
+  const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
   const msgEl = document.getElementById('forgotMsg');
   if(!email){
     msgEl.style.color = '#B5573F';
