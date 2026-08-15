@@ -57,5 +57,63 @@
       "url": "/#calendar",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/ar-1-calendar.png",
+      "sizes": "1169x1633",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "التقويم — تتبعي دورتك في لمحة"
+    },
+    {
+      "src": "screenshots/ar-2-monthly-report.png",
+      "sizes": "1018x2049",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "التقرير الشهري — تحليل بياناتك"
+    },
+    {
+      "src": "screenshots/ar-3-highlights.png",
+      "sizes": "1170x2036",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "مقتطفات الأسبوع — محتوى مختار لك"
+    },
+    {
+      "src": "screenshots/ar-4-log-form.png",
+      "sizes": "1006x2049",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "تسجيل يومك — مزاج وأعراض"
+    },
+    {
+      "src": "screenshots/en-1-calendar.png",
+      "sizes": "1170x1512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Calendar — Your cycle at a glance"
+    },
+    {
+      "src": "screenshots/en-2-monthly-report.png",
+      "sizes": "1006x2048",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Monthly Report — Insights into your patterns"
+    },
+    {
+      "src": "screenshots/en-3-highlights.png",
+      "sizes": "1036x2047",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Weekly Highlights — Curated content for you"
+    },
+    {
+      "src": "screenshots/en-4-log-form.png",
+      "sizes": "1062x2046",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Log Your Day — Mood and symptoms"
+    }
   ]
 }

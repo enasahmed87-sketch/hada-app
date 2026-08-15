@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>هَدَأ — استوديو صور متجر Google Play</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@300;400;500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  :root{
+    --cream:#FBF4EE;
+    --plum:#3D2B3D;
+    --rose:#C97B84;
+    --terracotta:#B5573F;
+    --sage:#8A9B7E;
+    --line:#E3D4CB;
+    --gold:#C8956D;
+    --rose-light:rgba(201,123,132,.22);
+    --sage-light:rgba(138,155,126,.22);
+    --gold-light:rgba(200,149,109,.24);
+    --terracotta-light:rgba(181,87,63,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#2A2230;color:var(--plum);font-family:'Tajawal',sans-serif;}
+
+  /* ===== Toolbar ===== */
+  #toolbar{
+    position:sticky;top:0;z-index:1000;
+    background:var(--plum);color:#fff;
+    padding:14px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+    box-shadow:0 4px 16px rgba(0,0,0,.35);
+  }
+  #toolbar .tb-title{
+    font-family:'Aref Ruqaa',serif;font-size:20px;color:#fff;margin-inline-end:14px;
+    display:flex;align-items:center;gap:8px;
+  }
+  #toolbar .tb-title .dot{width:10px;height:10px;border-radius:50%;background:var(--terracotta);}
+  #toolbar button{
+    font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;
+    background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(255,255,255,.25);
+    border-radius:999px;padding:8px 14px;transition:.15s;
+  }
+  #toolbar button:hover{background:rgba(255,255,255,.18);border-color:#fff;}
+  #toolbar button.active{background:var(--terracotta);border-color:var(--terracotta);}
+  #toolbar button.tb-all{background:var(--sage);border-color:var(--sage);}
+  #toolbar button.tb-all:hover{filter:brightness(1.08);}
+  #toolbar .tb-sep{width:1px;align-self:stretch;background:rgba(255,255,255,.2);margin:0 4px;}
+  #toolbar .tb-hint{font-size:11.5px;color:rgba(255,255,255,.65);width:100%;margin-top:2px;}
+
+  body.solo-mode #toolbar{display:none;}
+
+  /* ===== Exit-solo floating button ===== */
+  #exitSolo{
+    display:none;position:fixed;bottom:26px;inset-inline-end:26px;z-index:1001;
+    width:52px;height:52px;border-radius:50%;background:var(--plum);color:#fff;
+    border:none;font-size:20px;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4);opacity:.85;
+  }
+  #exitSolo:hover{opacity:1;}
+  body.solo-mode #exitSolo{display:block;}
+
+  /* ===== Gallery grid ===== */
+  #gallery{
+    display:grid;grid-template-columns:repeat(auto-fill, 232px);gap:22px;
+    padding:26px;justify-content:center;
+  }
+  body.solo-mode #gallery{display:block;padding:0;}
+
+  .screen-card{display:flex;flex-direction:column;align-items:center;gap:8px;}
+  body.solo-mode .screen-card{display:none;}
+  body.solo-mode .screen-card.solo-target{display:flex;gap:0;}
+
+  .screen-viewport{
+    width:216px;height:384px;overflow:hidden;border-radius:14px;
+    box-shadow:0 6px 20px rgba(0,0,0,.4);background:#111;position:relative;
+  }
+  body.solo-mode .screen-card.solo-target .screen-viewport{
+    width:1080px;height:1920px;border-radius:0;box-shadow:none;margin:0 auto;
+  }
+
+  .screen{width:1080px;height:1920px;transform:scale(0.2);transform-origin:top left;}
+  body.solo-mode .screen-card.solo-target .screen{transform:none;}
+
+  .card-label{font-size:12.5px;color:#fff;font-weight:700;text-align:center;}
+  .card-lang{font-size:10.5px;color:var(--gold);font-weight:700;}
+  .dl-btn{
+    font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;
+    background:var(--terracotta);color:#fff;border:none;border-radius:999px;
+    padding:7px 14px;margin-top:2px;
+  }
+  .dl-btn:hover{filter:brightness(1.08);}
+  body.solo-mode .dl-btn{margin-top:14px;font-size:15px;padding:12px 26px;}
+  body.solo-mode .card-label,body.solo-mode .card-lang{display:none;}
+
+  /* ===== The 1080x1920 store screen itself ===== */
+  .screen{
+    display:flex;flex-direction:column;align-items:center;
+    background:linear-gradient(160deg, var(--cream) 0%, var(--line) 100%);
+    padding:90px 70px 70px;
+    position:relative;
+  }
+  .screen[dir="ltr"]{font-family:'Poppins',sans-serif;}
+  .screen[dir="rtl"]{font-family:'Tajawal',sans-serif;}
+
+  .screen-header{text-align:center;margin-bottom:80px;}
+  .screen-header .title{
+    font-size:52px;line-height:1.25;color:var(--plum);
+  }
+  .screen[dir="rtl"] .screen-header .title{font-family:'Aref Ruqaa',serif;font-weight:700;}
+  .screen[dir="ltr"] .screen-header .title{font-family:'Poppins',sans-serif;font-weight:600;}
+
+  /* Phone frame */
+  .phone-frame{
+    width:610px;height:1290px;background:#161217;border-radius:76px;
+    padding:20px;box-shadow:0 40px 70px rgba(61,43,61,.35), 0 0 0 3px #000 inset;
+    position:relative;flex-shrink:0;
+  }
+  .phone-notch{
+    position:absolute;top:20px;left:50%;transform:translateX(-50%);
+    width:200px;height:32px;background:#161217;border-radius:0 0 22px 22px;z-index:5;
+  }
+  .phone-screen{
+    width:100%;height:100%;background:#FFFDFB;border-radius:56px;overflow:hidden;
+    position:relative;
+  }
+  .phone-app{
+    padding:86px 44px 44px;height:100%;display:flex;flex-direction:column;gap:30px;
+  }
+  .phone-topbar{font-size:20px;font-weight:700;color:var(--rose);text-align:center;letter-spacing:.02em;}
+
+  /* mock: phase card */
+  .mock-card.phase-mock{
+    background:linear-gradient(135deg,#FBF1EC,#F4ECE3);border:2px solid var(--gold);
+    border-radius:26px;padding:34px 24px;text-align:center;
+  }
+  .mock-icon{font-size:44px;margin-bottom:10px;}
+  .mock-phase-label{font-size:16px;color:var(--rose);font-weight:700;margin-bottom:6px;}
+  .mock-phase-name{font-size:30px;color:var(--terracotta);font-family:'Aref Ruqaa',serif;font-weight:700;}
+  .screen[dir="ltr"] .mock-phase-name{font-family:'Poppins',sans-serif;font-weight:600;font-size:24px;}
+  .mock-counter{
+    background:#fff;border:2px solid var(--line);border-radius:26px;padding:26px;text-align:center;
+  }
+  .mock-counter-num{font-size:56px;color:var(--terracotta);font-family:'Aref Ruqaa',serif;font-weight:700;line-height:1;}
+  .screen[dir="ltr"] .mock-counter-num{font-family:'Poppins',sans-serif;}
+  .mock-counter-label{font-size:16px;color:var(--plum);margin-top:8px;font-weight:500;}
+
+  /* mock: mood + chips */
+  .mock-mood-row{display:flex;justify-content:space-between;gap:8px;}
+  .mock-mood{
+    font-size:38px;flex:1;text-align:center;padding:10px 0;border-radius:16px;
+    border:2px solid var(--line);background:#fff;
+  }
+  .mock-mood.selected{background:var(--rose);border-color:var(--rose);box-shadow:0 6px 14px rgba(201,123,132,.4);}
+  .mock-chip-label{font-size:16px;color:var(--rose);font-weight:700;}
+  .mock-chips{display:flex;flex-wrap:wrap;gap:10px;}
+  .mock-chip{
+    font-size:16px;padding:10px 20px;border-radius:999px;border:2px solid var(--line);
+    background:#fff;color:var(--plum);font-weight:500;
+  }
+  .mock-chip.selected{background:var(--terracotta);color:#fff;border-color:var(--terracotta);}
+
+  /* mock: calendar */
+  .mock-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .mock-calendar .d{
+    aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-size:14px;color:var(--plum);background:#fff;border:1.5px solid var(--line);font-weight:500;
+  }
+  .mock-calendar .d.period{background:var(--terracotta);color:#fff;border-color:var(--terracotta);font-weight:700;}
+  .mock-calendar .d.predicted{background:#EAF0E5;border-color:var(--sage);color:#5c6b52;font-weight:700;}
+  .mock-cal-legend{display:flex;justify-content:center;gap:22px;margin-top:6px;}
+  .mock-cal-legend span{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--plum);font-weight:500;}
+  .mock-cal-legend .dot{width:14px;height:14px;border-radius:4px;display:inline-block;}
+  .mock-cal-legend .dot.terracotta{background:var(--terracotta);}
+  .mock-cal-legend .dot.sage{background:var(--sage);}
+
+  /* mock: analysis */
+  .mock-report-card{
+    background:linear-gradient(135deg,#FBF1EC,#F4ECE3);border:2px solid var(--gold);
+    border-radius:26px;padding:36px 28px;margin-top:20px;
+  }
+  .mock-report-title{font-size:20px;font-weight:700;color:var(--terracotta);margin-bottom:18px;text-align:center;}
+  .mock-report-text{font-size:26px;line-height:1.5;color:var(--plum);font-weight:600;text-align:center;}
+
+  /* mock: activity icon grid (screen 6) */
+  .mock-activity-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:14px;}
+  .mock-activity{
+    aspect-ratio:1;border-radius:28px;display:flex;align-items:center;justify-content:center;
+    font-size:58px;box-shadow:0 4px 12px rgba(61,43,61,.08);
+  }
+
+  /* mock: article cards (screen 7) */
+  .mock-article-card{
+    border-radius:28px;padding:34px 20px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;
+  }
+  .mock-article-icon{font-size:60px;}
+  .mock-article-label{font-size:20px;font-weight:700;color:var(--plum);}
+  .screen[dir="ltr"] .mock-article-label{font-family:'Poppins',sans-serif;font-weight:600;}
+
+  /* mock: dhikr */
+  .mock-dhikr-card{
+    background:#fff;border:2px solid var(--line);border-radius:30px;padding:50px 30px;
+    text-align:center;margin-top:40px;display:flex;flex-direction:column;align-items:center;gap:22px;
+  }
+  .mock-moon{font-size:46px;}
+  .mock-dhikr-text{font-size:34px;font-family:'Aref Ruqaa',serif;color:var(--plum);font-weight:700;}
+  .mock-dhikr-btn{
+    font-family:'Tajawal',sans-serif;font-size:16px;font-weight:700;color:#fff;background:var(--sage);
+    border:none;border-radius:999px;padding:14px 30px;cursor:default;
+  }
+  .screen[dir="ltr"] .mock-dhikr-btn{font-family:'Poppins',sans-serif;}
+
+  /* Footer branding */
+  .screen-footer{margin-top:50px;display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .brand-logo{font-family:'Aref Ruqaa',serif;font-size:34px;color:var(--plum);font-weight:700;}
+  .screen[dir="ltr"] .brand-logo{font-family:'Poppins',sans-serif;font-weight:600;letter-spacing:.02em;}
+  .brand-bar{width:120px;height:6px;border-radius:999px;background:var(--terracotta);}
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <div class="tb-title"><span class="dot"></span>هَدَأ — استوديو صور المتجر</div>
+  <div id="tbButtons" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+  <div class="tb-sep"></div>
+  <button class="tb-all" onclick="showGallery()">🖼️ Show all</button>
+  <div class="tb-hint">لعرض صورة بحجمها الكامل: اضغطي على اسمها ثم Ctrl+Shift+I → Device Toolbar → 1080×1920. أو استخدمي زر التحميل 📸 لتنزيل PNG مباشرة بدقة كاملة بدون أي عناصر واجهة.</div>
+</div>
+
+<button id="exitSolo" onclick="showGallery()" title="رجوع">☰</button>
+
+<div id="gallery"></div>
+
+<script>
+const SCREENS = [
+  {
+    id:1, key:'goal',
+    ar:{title:'افهمي دورتك، احتضني مشاعرك'},
+    en:{title:'Understand your cycle, embrace your emotions'}
+  },
+  {
+    id:2, key:'track',
+    ar:{title:'سجّلي مزاجك وأعراضك بكل بساطة'},
+    en:{title:'Log your mood and symptoms with ease'}
+  },
+  {
+    id:3, key:'calendar',
+    ar:{title:'تقويم دورتك في لمحة'},
+    en:{title:'Your cycle at a glance'}
+  },
+  {
+    id:4, key:'analysis',
+    ar:{title:'تحليل ذكي بلمسة إنسانية'},
+    en:{title:'Smart insights with a human touch'}
+  },
+  {
+    id:5, key:'dhikr',
+    ar:{title:'لحظات هدوء تنساب في يومك'},
+    en:{title:'Moments of stillness in your day'}
+  },
+  {
+    id:6, key:'balance',
+    ar:{title:'أنشطة تعيد لك الاتزان'},
+    en:{title:'Activities that restore your balance'}
+  },
+  {
+    id:7, key:'articles',
+    ar:{title:'مقالات تلامس ما تشعرين به'},
+    en:{title:'Articles that speak to you'}
+  }
+];
+
+function mockGoal(lang){
+  return `
+    <div class="phone-topbar">${lang==='ar'?'الرئيسية':'Home'}</div>
+    <div class="mock-card phase-mock">
+      <div class="mock-icon">🌙</div>
+      <div class="mock-phase-label">${lang==='ar'?'أنتِ الآن في:':'You are currently in:'}</div>
+      <div class="mock-phase-name">${lang==='ar'?'أسبوع ما قبل الحيض':'Pre-period week'}</div>
+    </div>
+    <div class="mock-counter">
+      <div class="mock-counter-num">3</div>
+      <div class="mock-counter-label">${lang==='ar'?'أيام حتى دورتك القادمة':'days until your next period'}</div>
+    </div>`;
+}
+function mockTrack(lang){
+  return `
+    <div class="phone-topbar">${lang==='ar'?'كيف تشعرين اليوم؟':'How do you feel today?'}</div>
+    <div class="mock-mood-row">
+      <span class="mock-mood">😞</span><span class="mock-mood">😕</span><span class="mock-mood">😐</span>
+      <span class="mock-mood selected">🙂</span><span class="mock-mood">😄</span>
+    </div>
+    <div class="mock-chip-label">${lang==='ar'?'الأعراض':'Symptoms'}</div>
+    <div class="mock-chips">
+      <span class="mock-chip">${lang==='ar'?'صداع':'Headache'}</span>
+      <span class="mock-chip">${lang==='ar'?'إرهاق':'Fatigue'}</span>
+      <span class="mock-chip selected">${lang==='ar'?'توتر':'Tension'}</span>
+      <span class="mock-chip">${lang==='ar'?'قلق':'Anxiety'}</span>
+    </div>`;
+}
+function mockCalendar(lang){
+  const period=[9,10,11,12], predicted=[23,24,25];
+  let cells='';
+  for(let i=0;i<35;i++){
+    let cls='d';
+    if(period.includes(i)) cls+=' period';
+    else if(predicted.includes(i)) cls+=' predicted';
+    cells+=`<div class="${cls}">${i+1<=31?i+1:''}</div>`;
+  }
+  return `
+    <div class="phone-topbar">${lang==='ar'?'أغسطس':'August'}</div>
+    <div class="mock-calendar">${cells}</div>
+    <div class="mock-cal-legend">
+      <span><i class="dot terracotta"></i>${lang==='ar'?'أيام الدورة':'Period days'}</span>
+      <span><i class="dot sage"></i>${lang==='ar'?'متوقع':'Predicted'}</span>
+    </div>`;
+}
+function mockAnalysis(lang){
+  return `
+    <div class="phone-topbar">${lang==='ar'?'التحليل':'Insights'}</div>
+    <div class="mock-report-card">
+      <div class="mock-report-title">✨ ${lang==='ar'?'تقريرك الأسبوعي':'Your weekly report'}</div>
+      <div class="mock-report-text">${lang==='ar'
+        ? 'مزاجك يتحسن نهاية الأسبوع 📈'
+        : 'Your mood lifts by the weekend 📈'}</div>
+    </div>`;
+}
+function mockDhikr(lang){
+  return `
+    <div class="phone-topbar">${lang==='ar'?'سكينة':'Stillness'}</div>
+    <div class="mock-dhikr-card">
+      <div class="mock-moon">🌙</div>
+      <div class="mock-dhikr-text">سبحان الله وبحمده</div>
+      <button class="mock-dhikr-btn">${lang==='ar'?'تذكّرني بالذكر':'Remind me'}</button>
+    </div>`;
+}
+function mockBalance(lang){
+  const items = [
+    {icon:'🌬️', bg:'var(--cream)'},
+    {icon:'🎧', bg:'var(--line)'},
+    {icon:'💬', bg:'var(--rose-light)'},
+    {icon:'🎨', bg:'var(--sage-light)'},
+    {icon:'✨', bg:'var(--gold-light)'},
+    {icon:'📓', bg:'var(--terracotta-light)'}
+  ];
+  const cells = items.map(it=>`<div class="mock-activity" style="background:${it.bg};">${it.icon}</div>`).join('');
+  return `
+    <div class="phone-topbar">🌸 ${lang==='ar'?'لأسبوع ما قبل الحيض':'For pre-menstrual week'}</div>
+    <div class="mock-activity-grid">${cells}</div>`;
+}
+function mockArticles(lang){
+  const items = [
+    {icon:'🌷', bg:'var(--rose-light)', ar:'عناية ذاتية', en:'Self-care'},
+    {icon:'💞', bg:'var(--terracotta-light)', ar:'علاقات ومشاعر', en:'Love & Feelings'},
+    {icon:'🪞', bg:'var(--sage-light)', ar:'تقبّل الذات', en:'Self-acceptance'}
+  ];
+  const cards = items.map(it=>`
+    <div class="mock-article-card" style="background:${it.bg};">
+      <div class="mock-article-icon">${it.icon}</div>
+      <div class="mock-article-label">${lang==='ar'?it.ar:it.en}</div>
+    </div>`).join('');
+  return `
+    <div class="phone-topbar">${lang==='ar'?'مقالات':'Articles'}</div>
+    ${cards}`;
+}
+const MOCKS = {goal:mockGoal, track:mockTrack, calendar:mockCalendar, analysis:mockAnalysis, dhikr:mockDhikr, balance:mockBalance, articles:mockArticles};
+
+const gallery = document.getElementById('gallery');
+const tbButtons = document.getElementById('tbButtons');
+
+SCREENS.forEach(s=>{
+  ['ar','en'].forEach(lang=>{
+    const id = `screen-${s.id}-${lang}`;
+    const t = s[lang];
+    const dir = lang==='ar' ? 'rtl' : 'ltr';
+
+    const card = document.createElement('div');
+    card.className = 'screen-card';
+    card.id = `card-${id}`;
+    card.innerHTML = `
+      <div class="card-label">Screen ${s.id} <span class="card-lang">${lang.toUpperCase()}</span></div>
+      <div class="screen-viewport">
+        <div class="screen" id="${id}" dir="${dir}" lang="${lang}">
+          <div class="screen-header">
+            <div class="title">${t.title}</div>
+          </div>
+          <div class="phone-frame">
+            <div class="phone-notch"></div>
+            <div class="phone-screen">
+              <div class="phone-app">${MOCKS[s.key](lang)}</div>
+            </div>
+          </div>
+          <div class="screen-footer">
+            <div class="brand-logo">هَدَأ</div>
+            <div class="brand-bar"></div>
+          </div>
+        </div>
+      </div>
+      <button class="dl-btn" onclick="downloadScreen('${id}')">📸 Download as PNG</button>
+    `;
+    gallery.appendChild(card);
+
+    const btn = document.createElement('button');
+    btn.textContent = `${s.id} ${lang.toUpperCase()}`;
+    btn.id = `tb-${id}`;
+    btn.onclick = ()=>showSolo(id);
+    tbButtons.appendChild(btn);
+  });
+});
+
+function showSolo(id){
+  document.body.classList.add('solo-mode');
+  document.querySelectorAll('.screen-card').forEach(c=>c.classList.remove('solo-target'));
+  document.getElementById(`card-${id}`).classList.add('solo-target');
+  document.querySelectorAll('#tbButtons button').forEach(b=>b.classList.remove('active'));
+  const tb = document.getElementById(`tb-${id}`);
+  if(tb) tb.classList.add('active');
+  window.scrollTo(0,0);
+}
+function showGallery(){
+  document.body.classList.remove('solo-mode');
+  document.querySelectorAll('#tbButtons button').forEach(b=>b.classList.remove('active'));
+  window.scrollTo(0,0);
+}
+
+function downloadScreen(id){
+  const original = document.getElementById(id);
+  const clone = original.cloneNode(true);
+  clone.style.transform = 'none';
+  clone.style.position = 'fixed';
+  clone.style.top = '0';
+  clone.style.left = '-99999px';
+  clone.style.display = 'flex';
+  clone.style.zIndex = '-1';
+  document.body.appendChild(clone);
+
+  html2canvas(clone, {width:1080, height:1920, scale:1, backgroundColor:null, useCORS:true}).then(canvas=>{
+    document.body.removeChild(clone);
+    const link = document.createElement('a');
+    link.download = `${id}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(err=>{
+    document.body.removeChild(clone);
+    alert('حدث خطأ أثناء إنشاء الصورة: ' + err.message);
+  });
+}
+</script>
+</body>
+</html>
