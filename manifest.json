@@ -2,15 +2,25 @@
   "id": "/",
   "name": "هَدَأ — متتبع الدورة والمزاج",
   "short_name": "هَدَأ",
-  "description": "تطبيق هَدَأ لتتبع الدورة الشهرية والحالة المزاجية بخصوصية تامة، مع تحليل ذكي ونصائح يومية.",
+  "description": "تطبيق تتبع الدورة الشهرية والمزاج للنساء البالغات — بدعم الذكاء الاصطناعي لتحليل الأنماط.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#FBF4EE",
   "theme_color": "#3D2B3D",
-  "dir": "rtl",
   "lang": "ar",
+  "dir": "rtl",
+  "categories": ["health", "lifestyle", "medical"],
+  "iarc_rating_id": "",
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.hadaa.app",
+      "id": "com.hadaa.app"
+    }
+  ],
   "icons": [
     {
       "src": "/icon-192.png",
@@ -29,6 +39,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/home.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "الصفحة الرئيسية"
+    },
+    {
+      "src": "screenshots/calendar.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "التقويم"
     }
   ]
 }
