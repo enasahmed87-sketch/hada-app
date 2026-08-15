@@ -6,6 +6,7 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
   "orientation": "portrait",
   "background_color": "#FBF4EE",
   "theme_color": "#3D2B3D",
@@ -41,20 +42,20 @@
       "purpose": "maskable"
     }
   ],
-  "screenshots": [
+  "shortcuts": [
     {
-      "src": "screenshots/home.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "الصفحة الرئيسية"
+      "name": "تسجيل اليوم",
+      "short_name": "اليوم",
+      "description": "تسجيل مزاجك وأعراض اليوم",
+      "url": "/#log",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     },
     {
-      "src": "screenshots/calendar.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "التقويم"
+      "name": "التقويم",
+      "short_name": "التقويم",
+      "description": "عرض دورتك في التقويم",
+      "url": "/#calendar",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
