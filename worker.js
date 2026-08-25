@@ -319,6 +319,7 @@ export default {
           settings: {
             starts: row.starts ? JSON.parse(row.starts) : [],
             cycleLen: row.cycle_len, periodLen: row.period_len, age: row.age,
+            periodDays: row.period_days ? JSON.parse(row.period_days) : [],
           }
         });
       }
@@ -328,12 +329,12 @@ export default {
         if (!uid) return json({ error: "Unauthorized" }, 401);
         const s = await request.json();
         await env.DB.prepare(
-          `INSERT INTO cycle_settings (user_id, starts, cycle_len, period_len, age)
-           VALUES (?, ?, ?, ?, ?)
+          `INSERT INTO cycle_settings (user_id, starts, cycle_len, period_len, age, period_days)
+           VALUES (?, ?, ?, ?, ?, ?)
            ON CONFLICT(user_id) DO UPDATE SET
              starts=excluded.starts, cycle_len=excluded.cycle_len,
-             period_len=excluded.period_len, age=excluded.age`
-        ).bind(uid, JSON.stringify(s.starts || []), s.cycleLen || 28, s.periodLen || 5, s.age || null).run();
+             period_len=excluded.period_len, age=excluded.age, period_days=excluded.period_days`
+        ).bind(uid, JSON.stringify(s.starts || []), s.cycleLen || 28, s.periodLen || 5, s.age || null, JSON.stringify(s.periodDays || [])).run();
         return json({ ok: true });
       }
 

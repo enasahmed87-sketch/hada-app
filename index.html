@@ -101,7 +101,9 @@ textarea{resize:vertical;min-height:80px;}
 .calendar .d{
   aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;
   font-size:12px;border:1px solid var(--line);background:#FFFDFB;color:#6b5a64;position:relative;
+  cursor:pointer;user-select:none;transition:transform .15s;
 }
+.calendar .d:hover{transform:scale(1.05);}
 .calendar .d.period{background:var(--terracotta);color:#fff;border-color:var(--terracotta);}
 .calendar .d.predicted{background:#F3DCD3;border-color:var(--rose);color:var(--terracotta);}
 .calendar .d.today{box-shadow:0 0 0 2px var(--plum) inset;font-weight:700;}
@@ -668,6 +670,7 @@ body.lang-en .toggle-switch.on .knob{left:23px;}
         <div><span style="display:inline-block;width:10px;height:10px;background:var(--terracotta);border-radius:3px;margin-left:5px;margin-right:5px;"></span><span id="calLegendActual">أيام الدورة المسجلة</span></div>
         <div><span style="display:inline-block;width:10px;height:10px;background:#F3DCD3;border:1px solid var(--rose);border-radius:3px;margin-left:5px;margin-right:5px;"></span><span id="calLegendPredicted">توقّع الدورة القادمة</span></div>
       </div>
+      <div style="font-size:11.5px;color:#9b8a92;margin-top:8px;text-align:center;" id="calendarHint">دوسي على أي يوم لإضافته أو إزالته من أيام الحيض</div>
     </div>
     <div class="card">
       <div class="eyebrow" id="eyebrowCycleStats">إحصائيات الدورة</div>
@@ -712,7 +715,7 @@ body.lang-en .toggle-switch.on .knob{left:23px;}
 const STORAGE_KEY = 'entries';
 const CYCLE_KEY = 'cycleSettings';
 let entries = [];
-let cycleSettings = null; // { starts:[dates], cycleLen, periodLen }
+let cycleSettings = null; // { starts:[dates], cycleLen, periodLen, periodDays:[dates] } — periodDays هو مصدر الحقيقة لأيام الحيض الفعلية
 let selectedMood = null;
 let selectedSymptoms = new Set(), selectedPsych = new Set();
 let calRefDate = new Date();
@@ -974,6 +977,8 @@ const I18N = {
   obCancel:        { ar:"إغلاق", en:"Close" },
   updatePeriodLbl: { ar:"دورتي بدأت اليوم — حدّثي الحساب", en:"My period started today — update calculation" },
   editCycleLbl:    { ar:"⚙️ تعديل بيانات الدورة", en:"⚙️ Edit cycle data" },
+  calendarHint:    { ar:"دوسي على أي يوم لإضافته أو إزالته من أيام الحيض", en:"Tap any day to add or remove it from period days" },
+  periodMarkedMsg: { ar:"تمّ ✓ تقدرين تعدّلين أيام الدورة من التقويم", en:"Done ✓ You can fine-tune period days from the calendar" },
   eyebrowLog:      { ar:"تسجيل اليوم", en:"Today's log" },
   logTitle:        { ar:"كيف تشعرين اليوم؟", en:"How are you feeling today?" },
   dateLbl:         { ar:"التاريخ", en:"Date" },
@@ -1253,6 +1258,25 @@ async function loadCycleSettings(){
 }
 async function saveCycleSettings(){
   await apiFetch('/api/cycle-settings', { method:'POST', body: JSON.stringify(cycleSettings) });
+}
+
+// ترحيل تلقائي لمرة واحدة: لو ما فيه periodDays بعد لكن starts فيها بيانات قديمة،
+// نبني periodDays منها (كل start + periodLen-1 يوم تالي) حتى ما تفقد المستخدمات
+// الحاليات بياناتهن بعد التحديث لنموذج البيانات الجديد.
+async function migratePeriodDaysIfNeeded(){
+  if(!cycleSettings) return;
+  if(cycleSettings.periodDays && cycleSettings.periodDays.length>0) return;
+  if(!cycleSettings.starts || cycleSettings.starts.length===0) return;
+  const periodLen = cycleSettings.periodLen || 5;
+  const days = [];
+  cycleSettings.starts.forEach(s=>{
+    for(let i=0;i<periodLen;i++){
+      const d = parseDateStr(s); d.setDate(d.getDate()+i);
+      days.push(localDateStr(d));
+    }
+  });
+  cycleSettings.periodDays = [...new Set(days)].sort();
+  try{ await saveCycleSettings(); }catch(e){ /* هتحاول تاني بالتحميل الجاي */ }
 }
 
 
@@ -1565,24 +1589,38 @@ function todayStr(){ return localDateStr(new Date()); }
 
 function daysBetween(a,b){ return Math.round((parseDateStr(b)-parseDateStr(a))/86400000); }
 
+// تشتق بدايات الدورات من periodDays مباشرة: أي يوم حيض ما يسبقه يوم حيض
+// (يعني اليوم قبله - يوم واحد - مو موجود في القائمة) يُعتبر بداية دورة جديدة.
+function derivePeriodStarts(){
+  if(!cycleSettings || !cycleSettings.periodDays || cycleSettings.periodDays.length===0) return [];
+  const sorted = [...cycleSettings.periodDays].sort();
+  const daysSet = new Set(sorted);
+  const starts = [];
+  sorted.forEach(d=>{
+    const prev = parseDateStr(d); prev.setDate(prev.getDate()-1);
+    if(!daysSet.has(localDateStr(prev))) starts.push(d);
+  });
+  return starts; // مرتبة تصاعديًا لأن sorted مرتبة أصلًا
+}
+
 function getLatestStart(){
-  if(!cycleSettings || !cycleSettings.starts || cycleSettings.starts.length===0) return null;
-  const sorted = [...cycleSettings.starts].sort();
-  return sorted[sorted.length-1];
+  const starts = derivePeriodStarts();
+  if(starts.length===0) return null;
+  return starts[starts.length-1];
 }
 
 // يرجع بداية الدورة "الفعلية" بالنسبة لتاريخ معيّن — يعني آخر بداية دورة مسجّلة
 // تكون هي أو قبل هذا التاريخ. هذا يمنع خلط تاريخ قديم (قبل آخر بداية دورة مسجّلة)
 // مع الدورة الجديدة، وهو سبب ظهور "أسبوع الحيض" بدل المرحلة الصحيحة في التقارير.
 function getApplicableStart(dateStr){
-  if(!cycleSettings || !cycleSettings.starts || cycleSettings.starts.length===0) return null;
-  const sorted = [...cycleSettings.starts].sort();
+  const starts = derivePeriodStarts();
+  if(starts.length===0) return null;
   let applicable = null;
-  for(const s of sorted){
+  for(const s of starts){
     if(s <= dateStr) applicable = s;
     else break;
   }
-  if(!applicable) applicable = sorted[0];
+  if(!applicable) applicable = starts[0];
   return applicable;
 }
 
@@ -1613,23 +1651,37 @@ function computePhase(dateStr){
 
 function getPeriodDatesSet(){
   const set = new Set();
-  if(!cycleSettings || !cycleSettings.starts) return set;
-  const periodLen = cycleSettings.periodLen || 5;
-  cycleSettings.starts.forEach(s=>{
-    for(let i=0;i<periodLen;i++){
-      const d = parseDateStr(s); d.setDate(d.getDate()+i);
-      set.add(localDateStr(d));
-    }
-  });
+  if(!cycleSettings || !cycleSettings.periodDays) return set;
+  cycleSettings.periodDays.forEach(d=> set.add(d));
   return set;
 }
 
 function predictNextPeriods(){
   if(!cycleSettings) return {predicted:[], avgCycle:null, avgPeriodLen:null};
-  const lastStart = getLatestStart();
-  if(!lastStart) return {predicted:[], avgCycle:null, avgPeriodLen:null};
-  const avgCycle = cycleSettings.cycleLen || 28;
-  const avgPeriodLen = cycleSettings.periodLen || 5;
+  const starts = derivePeriodStarts();
+  if(starts.length===0) return {predicted:[], avgCycle:null, avgPeriodLen:null};
+  const daysSet = new Set(cycleSettings.periodDays || []);
+
+  // متوسط طول الحيض الفعلي: عدد الأيام المتصلة من كل بداية دورة مسجّلة
+  const lens = starts.map(s=>{
+    let len = 0;
+    let d = parseDateStr(s);
+    while(daysSet.has(localDateStr(d))){ len++; d.setDate(d.getDate()+1); }
+    return len;
+  }).filter(l=>l>0);
+  const avgPeriodLen = lens.length
+    ? Math.round(lens.reduce((a,b)=>a+b,0)/lens.length)
+    : (cycleSettings.periodLen || 5);
+
+  // متوسط طول الدورة: متوسط الفروق بين البدايات المتتالية
+  let avgCycle = cycleSettings.cycleLen || 28;
+  if(starts.length>=2){
+    const diffs = [];
+    for(let i=1;i<starts.length;i++) diffs.push(daysBetween(starts[i-1], starts[i]));
+    if(diffs.length) avgCycle = Math.round(diffs.reduce((a,b)=>a+b,0)/diffs.length);
+  }
+
+  const lastStart = starts[starts.length-1];
   let predicted = [];
   let next = parseDateStr(lastStart); next.setDate(next.getDate()+avgCycle);
   for(let c=0;c<4;c++){
@@ -2265,18 +2317,22 @@ document.getElementById('updatePeriodBtn').addEventListener('click', async ()=>{
     : 'تأكيد: دورتك بدأت اليوم؟ سيتم تحديث الحساب بناءً على هذا التاريخ.';
   if(!confirm(confirmMsg)) return;
   const today = todayStr();
-  if(!cycleSettings) cycleSettings = {starts:[], cycleLen:28, periodLen:5};
+  if(!cycleSettings) cycleSettings = {starts:[], cycleLen:28, periodLen:5, periodDays:[]};
+  if(!cycleSettings.periodDays) cycleSettings.periodDays = [];
   // learn cycle length from previous start if available
   const prevStart = getLatestStart();
   if(prevStart){
     const diff = daysBetween(prevStart, today);
     if(diff > 10 && diff < 60) cycleSettings.cycleLen = diff; // adapt
   }
-  cycleSettings.starts.push(today);
+  if(!cycleSettings.periodDays.includes(today)){
+    cycleSettings.periodDays.push(today);
+    cycleSettings.periodDays.sort();
+  }
   await saveCycleSettings();
   renderPhaseCard();
   renderCalendar();
-  alert(LANG==='en' ? 'Period start updated \u2713' : 'تم تحديث بداية الدورة ✓');
+  alert(I18N.periodMarkedMsg[LANG]);
 });
 
 document.getElementById('editCycleBtn').addEventListener('click', ()=>{
@@ -2300,8 +2356,41 @@ document.getElementById('obSave').addEventListener('click', async ()=>{
     const cLen = parseInt(document.getElementById('obCycleLen').value) || 28;
     const pLen = parseInt(document.getElementById('obPeriodLen').value) || 5;
     if(!last){ alert(LANG==='en' ? 'Please choose the start date of your last period' : 'اختاري تاريخ بداية آخر دورة'); return; }
-    const priorStarts = (cycleSettings && cycleSettings.starts) ? cycleSettings.starts.filter(s=>s!==getLatestStart()) : [];
-    cycleSettings = { starts:[...priorStarts, last], cycleLen:cLen, periodLen:pLen, age };
+
+    const isNewUser = !cycleSettings || !cycleSettings.periodDays || cycleSettings.periodDays.length===0;
+    if(isNewUser){
+      // أول تسجيل: أنشئي periodDays من تاريخ آخر دورة + طول الحيض المقدّر (نفس منطق الترحيل)
+      const days = [];
+      for(let i=0;i<pLen;i++){
+        const d = parseDateStr(last); d.setDate(d.getDate()+i);
+        days.push(localDateStr(d));
+      }
+      cycleSettings = { starts:[last], cycleLen:cLen, periodLen:pLen, age, periodDays: days };
+    } else {
+      // تعديل بيانات موجودة: حدّثي المتوسطات فقط، وحرّكي بداية آخر دورة لو المستخدمة غيّرتها،
+      // بدون المساس بأيام الدورات الأقدم اللي اتسجّلت من التقويم مباشرة
+      const prevLatestStart = getLatestStart();
+      let periodDays = [...cycleSettings.periodDays];
+      if(last !== prevLatestStart){
+        if(prevLatestStart){
+          const daysSet = new Set(periodDays);
+          const oldBlock = [];
+          let d = parseDateStr(prevLatestStart);
+          while(daysSet.has(localDateStr(d))){ oldBlock.push(localDateStr(d)); d.setDate(d.getDate()+1); }
+          const oldBlockSet = new Set(oldBlock);
+          periodDays = periodDays.filter(x=>!oldBlockSet.has(x));
+        }
+        for(let i=0;i<pLen;i++){
+          const d = parseDateStr(last); d.setDate(d.getDate()+i);
+          periodDays.push(localDateStr(d));
+        }
+        periodDays = [...new Set(periodDays)].sort();
+      }
+      cycleSettings.cycleLen = cLen;
+      cycleSettings.periodLen = pLen;
+      cycleSettings.age = age;
+      cycleSettings.periodDays = periodDays;
+    }
     await saveCycleSettings();
     document.getElementById('obCancel').style.display = 'none';
     document.getElementById('onboardOverlay').style.display = 'none';
@@ -2315,6 +2404,23 @@ document.getElementById('obSave').addEventListener('click', async ()=>{
 // ---- calendar ----
 document.getElementById('prevMonth').addEventListener('click', ()=>{ calRefDate.setMonth(calRefDate.getMonth()-1); renderCalendar(); });
 document.getElementById('nextMonth').addEventListener('click', ()=>{ calRefDate.setMonth(calRefDate.getMonth()+1); renderCalendar(); });
+
+// دوسة على أي يوم بالتقويم تضيفه أو تشيله من أيام الحيض مباشرة
+document.getElementById('calendarGrid').addEventListener('click', async (e)=>{
+  const cell = e.target.closest('.d[data-date]');
+  if(!cell) return;
+  if(!requireAuth()) return;
+  const dateStr = cell.dataset.date;
+  if(!cycleSettings) cycleSettings = {starts:[], cycleLen:28, periodLen:5, periodDays:[]};
+  if(!cycleSettings.periodDays) cycleSettings.periodDays = [];
+  const idx = cycleSettings.periodDays.indexOf(dateStr);
+  if(idx>=0) cycleSettings.periodDays.splice(idx,1);
+  else cycleSettings.periodDays.push(dateStr);
+  cycleSettings.periodDays.sort();
+  await saveCycleSettings();
+  renderCalendar();
+  renderPhaseCard();
+});
 
 function renderCalendar(){
   const monthNamesAr = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -2344,7 +2450,7 @@ function renderCalendar(){
     if(periodDates.has(dateStr)) cls += ' period';
     else if(predictedSet.has(dateStr)) cls += ' predicted';
     if(dateStr===todayD) cls += ' today';
-    html += `<div class="${cls}">${d}</div>`;
+    html += `<div class="${cls}" data-date="${dateStr}">${d}</div>`;
   }
   grid.innerHTML = html;
 
@@ -3349,6 +3455,7 @@ async function loadAppData(){
     try { await loadCycleSettings(); } catch(e2) {}
     try { await loadDhikrSettings(); } catch(e2) {}
   }
+  try { await migratePeriodDaysIfNeeded(); } catch(e) { console.error('migratePeriodDaysIfNeeded error:', e); }
   appDataLoaded = true;
   loadEntryIntoForm();
   applyLang();
