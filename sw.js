@@ -1,5 +1,5 @@
-const CACHE_NAME = 'hada-v4';
-const ASSETS_TO_CACHE = ['/manifest.json', '/icon-192.png', '/icon-512.png', '/icon-maskable-512.png'];
+const CACHE_NAME = 'hada-v5';
+const ASSETS_TO_CACHE = ['/manifest.json', '/icon-192.png', '/icon-512.png', '/icon-maskable-512.png', '/articles.js'];
 // نتعمّد عدم تخزين index.html عشان كل تحديث يظهر فوراً
 
 self.addEventListener('install', (event) => {
