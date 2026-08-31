@@ -1700,6 +1700,19 @@ function predictNextPeriods(){
 // لإضافة أسبوع جديد: أضيفي مدخل جديد في أول المصفوفة بـ week صحيح
 const WEEKLY_CONTENT = [
   {
+    week: 36, year: 2026,
+    items: [
+      {
+        type: 'article',
+        icon: '🌡️',
+        title: { ar:'بعبع انقطاع الطمث', en:'The Menopause Bogeyman' },
+        desc: { ar:'دليل عملي لأعراض ما قبل انقطاع الطمث: الشائعة والنادرة، وكيف تعبرينها بسكينة لا بخوف.', en:'A practical guide to perimenopause symptoms — common and rare — and how to move through this stage with steadiness, not fear.' },
+        link: null,
+        articleIndex: 7,
+      },
+    ]
+  },
+  {
     week: 27, year: 2026,
     items: [
       {
@@ -1977,6 +1990,60 @@ const ARTICLES = [
       <p>PCOS isn't a life sentence or the end of the story — it's an invitation to understand your body more deeply and treat it with consistency and kindness, not punishment or restriction.</p>`
     }
   },
+  {
+    illo: '🌡️',
+    color: '#FCE8D5',
+    tag: { ar:'صحة المرأة', en:"Women's Health" },
+    title: { ar:'بعبع انقطاع الطمث', en:'The Menopause Bogeyman' },
+    body: {
+      ar: `<p>هل كنتِ تعلمين أن الهبّات الساخنة لا تصيب فقط النساء في مرحلة ما قبل انقطاع الطمث؟</p>
+      <p>هي أيضاً تأتي في أحيان كثيرة جداً للنساء اللاتي وضعن مولوداً للتو، وربما تستمر معهن طوال فترة الرضاعة الطبيعية. الأمر هنا يتعلق بالهرمونات تعلقاً كبيراً؛ وتحديداً بسبب انسحاب هرمون من جسمكِ يدعى البروجسترون، وانخفاض الإستروجين المفاجئ بعد الولادة، وهو ما يُربك مركز تنظيم الحرارة في دماغكِ.</p>
+      <p>لكن هناك أعراضٌ ثانية تماماً قد تصيبكِ في الأربعينيات وتحسبينها مرضاً مزمناً، بينما هي في الحقيقة مجرد أعراض طبيعية لمرحلة "ما قبل انقطاع الطمث".</p>
+      <p><strong>أولاً: خلينا نتعرف على هذه المرحلة وكم تستمر؟</strong><br>في تعريفها المبسط: هي الفاصل الانتقالي الذي يسبق توقف الدورة الشهرية نهائياً، حيث تضطرب فيه الهرمونات صعوداً وهبوطاً بشكل عشوائي. تبدأ غالباً في منتصف الأربعينيات، لكن المدى الطبيعي يمتد من منتصف الثلاثينيات إلى أوائل الخمسينيات، وتستمر في المتوسط نحو 4 إلى 7 سنوات، وتختلف من امرأة لأخرى.</p>
+      <p><strong>أما عن الأعراض فعندكِ مجموعتان؛ الأولى الأعراض الشائعة والشهيرة جداً:</strong><br>
+      🔸 <strong>تغيّر نمط الدورة:</strong> تتباعد الفترات أو تقترب، ويصبح النزف غزيراً جداً أو خفيفاً.<br>
+      🔸 <strong>الهبّات الساخنة:</strong> نوبات مفاجئة من الحرارة والتعرق تهاجم الوجه والصدر.<br>
+      🔸 <strong>اضطراب النوم والأرق:</strong> الاستيقاظ المتكرر، خاصة في ساعات الفجر الأولى.<br>
+      🔸 <strong>تقلبات المزاج والعصبية:</strong> سرعة الغضب والتهيّج بدون أسباب واضحة.<br>
+      🔸 <strong>الإرهاق المستمر:</strong> شعور بالاستنزاف الجسدي والذهني حتى دون بذل مجهود كبير.<br>
+      🔸 <strong>الضباب الدماغي:</strong> نسيان الأسماء والكلمات وصعوبة التركيز المؤقتة.<br>
+      🔸 <strong>جفاف المنطقة الحساسة:</strong> يتسبب في ألم أثناء العلاقة الزوجية أو حرقة مستمرة.</p>
+      <p><strong>أما الأعراض النادرة فممكن تلاقي:</strong><br>
+      🔸 <strong>طنين الأذن:</strong> أزيز أو رنين يظهر في الأذن فجأة أو يشتد.<br>
+      🔸 <strong>متلازمة الفم الحارق:</strong> إحساس بلسعة أو حرقة في اللسان واللثة.<br>
+      🔸 <strong>الشحنات الكهربائية:</strong> شعور بومضة كهربائية سريعة في الرأس قبل الهبّة الساخنة.<br>
+      🔸 <strong>وخز الجلد:</strong> إحساس غريب يشبه زحف الحشرات تحت البشرة.<br>
+      🔸 <strong>آلام وتيبّس المفاصل:</strong> خاصة عند الاستيقاظ صباحاً في الركبتين أو اليدين.<br>
+      🔸 <strong>الدوار واختلال التوازن:</strong> صعوبة بسيطة في تقدير المسافات أو الاصطدام بحواف الأثاث.<br>
+      🔸 <strong>التهابات المسالك البولية المتكررة:</strong> والحاجة الملحّة للتبول بشكل متكرر.</p>
+      <p>قبل ما نتكلم عن الخطوات العملية أو الطبية، خليني أقلكِ شي مهم: إن تقبّل هذه المرحلة نفسياً وجعلها محطة إيجابية في عقلكِ يجعل التعايش معها غير مقلق أبداً، بل ويساعد أعراضها الجسدية على أن تخفّ وتتراجع. اعرفي أن هذا سن الأمان والسكون، السن الذي لن تتمكن منكِ الهرمونات بعده ولن تتحكم بمزاجكِ أبداً، إنها مرحلة السكون الفكري والرواق النفسي. اعملي على استغلال سنوات الانتقال؛ إذا كنتِ الآن في سنوات ما قبل الطمث، استغليها جيداً بأن تشغلي عقلكِ ونفسكِ، وتنجزي كل ما هو متاح أمامكِ. وصدقيني، أكثر شيء مهم في هذه المرحلة التقرب إلى الله؛ قوّي علاقتكِ بالله أكثر، واجبري خاطركِ بالعبادة، واحفظي ما تيسر من القرآن الكريم، فهو كفيل بأن يحفظ روحكِ وينير بصيرتكِ، فضلاً عن أنه ينشط ذاكرتكِ ويحميها من النسيان. تعلمي لغة جديدة، أو اكتسبي مهارة يدوية أو رقمية، وركّزي على إنماء مواهب قديمة كنتِ قد أجّلتِها، واصنعي لنفسكِ علاقات وصداقات جديدة إيجابية. لا تزالين في كامل طاقتكِ ونضجكِ؛ فلا تستسلمي لأعراض تذهب وتأتي. القاعدة الذهبية هنا: ارتاحي تماماً حين تأتي الأعراض وتهاجمكِ، وانطلقي بكل شغف وحيوية حين تختفي!</p>
+      <p>أما بالنسبة للأفكار اللي ممكن تساعدكِ جسدياً وبرضة نفسياً، فاهتمي بالتغذية والرياضة. ركّزي على الأطعمة الغنية بالكالسيوم والماغنسيوم لحماية العظام، ومارسي المشي بانتظام لتعديل المزاج والنوم. خففي المحفزات؛ قللي من الكافيين والقهوة ليلاً لأنها تزيد من حرارة الجسم وتخرّب النوم. وأخيراً لازم تستشيري طبيبة؛ لو كانت الأعراض تؤثر على جودة حياتكِ اليومية، استشيري طبيبتكِ المختصة لبحث الحلول، سواء كنتِ بحاجة إلى مكملات هرمونية بديلة تعيد التوازن لجسمكِ، أو حلولٍ حديثة وغير هرمونية تناسب تاريخكِ الصحي.</p>
+      <p style="font-size:11.5px;color:#9b8a92;margin-top:18px;">تنويه طبي: هذا المقال مخصص للتوعية العامة فقط، ولا يُعتبر بديلاً عن الاستشارة الطبية المباشرة لتشخيص حالتكِ وتحديد العلاج الأنسب لكِ.</p>`,
+      en: `<p>Did you know that hot flashes don't only affect women in perimenopause?</p>
+      <p>They also come, very often, to women who have just given birth — and they may stay with you throughout the whole breastfeeding period. This has everything to do with hormones: specifically the withdrawal of a hormone called progesterone from your body, and the sudden drop in estrogen after delivery, which throws off the temperature-regulating center in your brain.</p>
+      <p>But there is a completely different set of symptoms that can hit you in your forties, and you may mistake them for a chronic illness — when in reality they are simply the natural symptoms of the "perimenopause" stage.</p>
+      <p><strong>First: what is this stage, and how long does it last?</strong><br>In simple terms, it is the transitional interval that precedes the permanent stopping of your period, during which hormones fluctuate up and down erratically. It usually begins in the mid-forties, but the normal range stretches from the mid-thirties to the early fifties. On average it lasts around 4 to 7 years, and it differs from one woman to another.</p>
+      <p><strong>As for symptoms, you have two groups. The first is the common, well-known ones:</strong><br>
+      🔸 <strong>Changes in your cycle pattern:</strong> the gaps between periods stretch out or shorten, and the bleeding becomes very heavy or very light.<br>
+      🔸 <strong>Hot flashes:</strong> sudden waves of heat and sweating that attack the face and chest.<br>
+      🔸 <strong>Disrupted sleep and insomnia:</strong> repeated waking, especially in the early pre-dawn hours.<br>
+      🔸 <strong>Mood swings and irritability:</strong> quick anger and agitation for no clear reason.<br>
+      🔸 <strong>Constant exhaustion:</strong> a feeling of physical and mental depletion even without much effort.<br>
+      🔸 <strong>Brain fog:</strong> forgetting names and words, and temporary difficulty concentrating.<br>
+      🔸 <strong>Vaginal dryness:</strong> which causes pain during intimacy or a persistent burning sensation.</p>
+      <p><strong>And among the rarer symptoms, you may come across:</strong><br>
+      🔸 <strong>Tinnitus:</strong> a buzzing or ringing that appears in the ear suddenly, or intensifies.<br>
+      🔸 <strong>Burning mouth syndrome:</strong> a stinging or burning sensation on the tongue and gums.<br>
+      🔸 <strong>Electric shocks:</strong> a feeling of a quick electrical flash in the head just before a hot flash.<br>
+      🔸 <strong>Skin tingling:</strong> a strange sensation resembling insects crawling beneath the skin.<br>
+      🔸 <strong>Joint pain and stiffness:</strong> especially on waking in the morning, in the knees or hands.<br>
+      🔸 <strong>Dizziness and loss of balance:</strong> slight difficulty judging distances, or bumping into the edges of furniture.<br>
+      🔸 <strong>Recurrent urinary tract infections:</strong> along with a frequent, urgent need to urinate.</p>
+      <p>Before we talk about the practical or medical steps, let me tell you something important. Accepting this stage psychologically, and making it a positive milestone in your mind, makes living with it entirely un-frightening — and it even helps the physical symptoms ease and recede. Know that this is the age of safety and stillness: the age after which hormones can no longer get the better of you or control your mood. It is a stage of intellectual calm and inner ease. Work on making use of these transitional years. If you are in the years before menopause right now, use them well: occupy your mind and your soul, and accomplish everything within your reach. And believe me, the most important thing in this stage is drawing closer to God. Strengthen your relationship with Him, comfort your heart through worship, and memorize what you can of the Qur'an — it will safeguard your spirit and illuminate your insight, and it also keeps your memory active and protects it from forgetfulness. Learn a new language, or pick up a manual or digital skill. Focus on growing old talents you once set aside, and build yourself new, positive friendships and connections. You are still in the fullness of your energy and maturity — so don't surrender to symptoms that come and go. The golden rule here: rest completely when the symptoms arrive and attack, and set off with all your passion and vitality when they disappear!</p>
+      <p>As for what can help you physically — and psychologically too — pay attention to nutrition and exercise. Focus on foods rich in calcium and magnesium to protect your bones, and walk regularly to steady your mood and your sleep. Cut down on triggers: reduce caffeine and coffee at night, since they raise your body temperature and ruin your sleep. And finally, you do need to see a doctor: if the symptoms are affecting the quality of your daily life, consult your specialist to explore the options — whether you need hormone replacement supplements to restore your body's balance, or newer non-hormonal solutions that suit your medical history.</p>
+      <p style="font-size:11.5px;color:#9b8a92;margin-top:18px;">Medical disclaimer: This article is intended for general awareness only and is not a substitute for direct medical consultation to diagnose your condition and determine the treatment most suitable for you.</p>`
+    }
+  },
 ];
 
 // SVG cover art definitions per article
@@ -2095,6 +2162,16 @@ const ARTICLE_COVERS = [
     <circle cx="122" cy="90" r="5" fill="rgba(255,255,255,.18)"/>
     <circle cx="118" cy="20" r="2.5" fill="rgba(255,255,255,.25)"/>
   </svg>`,
+  // 7: Perimenopause — heat-wave motif on amber-copper gradient
+  `<svg viewBox="0 0 148 110" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="cg8" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#D98C3F"/><stop offset="100%" stop-color="#B5573F"/></linearGradient></defs>
+    <rect width="148" height="110" fill="url(#cg8)"/>
+    <path d="M50 15 Q62 40 50 55 Q38 70 50 95" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M74 12 Q86 38 74 54 Q62 70 74 98" fill="none" stroke="rgba(255,255,255,.42)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M98 15 Q110 40 98 55 Q86 70 98 95" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="24" cy="20" r="4" fill="rgba(255,255,255,.2)"/>
+    <circle cx="128" cy="95" r="5" fill="rgba(255,255,255,.18)"/>
+  </svg>`,
 ];
 
 // gradient per article for the title text
@@ -2106,6 +2183,7 @@ const ARTICLE_TITLE_GRADS = [
   'linear-gradient(135deg,#1A3A5C,#2D6E7A)',
   'linear-gradient(135deg,#4A3060,#9A6AAA)',
   'linear-gradient(135deg,#7A4A62,#C97B94)',
+  'linear-gradient(135deg,#B5573F,#D98C3F)',
 ];
 
 function renderArticles(){
