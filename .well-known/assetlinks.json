@@ -1,0 +1,8 @@
+[{
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+          "namespace": "android_app",
+          "package_name": "com.hadaa_app",
+          "sha256_cert_fingerprints": ["B1:BB:CE:F4:06:BD:5C:0C:9B:E2:8F:5E:37:0A:E9:D6:E3:41:06:F5:D8:D7:1C:C0:05:8D:98:7D:56:A8:03:0C"]
+    }
+}]
