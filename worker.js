@@ -320,6 +320,7 @@ export default {
             starts: row.starts ? JSON.parse(row.starts) : [],
             cycleLen: row.cycle_len, periodLen: row.period_len, age: row.age,
             periodDays: row.period_days ? JSON.parse(row.period_days) : [],
+            pregnant: !!row.pregnant, pregnancyLMP: row.pregnancy_lmp || null,
           }
         });
       }
@@ -329,12 +330,13 @@ export default {
         if (!uid) return json({ error: "Unauthorized" }, 401);
         const s = await request.json();
         await env.DB.prepare(
-          `INSERT INTO cycle_settings (user_id, starts, cycle_len, period_len, age, period_days)
-           VALUES (?, ?, ?, ?, ?, ?)
+          `INSERT INTO cycle_settings (user_id, starts, cycle_len, period_len, age, period_days, pregnant, pregnancy_lmp)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT(user_id) DO UPDATE SET
              starts=excluded.starts, cycle_len=excluded.cycle_len,
-             period_len=excluded.period_len, age=excluded.age, period_days=excluded.period_days`
-        ).bind(uid, JSON.stringify(s.starts || []), s.cycleLen || 28, s.periodLen || 5, s.age || null, JSON.stringify(s.periodDays || [])).run();
+             period_len=excluded.period_len, age=excluded.age, period_days=excluded.period_days,
+             pregnant=excluded.pregnant, pregnancy_lmp=excluded.pregnancy_lmp`
+        ).bind(uid, JSON.stringify(s.starts || []), s.cycleLen || 28, s.periodLen || 5, s.age || null, JSON.stringify(s.periodDays || []), s.pregnant ? 1 : 0, s.pregnancyLMP || null).run();
         return json({ ok: true });
       }
 
