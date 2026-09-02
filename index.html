@@ -235,6 +235,62 @@ body.lang-en .tip-box{border-right:none;border-left:4px solid var(--sage);}
 .toggle-switch.on .knob{left:23px;}
 body.lang-en .toggle-switch .knob{left:3px;}
 body.lang-en .toggle-switch.on .knob{left:23px;}
+
+/* floating quick-entry button */
+.fab{
+  position:fixed;bottom:22px;left:20px;width:58px;height:58px;border-radius:50%;
+  background:var(--terracotta);color:#fff;border:none;font-size:28px;line-height:1;
+  box-shadow:0 8px 22px rgba(61,43,61,.35);cursor:pointer;z-index:80;
+  display:flex;align-items:center;justify-content:center;transition:.15s;
+}
+.fab:hover{transform:translateY(-2px) scale(1.04);background:#9c4a35;}
+.fab-sheet-box{background:#fff;border-radius:20px;padding:26px;max-width:360px;width:100%;position:relative;text-align:center;}
+.fab-opt{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:right;
+  border:1.5px solid var(--line);background:#FFFDFB;border-radius:14px;padding:14px 16px;
+  font-family:inherit;font-size:14.5px;font-weight:700;color:var(--plum);cursor:pointer;margin-top:12px;transition:.15s;
+}
+.fab-opt .fab-opt-emoji{font-size:22px;flex-shrink:0;}
+.fab-opt:hover{border-color:var(--terracotta);background:#FBF1EC;}
+.fab-opt.end-opt:hover{border-color:var(--sage);background:#F2F6F0;}
+body.lang-en .fab-opt{text-align:left;}
+body.lang-en .fab{left:auto;right:20px;}
+
+/* collapsible symptom pills */
+.pill.pill-extra.hidden-extra{display:none;}
+.pill-toggle{
+  border:1.5px dashed var(--rose);background:transparent;color:var(--rose);border-radius:999px;
+  padding:7px 14px;font-size:13px;cursor:pointer;user-select:none;font-family:inherit;
+}
+.pill-toggle:hover{background:#FBF1EC;}
+
+/* collapsible reminder card */
+#dhikrCard .dhikr-header{cursor:pointer;}
+#dhikrCard .dhikr-chevron{font-size:13px;color:var(--rose);transition:transform .2s;flex-shrink:0;}
+#dhikrCard.expanded .dhikr-chevron{transform:rotate(180deg);}
+#dhikrCard .dhikr-collapsible{display:none;}
+#dhikrCard.expanded .dhikr-collapsible{display:block;}
+
+/* late-period articles */
+#lateArticlesSection{display:none;}
+
+/* pregnancy card */
+.pregnancy-card{
+  background:linear-gradient(135deg,#7A4A62,#C97B94);color:#fff;border-radius:20px;padding:24px;margin-bottom:20px;
+  position:relative;overflow:hidden;
+}
+.pregnancy-card .pw-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.pregnancy-card .pw-nav button{
+  background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:10px;padding:6px 12px;
+  font-family:inherit;font-size:13px;cursor:pointer;
+}
+.pregnancy-card .pw-nav button:disabled{opacity:.4;cursor:default;}
+.pregnancy-card .pw-week{font-size:13px;opacity:.85;margin-bottom:4px;}
+.pregnancy-card .pw-size{font-size:24px;font-family:'Aref Ruqaa',serif;font-weight:400;margin-bottom:8px;}
+.pregnancy-card .pw-desc{font-size:13.5px;opacity:.94;max-width:520px;}
+.pregnancy-card .pw-due{font-size:12.5px;opacity:.85;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.25);}
+.pregnancy-toggle-row{display:flex;justify-content:flex-end;margin-top:14px;}
+.pregnancy-toggle-row button{background:none;border:none;color:rgba(255,255,255,.8);font-size:11.5px;text-decoration:underline;cursor:pointer;font-family:inherit;padding:0;}
 </style>
 </head>
 <body>
@@ -506,6 +562,29 @@ body.lang-en .toggle-switch.on .knob{left:23px;}
       <div style="margin-top:14px;display:flex;gap:16px;flex-wrap:wrap;">
         <button class="update-link" id="updatePeriodBtn">📅 <span id="updatePeriodLbl">دورتي بدأت اليوم — حدّثي الحساب</span></button>
         <button class="update-link" id="editCycleBtn"><span id="editCycleLbl">⚙️ تعديل بيانات الدورة</span></button>
+        <button class="update-link" id="startPregnancyBtn"><span id="startPregnancyLbl">🤰 أنا حامل</span></button>
+      </div>
+    </div>
+
+    <!-- PREGNANCY CARD (shown instead of relying on cycle phase-card content when pregnancy mode is on) -->
+    <div class="pregnancy-card" id="pregnancyCard" style="display:none;">
+      <div class="pw-nav">
+        <button id="pwPrevBtn">‹ <span id="pwPrevLbl">السابق</span></button>
+        <div class="pw-week" id="pwWeekLbl">الأسبوع — من الحمل</div>
+        <button id="pwNextBtn"><span id="pwNextLbl">التالي</span> ›</button>
+      </div>
+      <div class="pw-size" id="pwSize">—</div>
+      <div class="pw-desc" id="pwDesc"></div>
+      <div class="pw-due" id="pwDue"></div>
+      <div class="pregnancy-toggle-row">
+        <button id="endPregnancyBtn"><span id="endPregnancyLbl">إنهاء وضع الحمل والعودة لتتبع الدورة</span></button>
+      </div>
+    </div>
+
+    <!-- LATE PERIOD ARTICLES (shown only when the period is overdue) -->
+    <div style="margin-bottom:20px;" id="lateArticlesSection">
+      <div class="eyebrow" id="eyebrowLateArticles" style="margin-bottom:12px;">دورتك متأخرة؟ مقالات تساعدك تفهمين السبب</div>
+      <div id="lateArticlesScroll" style="display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
       </div>
     </div>
 
@@ -549,22 +628,23 @@ body.lang-en .toggle-switch.on .knob{left:23px;}
         <div class="pill" data-val="ألم القولون" data-en="Colon pain">ألم القولون</div>
         <div class="pill" data-val="صداع" data-en="Headache">صداع</div>
         <div class="pill" data-val="تعب" data-en="Fatigue">تعب</div>
-        <div class="pill" data-val="انتفاخ" data-en="Bloating">انتفاخ</div>
-        <div class="pill" data-val="آلام ظهر" data-en="Back pain">آلام ظهر</div>
-        <div class="pill" data-val="غثيان" data-en="Nausea">غثيان</div>
-        <div class="pill" data-val="اضطراب نوم" data-en="Sleep trouble">اضطراب نوم</div>
-        <div class="pill" data-val="رغبة شديدة بالأكل" data-en="Food cravings">رغبة شديدة بالأكل</div>
-        <div class="pill" data-val="حساسية الثدي" data-en="Breast tenderness">حساسية الثدي</div>
-        <div class="pill" data-val="حب الشباب" data-en="Acne">حب الشباب</div>
-        <div class="pill" data-val="دوخة" data-en="Dizziness">دوخة</div>
-        <div class="pill" data-val="إفرازات" data-en="Discharge">إفرازات</div>
-        <div class="pill" data-val="إمساك" data-en="Constipation">إمساك</div>
-        <div class="pill" data-val="إسهال" data-en="Diarrhea">إسهال</div>
-        <div class="pill" data-val="تقلصات في المعدة" data-en="Stomach cramps">تقلصات في المعدة</div>
-        <div class="pill" data-val="آلام مفاصل" data-en="Joint pain">آلام مفاصل</div>
-        <div class="pill" data-val="جفاف الجلد" data-en="Dry skin">جفاف الجلد</div>
-        <div class="pill" data-val="فقدان الشهية" data-en="Loss of appetite">فقدان الشهية</div>
-        <div class="pill" data-val="خفقان القلب" data-en="Heart palpitations">خفقان القلب</div>
+        <div class="pill pill-extra hidden-extra" data-val="انتفاخ" data-en="Bloating">انتفاخ</div>
+        <div class="pill pill-extra hidden-extra" data-val="آلام ظهر" data-en="Back pain">آلام ظهر</div>
+        <div class="pill pill-extra hidden-extra" data-val="غثيان" data-en="Nausea">غثيان</div>
+        <div class="pill pill-extra hidden-extra" data-val="اضطراب نوم" data-en="Sleep trouble">اضطراب نوم</div>
+        <div class="pill pill-extra hidden-extra" data-val="رغبة شديدة بالأكل" data-en="Food cravings">رغبة شديدة بالأكل</div>
+        <div class="pill pill-extra hidden-extra" data-val="حساسية الثدي" data-en="Breast tenderness">حساسية الثدي</div>
+        <div class="pill pill-extra hidden-extra" data-val="حب الشباب" data-en="Acne">حب الشباب</div>
+        <div class="pill pill-extra hidden-extra" data-val="دوخة" data-en="Dizziness">دوخة</div>
+        <div class="pill pill-extra hidden-extra" data-val="إفرازات" data-en="Discharge">إفرازات</div>
+        <div class="pill pill-extra hidden-extra" data-val="إمساك" data-en="Constipation">إمساك</div>
+        <div class="pill pill-extra hidden-extra" data-val="إسهال" data-en="Diarrhea">إسهال</div>
+        <div class="pill pill-extra hidden-extra" data-val="تقلصات في المعدة" data-en="Stomach cramps">تقلصات في المعدة</div>
+        <div class="pill pill-extra hidden-extra" data-val="آلام مفاصل" data-en="Joint pain">آلام مفاصل</div>
+        <div class="pill pill-extra hidden-extra" data-val="جفاف الجلد" data-en="Dry skin">جفاف الجلد</div>
+        <div class="pill pill-extra hidden-extra" data-val="فقدان الشهية" data-en="Loss of appetite">فقدان الشهية</div>
+        <div class="pill pill-extra hidden-extra" data-val="خفقان القلب" data-en="Heart palpitations">خفقان القلب</div>
+        <div class="pill-toggle" id="symptomMoreToggle" data-more="عرض المزيد ▾" data-less="عرض أقل ▴">عرض المزيد ▾</div>
       </div>
 
       <label id="psychLbl">الأعراض النفسية</label>
@@ -574,14 +654,15 @@ body.lang-en .toggle-switch.on .knob{left:23px;}
         <div class="pill" data-val="عصبية" data-en="Irritability">عصبية</div>
         <div class="pill" data-val="بكاء بسهولة" data-en="Crying easily">بكاء بسهولة</div>
         <div class="pill" data-val="حساسية زائدة" data-en="Overly sensitive">حساسية زائدة</div>
-        <div class="pill" data-val="أشعر باليأس" data-en="Feeling hopeless">أشعر باليأس</div>
-        <div class="pill" data-val="أشعر بالخذلان" data-en="Feeling let down">أشعر بالخذلان</div>
-        <div class="pill" data-val="أشعر بالتفاؤل" data-en="Feeling optimistic">أشعر بالتفاؤل</div>
-        <div class="pill" data-val="أشعر برغبة في الرقص" data-en="Feeling like dancing">أشعر برغبة في الرقص</div>
-        <div class="pill" data-val="أشعر برغبة في الكلام" data-en="Feeling talkative">أشعر برغبة في الكلام</div>
-        <div class="pill" data-val="فرح" data-en="Joy">فرح</div>
-        <div class="pill" data-val="حماس" data-en="Motivation">حماس</div>
-        <div class="pill" data-val="هدوء" data-en="Calm">هدوء</div>
+        <div class="pill pill-extra hidden-extra" data-val="أشعر باليأس" data-en="Feeling hopeless">أشعر باليأس</div>
+        <div class="pill pill-extra hidden-extra" data-val="أشعر بالخذلان" data-en="Feeling let down">أشعر بالخذلان</div>
+        <div class="pill pill-extra hidden-extra" data-val="أشعر بالتفاؤل" data-en="Feeling optimistic">أشعر بالتفاؤل</div>
+        <div class="pill pill-extra hidden-extra" data-val="أشعر برغبة في الرقص" data-en="Feeling like dancing">أشعر برغبة في الرقص</div>
+        <div class="pill pill-extra hidden-extra" data-val="أشعر برغبة في الكلام" data-en="Feeling talkative">أشعر برغبة في الكلام</div>
+        <div class="pill pill-extra hidden-extra" data-val="فرح" data-en="Joy">فرح</div>
+        <div class="pill pill-extra hidden-extra" data-val="حماس" data-en="Motivation">حماس</div>
+        <div class="pill pill-extra hidden-extra" data-val="هدوء" data-en="Calm">هدوء</div>
+        <div class="pill-toggle" id="psychMoreToggle" data-more="عرض المزيد ▾" data-less="عرض أقل ▴">عرض المزيد ▾</div>
       </div>
 
       <label id="feelingLbl">صفي مشاعرك بكلماتك (اختياري)</label>
@@ -619,30 +700,35 @@ body.lang-en .toggle-switch.on .knob{left:23px;}
 
     <div class="card" id="dhikrCard" style="padding:16px 20px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
-        <div>
-          <div class="eyebrow" id="dhikrEyebrow">تذكير</div>
-          <h2 style="font-size:16px;" id="dhikrTitle">ذكّرني بالذكر كل ساعة (12 ظهرًا - 10 مساءً)</h2>
+        <div class="dhikr-header" id="dhikrHeader" style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
+          <div>
+            <div class="eyebrow" id="dhikrEyebrow">تذكير</div>
+            <h2 style="font-size:16px;" id="dhikrTitle">ذكّرني بالذكر كل ساعة (12 ظهرًا - 10 مساءً)</h2>
+          </div>
+          <span class="dhikr-chevron" id="dhikrChevron">▾</span>
         </div>
         <div class="toggle-switch" id="dhikrToggle"><div class="knob"></div></div>
       </div>
-      <div class="dhikr-settings" id="dhikrOptionsRow">
-        <label style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:400;margin:0;">
-          <input type="checkbox" id="dhikrIstighfar" checked> <span id="dhikrIstighfarLbl">استغفار</span>
-        </label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:400;margin:0;">
-          <input type="checkbox" id="dhikrTasbeeh" checked> <span id="dhikrTasbeehLbl">تسبيح</span>
-        </label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:400;margin:0;">
-          <input type="checkbox" id="dhikrSalawat" checked> <span id="dhikrSalawatLbl">صلاة على النبي</span>
-        </label>
-      </div>
-      <p style="font-size:11.5px;color:#9b8a92;margin:8px 0 0;" id="dhikrNote">فعّلي الإشعارات بالأسفل عشان تصلك التذكيرات حتى لو التطبيق مسكّر.</p>
-      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
-        <div>
-          <div style="font-size:13px;font-weight:600;" id="pushTitle">إشعارات حتى لو التطبيق مقفول</div>
-          <div style="font-size:11.5px;color:#9b8a92;" id="pushSub">فعّليها لو تبين تستلمين تذكير الذكر حتى والتطبيق مقفول تمامًا.</div>
+      <div class="dhikr-collapsible" id="dhikrCollapsible">
+        <div class="dhikr-settings" id="dhikrOptionsRow">
+          <label style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:400;margin:0;">
+            <input type="checkbox" id="dhikrIstighfar" checked> <span id="dhikrIstighfarLbl">استغفار</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:400;margin:0;">
+            <input type="checkbox" id="dhikrTasbeeh" checked> <span id="dhikrTasbeehLbl">تسبيح</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:400;margin:0;">
+            <input type="checkbox" id="dhikrSalawat" checked> <span id="dhikrSalawatLbl">صلاة على النبي</span>
+          </label>
         </div>
-        <button class="btn secondary small" id="enablePushBtn">🔔 <span id="enablePushLbl">تفعيل الإشعارات</span></button>
+        <p style="font-size:11.5px;color:#9b8a92;margin:8px 0 0;" id="dhikrNote">فعّلي الإشعارات بالأسفل عشان تصلك التذكيرات حتى لو التطبيق مسكّر.</p>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:13px;font-weight:600;" id="pushTitle">إشعارات حتى لو التطبيق مقفول</div>
+            <div style="font-size:11.5px;color:#9b8a92;" id="pushSub">فعّليها لو تبين تستلمين تذكير الذكر حتى والتطبيق مقفول تمامًا.</div>
+          </div>
+          <button class="btn secondary small" id="enablePushBtn">🔔 <span id="enablePushLbl">تفعيل الإشعارات</span></button>
+        </div>
       </div>
     </div>
 
@@ -711,7 +797,36 @@ body.lang-en .toggle-switch.on .knob{left:23px;}
   <p id="appFooterLinks" style="text-align:center;font-size:12px;color:#a89aa0;margin:10px 0 0;"></p>
 </div>
 
+<!-- FLOATING QUICK-ENTRY BUTTON -->
+<button class="fab" id="fabQuickEntry" title="تسجيل سريع" aria-label="تسجيل سريع لحالة الدورة">+</button>
+
+<div class="onboard-overlay" id="fabOverlay" style="display:none;">
+  <div class="fab-sheet-box">
+    <button type="button" id="fabCloseBtn" class="close-x" aria-label="Close">×</button>
+    <h2 id="fabSheetTitle" style="font-size:17px;">تسجيل سريع لحالة الدورة</h2>
+    <p id="fabSheetSub" style="font-size:13px;color:#6b5a64;margin-bottom:4px;">اختاري إيش اللي تبين تسجّليه اليوم</p>
+    <button class="fab-opt" id="fabStartOpt"><span class="fab-opt-emoji">🔴</span><span id="fabStartLbl">دورتي بدأت اليوم</span></button>
+    <button class="fab-opt end-opt" id="fabEndOpt"><span class="fab-opt-emoji">⚪</span><span id="fabEndLbl">دورتي انتهت اليوم</span></button>
+  </div>
+</div>
+
+<!-- PREGNANCY ENTRY OVERLAY -->
+<div class="onboard-overlay" id="pregnancyEntryOverlay" style="display:none;">
+  <div class="onboard-box">
+    <button type="button" id="pregnancyEntryCloseBtn" class="close-x" aria-label="Close">×</button>
+    <h2 id="pregnancyEntryTitle">وضع الحمل</h2>
+    <p id="pregnancyEntryText">أدخلي تاريخ أول يوم من آخر دورة شهرية عشان نحسب أسبوع الحمل الحالي وتاريخ الولادة المتوقع تقريبيًا.</p>
+    <label id="pregnancyLMPLbl">تاريخ أول يوم من آخر دورة شهرية</label>
+    <input type="date" id="pregnancyLMPInput">
+    <div class="row-end" style="margin-top:18px;">
+      <button class="btn secondary small" id="pregnancyEntryCancel"><span id="pregnancyEntryCancelLbl">إلغاء</span></button>
+      <button class="btn" id="pregnancyEntrySave"><span id="pregnancyEntrySaveLbl">احسبي أسبوع الحمل</span></button>
+    </div>
+  </div>
+</div>
+
 <script src="articles.js"></script>
+<script src="pregnancy.js"></script>
 <script>
 const STORAGE_KEY = 'entries';
 const CYCLE_KEY = 'cycleSettings';
@@ -887,12 +1002,12 @@ function loadEntryIntoForm(){
     existing.symptoms.forEach(s=>{
       selectedSymptoms.add(s);
       const p = document.querySelector(`#symptomPills .pill[data-val="${cssEscape(s)}"]`);
-      if(p) p.classList.add('selected');
+      if(p){ p.classList.add('selected'); p.classList.remove('hidden-extra'); }
     });
     existing.psych.forEach(s=>{
       selectedPsych.add(s);
       const p = document.querySelector(`#psychPills .pill[data-val="${cssEscape(s)}"]`);
-      if(p) p.classList.add('selected');
+      if(p){ p.classList.add('selected'); p.classList.remove('hidden-extra'); }
     });
     document.getElementById('feelingText').value = existing.feeling||'';
     { const t = parseTrigger(existing.trigger); document.getElementById('upliftText').value = t.uplift; document.getElementById('downerText').value = t.downer; }
@@ -978,8 +1093,22 @@ const I18N = {
   obCancel:        { ar:"إغلاق", en:"Close" },
   updatePeriodLbl: { ar:"دورتي بدأت اليوم — حدّثي الحساب", en:"My period started today — update calculation" },
   editCycleLbl:    { ar:"⚙️ تعديل بيانات الدورة", en:"⚙️ Edit cycle data" },
+  startPregnancyLbl:{ ar:"🤰 أنا حامل", en:"🤰 I'm pregnant" },
   calendarHint:    { ar:"دوسي على أي يوم لإضافته أو إزالته من أيام الحيض", en:"Tap any day to add or remove it from period days" },
   periodMarkedMsg: { ar:"تمّ ✓ تقدرين تعدّلين أيام الدورة من التقويم", en:"Done ✓ You can fine-tune period days from the calendar" },
+  periodEndedMsg:  { ar:"تمّ ✓ سجّلنا انتهاء دورتك لهذا الشهر", en:"Done ✓ We've marked your period as ended for this month" },
+  fabSheetTitle:   { ar:"تسجيل سريع لحالة الدورة", en:"Quick cycle log" },
+  fabSheetSub:     { ar:"اختاري إيش اللي تبين تسجّليه اليوم", en:"Choose what you'd like to log today" },
+  fabStartLbl:     { ar:"دورتي بدأت اليوم", en:"My period started today" },
+  fabEndLbl:       { ar:"دورتي انتهت اليوم", en:"My period ended today" },
+  pregnancyEntryTitle: { ar:"وضع الحمل", en:"Pregnancy mode" },
+  pregnancyEntryText:  { ar:"أدخلي تاريخ أول يوم من آخر دورة شهرية عشان نحسب أسبوع الحمل الحالي وتاريخ الولادة المتوقع تقريبيًا.", en:"Enter the first day of your last period so we can estimate your current pregnancy week and due date." },
+  pregnancyLMPLbl:     { ar:"تاريخ أول يوم من آخر دورة شهرية", en:"First day of your last period" },
+  pregnancyEntryCancelLbl:{ ar:"إلغاء", en:"Cancel" },
+  pregnancyEntrySaveLbl:  { ar:"احسبي أسبوع الحمل", en:"Calculate pregnancy week" },
+  pwPrevLbl:       { ar:"السابق", en:"Previous" },
+  pwNextLbl:       { ar:"التالي", en:"Next" },
+  endPregnancyLbl: { ar:"إنهاء وضع الحمل والعودة لتتبع الدورة", en:"End pregnancy mode and return to cycle tracking" },
   eyebrowLog:      { ar:"تسجيل اليوم", en:"Today's log" },
   logTitle:        { ar:"كيف تشعرين اليوم؟", en:"How are you feeling today?" },
   dateLbl:         { ar:"التاريخ", en:"Date" },
@@ -1064,6 +1193,20 @@ function applyLang(){
     ? '<span>Period</span><span>Ovulation</span><span>Pre-period</span>'
     : '<span>حيض</span><span>تبويض</span><span>قبل الحيض</span>';
 
+  // "show more" pill toggles
+  document.querySelectorAll('.pill-toggle').forEach(toggle=>{
+    const more = LANG==='en' ? 'Show more ▾' : 'عرض المزيد ▾';
+    const less = LANG==='en' ? 'Show less ▴' : 'عرض أقل ▴';
+    toggle.dataset.more = more;
+    toggle.dataset.less = less;
+    toggle.textContent = toggle.dataset.state === 'open' ? less : more;
+  });
+
+  // floating quick-entry button tooltip
+  { const fab = document.getElementById('fabQuickEntry');
+    const fabLbl = LANG==='en' ? 'Quick cycle log' : 'تسجيل سريع لحالة الدورة';
+    fab.title = fabLbl; fab.setAttribute('aria-label', fabLbl); }
+
   // re-render dynamic sections in new language (only once app data has loaded post-login)
   if(appDataLoaded){
     renderPhaseCard();
@@ -1145,6 +1288,11 @@ function renderDhikrToggle(){
   document.getElementById('dhikrTasbeeh').checked = dhikrSettings.tasbeeh;
   document.getElementById('dhikrSalawat').checked = dhikrSettings.salawat;
 }
+
+// بطاقة التذكير تبدأ مطوية (عنوان صغير فقط)؛ الدوسة على العنوان تفتح بقية الخيارات
+document.getElementById('dhikrHeader').addEventListener('click', ()=>{
+  document.getElementById('dhikrCard').classList.toggle('expanded');
+});
 
 document.getElementById('dhikrToggle').addEventListener('click', async ()=>{
   if(!requireAuth()) return;
@@ -1310,6 +1458,20 @@ function bindMultiPills(containerId, set){
 }
 bindMultiPills('symptomPills', selectedSymptoms);
 bindMultiPills('psychPills', selectedPsych);
+
+// ---- "show more" toggle for symptom pill groups: تعرض أول 5 فقط افتراضيًا ----
+function bindPillMoreToggle(toggleId, containerId){
+  const toggle = document.getElementById(toggleId);
+  toggle.addEventListener('click', ()=>{
+    const container = document.getElementById(containerId);
+    const expand = toggle.dataset.state !== 'open';
+    container.querySelectorAll('.pill-extra').forEach(p=> p.classList.toggle('hidden-extra', !expand));
+    toggle.dataset.state = expand ? 'open' : 'closed';
+    toggle.textContent = expand ? toggle.dataset.less : toggle.dataset.more;
+  });
+}
+bindPillMoreToggle('symptomMoreToggle', 'symptomPills');
+bindPillMoreToggle('psychMoreToggle', 'psychPills');
 
 // ---- save entry ----
 document.getElementById('saveEntry').addEventListener('click', async ()=>{
@@ -1827,6 +1989,28 @@ function renderArticles(){
   `).join('');
 }
 
+// مقالات تظهر بس لما تتأخر الدورة (phaseInfo.overdue > 0) — نفس نظام المقالات، مُصفّاة بعلامة lateSuggest
+function renderLateArticles(show){
+  const section = document.getElementById('lateArticlesSection');
+  const scroll = document.getElementById('lateArticlesScroll');
+  if(!section || !scroll) return;
+  if(!show){ section.style.display = 'none'; return; }
+  const eyebrow = document.getElementById('eyebrowLateArticles');
+  if(eyebrow) eyebrow.textContent = LANG==='en' ? 'Period late? Articles that help explain why' : 'دورتك متأخرة؟ مقالات تساعدك تفهمين السبب';
+  const items = ARTICLES.map((a,i)=>({a,i})).filter(x=>x.a.lateSuggest);
+  if(items.length===0){ section.style.display = 'none'; return; }
+  scroll.innerHTML = items.map(({a,i}) => `
+    <div class="article-card" onclick="openArticleModal(${i})">
+      <div class="art-cover">${ARTICLE_COVERS[i]||''}</div>
+      <div class="art-body">
+        <div class="art-title" style="--grad:${ARTICLE_TITLE_GRADS[i]};background:${ARTICLE_TITLE_GRADS[i]};-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${LANG==='en'?a.title.en:a.title.ar}</div>
+        <div class="art-tag">${LANG==='en'?a.tag.en:a.tag.ar}</div>
+      </div>
+    </div>
+  `).join('');
+  section.style.display = 'block';
+}
+
 function openArticleModal(index){
   const a = ARTICLES[index];
   document.getElementById('articleModalIllo').innerHTML = ARTICLE_COVERS[index]
@@ -1950,13 +2134,27 @@ document.getElementById('deleteAccountConfirmBtn').addEventListener('click', asy
 });
 
 function renderPhaseCard(){
+  // وضع الحمل: نعرض بطاقة الحمل بدل بطاقة مرحلة الدورة، ونوقف حسابات الدورة العادية
+  if(cycleSettings && cycleSettings.pregnant){
+    document.getElementById('onboardOverlay').style.display='none';
+    document.getElementById('phaseCard').style.display='none';
+    document.getElementById('pregnancyCard').style.display='block';
+    renderLateArticles(false);
+    renderPregnancyCard();
+    return;
+  }
+  document.getElementById('pregnancyCard').style.display='none';
+  document.getElementById('phaseCard').style.display='block';
+
   const phaseInfo = computePhase(todayStr());
   if(!phaseInfo){
     document.getElementById('onboardOverlay').style.display='flex';
+    renderLateArticles(false);
     return;
   }
   document.getElementById('onboardOverlay').style.display='none';
   const p = PHASES.find(x=>x.key===phaseInfo.phaseKey);
+  renderLateArticles(phaseInfo.overdue > 0);
 
   // ---- countdown: days until next period ----
   const daysUntilPeriod = phaseInfo.overdue > 0
@@ -2013,12 +2211,12 @@ function renderPhaseCard(){
   }).join('');
 }
 
-document.getElementById('updatePeriodBtn').addEventListener('click', async ()=>{
-  if(!requireAuth()) return;
+async function markPeriodStartedToday(){
+  if(!requireAuth()) return false;
   const confirmMsg = LANG==='en'
     ? 'Confirm: did your period start today? This will update the calculation based on this date.'
     : 'تأكيد: دورتك بدأت اليوم؟ سيتم تحديث الحساب بناءً على هذا التاريخ.';
-  if(!confirm(confirmMsg)) return;
+  if(!confirm(confirmMsg)) return false;
   const today = todayStr();
   if(!cycleSettings) cycleSettings = {starts:[], cycleLen:28, periodLen:5, periodDays:[]};
   if(!cycleSettings.periodDays) cycleSettings.periodDays = [];
@@ -2036,6 +2234,135 @@ document.getElementById('updatePeriodBtn').addEventListener('click', async ()=>{
   renderPhaseCard();
   renderCalendar();
   alert(I18N.periodMarkedMsg[LANG]);
+  return true;
+}
+
+// تسجيل "انتهت الدورة اليوم": نشيل اليوم وأي أيام مستقبلية سبق أن أُضيفت (توقّع تلقائي)
+// من periodDays، عشان نأكد إنها ما تُحتسب ضمن أيام الحيض الفعلية.
+async function markPeriodEndedToday(){
+  if(!requireAuth()) return false;
+  const confirmMsg = LANG==='en'
+    ? 'Confirm: did your period end today?'
+    : 'تأكيد: دورتك انتهت اليوم؟';
+  if(!confirm(confirmMsg)) return false;
+  const today = todayStr();
+  if(!cycleSettings) cycleSettings = {starts:[], cycleLen:28, periodLen:5, periodDays:[]};
+  if(!cycleSettings.periodDays) cycleSettings.periodDays = [];
+  cycleSettings.periodDays = cycleSettings.periodDays.filter(d=> d < today);
+  await saveCycleSettings();
+  renderPhaseCard();
+  renderCalendar();
+  alert(I18N.periodEndedMsg[LANG]);
+  return true;
+}
+
+document.getElementById('updatePeriodBtn').addEventListener('click', markPeriodStartedToday);
+
+// ---- floating quick-entry button ----
+document.getElementById('fabQuickEntry').addEventListener('click', ()=>{
+  if(!requireAuth()) return;
+  document.getElementById('fabOverlay').style.display = 'flex';
+});
+document.getElementById('fabCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('fabOverlay').style.display = 'none';
+});
+document.getElementById('fabOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'fabOverlay') document.getElementById('fabOverlay').style.display = 'none';
+});
+document.getElementById('fabStartOpt').addEventListener('click', async ()=>{
+  if(await markPeriodStartedToday()) document.getElementById('fabOverlay').style.display = 'none';
+});
+document.getElementById('fabEndOpt').addEventListener('click', async ()=>{
+  if(await markPeriodEndedToday()) document.getElementById('fabOverlay').style.display = 'none';
+});
+
+// ================= PREGNANCY MODE =================
+let pregnancyViewWeek = null; // الأسبوع المعروض حاليًا في بطاقة الحمل (تصفّح يدوي بالسهمين، منفصل عن الأسبوع الفعلي)
+
+function computePregnancyInfo(){
+  if(!cycleSettings || !cycleSettings.pregnant || !cycleSettings.pregnancyLMP) return null;
+  const lmp = cycleSettings.pregnancyLMP;
+  const today = todayStr();
+  const gestDays = Math.max(0, daysBetween(lmp, today));
+  const gestWeeks = Math.floor(gestDays/7);
+  const dueDateObj = parseDateStr(lmp);
+  dueDateObj.setDate(dueDateObj.getDate()+280); // قاعدة نيغيله: آخر دورة + 280 يومًا
+  const dueDateStr = localDateStr(dueDateObj);
+  const daysToDue = daysBetween(today, dueDateStr);
+  const month = Math.min(9, Math.max(1, Math.ceil(Math.max(1,gestWeeks)/4.345)));
+  return { lmp, gestWeeks, dueDateStr, daysToDue, month };
+}
+
+function renderPregnancyCard(){
+  const info = computePregnancyInfo();
+  if(!info) return;
+  const currentWeek = Math.max(4, Math.min(40, info.gestWeeks));
+  if(pregnancyViewWeek===null) pregnancyViewWeek = currentWeek;
+  const entry = findPregnancyWeekEntry(pregnancyViewWeek);
+  const isCurrent = pregnancyViewWeek === currentWeek;
+
+  document.getElementById('pwWeekLbl').textContent = LANG==='en'
+    ? `Week ${entry.week}${isCurrent ? ' • Month '+info.month+' of 9' : ''}`
+    : `الأسبوع ${entry.week}${isCurrent ? ' • الشهر '+info.month+' من 9' : ''}`;
+  document.getElementById('pwSize').textContent = LANG==='en'
+    ? `About the size of ${entry.size.en}`
+    : `بحجم ${entry.size.ar} تقريبًا`;
+  document.getElementById('pwDesc').textContent = LANG==='en' ? entry.desc.en : entry.desc.ar;
+
+  document.getElementById('pwDue').textContent = LANG==='en'
+    ? (info.daysToDue > 0
+        ? `${info.daysToDue} day(s) until your estimated due date (${info.dueDateStr})`
+        : `Your estimated due date (${info.dueDateStr}) has passed — check in with your doctor`)
+    : (info.daysToDue > 0
+        ? `متبقّي ${info.daysToDue} يوم على تاريخ الولادة المتوقع (${info.dueDateStr})`
+        : `تاريخ الولادة المتوقع (${info.dueDateStr}) قد مرّ — راجعي طبيبتك للاطمئنان`);
+
+  document.getElementById('pwPrevBtn').disabled = pregnancyViewWeek <= 4;
+  document.getElementById('pwNextBtn').disabled = pregnancyViewWeek >= 40;
+}
+
+document.getElementById('pwPrevBtn').addEventListener('click', ()=>{
+  pregnancyViewWeek = Math.max(4, (pregnancyViewWeek||4)-1);
+  renderPregnancyCard();
+});
+document.getElementById('pwNextBtn').addEventListener('click', ()=>{
+  pregnancyViewWeek = Math.min(40, (pregnancyViewWeek||4)+1);
+  renderPregnancyCard();
+});
+
+document.getElementById('startPregnancyBtn').addEventListener('click', ()=>{
+  if(!requireAuth()) return;
+  document.getElementById('pregnancyLMPInput').value = getLatestStart() || '';
+  document.getElementById('pregnancyEntryOverlay').style.display = 'flex';
+});
+document.getElementById('pregnancyEntryCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('pregnancyEntryOverlay').style.display = 'none';
+});
+document.getElementById('pregnancyEntryCancel').addEventListener('click', ()=>{
+  document.getElementById('pregnancyEntryOverlay').style.display = 'none';
+});
+document.getElementById('pregnancyEntrySave').addEventListener('click', async ()=>{
+  const lmp = document.getElementById('pregnancyLMPInput').value;
+  if(!lmp){ alert(LANG==='en' ? 'Please choose the date' : 'اختاري التاريخ'); return; }
+  if(!cycleSettings) cycleSettings = {starts:[], cycleLen:28, periodLen:5, periodDays:[]};
+  cycleSettings.pregnant = true;
+  cycleSettings.pregnancyLMP = lmp;
+  pregnancyViewWeek = null;
+  await saveCycleSettings();
+  document.getElementById('pregnancyEntryOverlay').style.display = 'none';
+  renderPhaseCard();
+});
+
+document.getElementById('endPregnancyBtn').addEventListener('click', async ()=>{
+  const confirmMsg = LANG==='en'
+    ? 'End pregnancy mode and go back to regular cycle tracking?'
+    : 'إنهاء وضع الحمل والعودة لتتبع الدورة العادي؟';
+  if(!confirm(confirmMsg)) return;
+  cycleSettings.pregnant = false;
+  pregnancyViewWeek = null;
+  await saveCycleSettings();
+  renderPhaseCard();
+  renderCalendar();
 });
 
 document.getElementById('editCycleBtn').addEventListener('click', ()=>{
