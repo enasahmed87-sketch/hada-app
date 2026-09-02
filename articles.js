@@ -236,6 +236,75 @@ const ARTICLES = [
       <p style="font-size:11.5px;color:#9b8a92;margin-top:18px;">Medical disclaimer: This article is intended for general awareness only and is not a substitute for direct medical consultation to diagnose your condition and determine the treatment most suitable for you.</p>`
     }
   },
+  {
+    illo: '📅',
+    color: '#F4ECE3',
+    tag: { ar:'أسباب تأخر الدورة', en:'Reasons for a Late Period' },
+    lateSuggest: true,
+    title: { ar:'التوتر وتغيّر نمط حياتك — هل هو سبب تأخر دورتك؟', en:'Stress & Lifestyle Changes — Could They Be Delaying Your Period?' },
+    body: {
+      ar: `<p>من أكثر الأسباب شيوعًا لتأخر الدورة، وأكثرها إهمالًا، هو التوتر النفسي والتغيّرات في نمط حياتك اليومي. جسمك لا يفصل بين "الضغط النفسي" و"الخطر الفعلي" — فحين يرتفع هرمون الكورتيزول (هرمون التوتر) لفترة طويلة، فإنه يُربك المحور الهرموني المسؤول عن التبويض (المعروف بمحور الوطاء - الغدة النخامية - المبيض)، فيتأخر التبويض أو يتوقف مؤقتًا، ويتأخر معه نزول الدورة.</p>
+      <p><strong>أشياء غير التوتر النفسي المباشر ممكن تسبب نفس الأثر:</strong></p>
+      <p>✈️ <strong>السفر وتغيّر التوقيت</strong> — يربك الساعة البيولوجية لجسمك، وتحتاجين وقتًا لتعتاد عليه.</p>
+      <p>😴 <strong>قلة النوم أو اضطراب مواعيده</strong> — النوم غير المنتظم يؤثر على الهرمونات المسؤولة عن التبويض.</p>
+      <p>🏋️‍♀️ <strong>زيادة مفاجئة في شدة الرياضة</strong> — التمارين المكثفة جدًا وبشكل مفاجئ قد تُخبر جسمك أنه في "وضع نجاة" فيؤجّل التبويض.</p>
+      <p>⚖️ <strong>تغيّر سريع في الوزن</strong> — سواء بالزيادة أو النقصان الملحوظ خلال فترة قصيرة.</p>
+      <p><strong>ماذا تفعلين؟</strong><br>لو لاحظتِ أن التأخر جاء بعد فترة ضاغطة أو تغيير كبير في روتينك، أعطي جسمك وقتًا (دورة أو دورتين) قبل القلق. حاولي تقليل مصادر التوتر قدر الإمكان، ونظّمي نومك، وإذا مارستِ رياضة مكثفة جديدة، أدخليها تدريجيًا. لو استمر التأخر لأكثر من دورتين متتاليتين رغم ذلك، من الأفضل استشارة طبيبة.</p>
+      <p style="font-size:11.5px;color:#9b8a92;margin-top:18px;">تنويه طبي: هذا المقال مخصص للتوعية العامة فقط، ولا يُعتبر بديلاً عن الاستشارة الطبية المباشرة.</p>`,
+      en: `<p>One of the most common — and most overlooked — reasons for a late period is psychological stress and changes in your daily routine. Your body doesn't distinguish between "emotional pressure" and "actual danger": when cortisol (the stress hormone) stays elevated for a while, it disrupts the hormonal axis responsible for ovulation (the hypothalamus-pituitary-ovary axis), so ovulation is delayed or temporarily paused — and your period is delayed along with it.</p>
+      <p><strong>Other things besides direct psychological stress can cause the same effect:</strong></p>
+      <p>✈️ <strong>Travel and time-zone changes</strong> — these disrupt your body's internal clock, and it takes time to adjust.</p>
+      <p>😴 <strong>Lack of sleep or an irregular sleep schedule</strong> — disrupted sleep affects the hormones responsible for ovulation.</p>
+      <p>🏋️‍♀️ <strong>A sudden increase in exercise intensity</strong> — very intense, sudden exercise can signal to your body that it's in "survival mode," delaying ovulation.</p>
+      <p>⚖️ <strong>Rapid weight change</strong> — whether a noticeable gain or loss over a short period.</p>
+      <p><strong>What should you do?</strong><br>If you notice the delay came after a stressful stretch or a big change in your routine, give your body some time (a cycle or two) before worrying. Try to reduce stress where you can, keep a regular sleep schedule, and if you've started intense new exercise, ease into it gradually. If the delay continues for more than two consecutive cycles regardless, it's best to consult a doctor.</p>
+      <p style="font-size:11.5px;color:#9b8a92;margin-top:18px;">Medical disclaimer: This article is intended for general awareness only and is not a substitute for direct medical consultation.</p>`
+    }
+  },
+  {
+    illo: '🦋',
+    color: '#FEF0F6',
+    tag: { ar:'أسباب تأخر الدورة', en:'Reasons for a Late Period' },
+    lateSuggest: true,
+    title: { ar:'اضطراب الهرمونات وتكيّس المبايض والغدة الدرقية', en:'Hormonal Imbalance, PCOS & Thyroid Issues' },
+    body: {
+      ar: `<p>لو تأخر الدورة يتكرر عندك بشكل متكرر وليس مرة واحدة عابرة، من المهم التفكير في أسباب هرمونية أعمق، وأشهرها اثنان:</p>
+      <p><strong>🌸 متلازمة تكيّس المبايض (PCOS)</strong><br>من أكثر أسباب عدم انتظام الدورة شيوعًا بين النساء في سن الإنجاب. تتسبب في اختلال التوازن بين الهرمونات المسؤولة عن التبويض، مما يجعل التبويض غير منتظم أو لا يحدث كل شهر، وبالتالي تتأخر الدورة أو تنقطع لأشهر أحيانًا. غالبًا ما تُرافقها أعراض أخرى مثل زيادة نمو الشعر في الوجه أو الجسم، حب الشباب، أو صعوبة في إنقاص الوزن.</p>
+      <p><strong>🦋 اضطرابات الغدة الدرقية</strong><br>الغدة الدرقية تنظّم عمليات الأيض في الجسم بالكامل، وأي خلل فيها — سواء كسل الغدة (قصور) أو فرط نشاطها — ينعكس مباشرة على انتظام الدورة الشهرية. قصور الغدة الدرقية غالبًا ما يترافق مع تعب عام، زيادة في الوزن، وحساسية للبرد؛ بينما فرط نشاطها يترافق مع خفقان القلب، فقدان وزن غير مبرر، وعصبية زائدة.</p>
+      <p><strong>متى تستشيرين طبيبة؟</strong><br>لو لاحظتِ تأخرًا متكررًا (مو مرة واحدة) مصحوبًا بأي من الأعراض المذكورة أعلاه، فحص هرموني بسيط عند الطبيبة (يشمل عادة هرمونات الغدة الدرقية وهرمونات التبويض) يقدر يوضح الصورة ويحدد إذا كنتِ بحاجة لعلاج أو متابعة فقط.</p>
+      <p style="font-size:11.5px;color:#9b8a92;margin-top:18px;">تنويه طبي: هذا المقال مخصص للتوعية العامة فقط، ولا يُعتبر بديلاً عن الاستشارة الطبية المباشرة أو التشخيص.</p>`,
+      en: `<p>If a late period is a recurring pattern for you rather than a one-off, it's worth considering deeper hormonal causes — the two most common are:</p>
+      <p><strong>🌸 Polycystic Ovary Syndrome (PCOS)</strong><br>One of the most common causes of irregular periods in women of reproductive age. It causes an imbalance in the hormones responsible for ovulation, making ovulation irregular or making it skip some months entirely — so your period is delayed, or sometimes absent for months. It's often accompanied by other signs like increased facial or body hair growth, acne, or difficulty losing weight.</p>
+      <p><strong>🦋 Thyroid disorders</strong><br>Your thyroid regulates your body's entire metabolism, and any imbalance in it — whether an underactive thyroid (hypothyroidism) or an overactive one (hyperthyroidism) — directly affects the regularity of your period. An underactive thyroid often comes with general fatigue, weight gain, and cold sensitivity, while an overactive one comes with heart palpitations, unexplained weight loss, and excess irritability.</p>
+      <p><strong>When should you see a doctor?</strong><br>If you notice a recurring delay (not just once) along with any of the symptoms mentioned above, a simple hormone panel with your doctor (usually including thyroid hormones and ovulation-related hormones) can clarify the picture and determine whether you need treatment or just monitoring.</p>
+      <p style="font-size:11.5px;color:#9b8a92;margin-top:18px;">Medical disclaimer: This article is intended for general awareness only and is not a substitute for direct medical consultation or diagnosis.</p>`
+    }
+  },
+  {
+    illo: '🤍',
+    color: '#F0F8F0',
+    tag: { ar:'أسباب تأخر الدورة', en:'Reasons for a Late Period' },
+    lateSuggest: true,
+    title: { ar:'احتمال الحمل، ومتى يكون التأخر مدعاة لزيارة الطبيبة', en:'The Possibility of Pregnancy — and When a Delay Needs a Doctor' },
+    body: {
+      ar: `<p>أول احتمال يجب استبعاده عند تأخر الدورة، إذا كنتِ متزوجة أو في علاقة نشطة، هو الحمل — وهذا أشيع سبب لتأخر الدورة على الإطلاق عند النساء في هذه الفئة. اختبار حمل منزلي بسيط (يُفضّل بعد مرور أسبوع على الأقل من التأخر لدقة أعلى) يعطيكِ إجابة سريعة وواضحة، وإذا كانت النتيجة إيجابية، يُنصح بمراجعة طبيبة لتأكيد الحمل ومتابعته.</p>
+      <p><strong>ومتى يكون التأخر — بعد استبعاد الحمل — مدعاة فعلية لزيارة الطبيبة؟</strong></p>
+      <p>🔸 تأخرت دورتك أكثر من 3 أشهر متتالية دون سبب واضح (تغيّر نمط حياة، سفر، رياضة مكثفة...).</p>
+      <p>🔸 التأخر مصحوب بألم شديد غير معتاد، أو نزيف غير منتظم بين الدورات.</p>
+      <p>🔸 التأخر مصحوب بأعراض أخرى ملحوظة مثل زيادة شعر الجسم، حب شباب مفاجئ، أو تغيّر ملحوظ وغير مبرر في الوزن.</p>
+      <p>🔸 توقفت الدورة تمامًا لأكثر من 90 يومًا وأنتِ لست في سن اليأس ولا حاملًا.</p>
+      <p>بشكل عام، دورة متأخرة مرة واحدة نادرًا ما تكون مقلقة — لكن تكرار التأخر أو ترافقه مع أعراض أخرى هو ما يستحق فحصًا طبيًا، ليس للقلق، بل لفهم جسمك بشكل أفضل والاطمئنان.</p>
+      <p style="font-size:11.5px;color:#9b8a92;margin-top:18px;">تنويه طبي: هذا المقال مخصص للتوعية العامة فقط، ولا يُعتبر بديلاً عن الاستشارة الطبية المباشرة أو التشخيص.</p>`,
+      en: `<p>If you're married or in a sexually active relationship, the first possibility to rule out when your period is late is pregnancy — it's by far the most common cause of a late period for women in this group. A simple home pregnancy test (ideally taken at least a week after the missed date for better accuracy) gives you a quick, clear answer, and if it's positive, it's best to see a doctor to confirm and follow up on the pregnancy.</p>
+      <p><strong>Once pregnancy is ruled out, when does a delay actually call for a doctor's visit?</strong></p>
+      <p>🔸 Your period has been delayed for more than 3 consecutive months with no clear cause (routine change, travel, intense exercise...).</p>
+      <p>🔸 The delay comes with unusually severe pain, or irregular bleeding between periods.</p>
+      <p>🔸 The delay comes with other noticeable signs, like increased body hair, sudden acne, or an unexplained, noticeable weight change.</p>
+      <p>🔸 Your period has stopped entirely for more than 90 days and you're not near menopause and not pregnant.</p>
+      <p>Generally speaking, a single late period is rarely worrying — but a recurring delay, or one paired with other symptoms, is what deserves a medical check. Not to worry, but to understand your body better and put your mind at ease.</p>
+      <p style="font-size:11.5px;color:#9b8a92;margin-top:18px;">Medical disclaimer: This article is intended for general awareness only and is not a substitute for direct medical consultation or diagnosis.</p>`
+    }
+  },
 ];
 
 // SVG cover art definitions per article
@@ -364,6 +433,43 @@ const ARTICLE_COVERS = [
     <circle cx="24" cy="20" r="4" fill="rgba(255,255,255,.2)"/>
     <circle cx="128" cy="95" r="5" fill="rgba(255,255,255,.18)"/>
   </svg>`,
+  // 8: Late period (stress) — calendar motif on warm sand gradient
+  `<svg viewBox="0 0 148 110" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="cg9" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#C8956D"/><stop offset="100%" stop-color="#8A6A4A"/></linearGradient></defs>
+    <rect width="148" height="110" fill="url(#cg9)"/>
+    <rect x="40" y="28" width="68" height="60" rx="6" fill="rgba(255,255,255,.2)"/>
+    <rect x="40" y="28" width="68" height="16" rx="6" fill="rgba(255,255,255,.32)"/>
+    <line x1="54" y1="22" x2="54" y2="34" stroke="rgba(255,255,255,.5)" stroke-width="3" stroke-linecap="round"/>
+    <line x1="94" y1="22" x2="94" y2="34" stroke="rgba(255,255,255,.5)" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="94" cy="70" r="9" fill="rgba(181,87,63,.55)" stroke="rgba(255,255,255,.6)" stroke-width="1.5"/>
+    <circle cx="52" cy="58" r="2" fill="rgba(255,255,255,.4)"/>
+    <circle cx="66" cy="58" r="2" fill="rgba(255,255,255,.4)"/>
+    <circle cx="80" cy="58" r="2" fill="rgba(255,255,255,.4)"/>
+    <circle cx="52" cy="72" r="2" fill="rgba(255,255,255,.4)"/>
+    <circle cx="66" cy="72" r="2" fill="rgba(255,255,255,.4)"/>
+  </svg>`,
+  // 9: Late period (hormonal/thyroid) — butterfly motif on rose-plum gradient
+  `<svg viewBox="0 0 148 110" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="cg10" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#C97B94"/><stop offset="100%" stop-color="#5A3F52"/></linearGradient></defs>
+    <rect width="148" height="110" fill="url(#cg10)"/>
+    <ellipse cx="60" cy="46" rx="16" ry="11" fill="rgba(255,255,255,.28)" transform="rotate(-18 60 46)"/>
+    <ellipse cx="88" cy="46" rx="16" ry="11" fill="rgba(255,255,255,.28)" transform="rotate(18 88 46)"/>
+    <ellipse cx="63" cy="66" rx="11" ry="8" fill="rgba(255,255,255,.2)" transform="rotate(-12 63 66)"/>
+    <ellipse cx="85" cy="66" rx="11" ry="8" fill="rgba(255,255,255,.2)" transform="rotate(12 85 66)"/>
+    <rect x="72" y="36" width="4" height="42" rx="2" fill="rgba(255,255,255,.5)"/>
+    <circle cx="24" cy="24" r="3" fill="rgba(255,255,255,.25)"/>
+    <circle cx="126" cy="88" r="4" fill="rgba(255,255,255,.2)"/>
+  </svg>`,
+  // 10: Late period (pregnancy possibility / doctor) — heart & checkmark on sage-cream gradient
+  `<svg viewBox="0 0 148 110" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="cg11" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8A9B7E" /><stop offset="100%" stop-color="#5A6E52"/></linearGradient></defs>
+    <rect width="148" height="110" fill="url(#cg11)"/>
+    <path d="M74 70 C74 70 48 54 48 36 C48 25 62 20 74 32 C86 20 100 25 100 36 C100 54 74 70 74 70Z" fill="rgba(255,255,255,.28)"/>
+    <circle cx="108" cy="30" r="14" fill="rgba(255,255,255,.18)"/>
+    <path d="M101 30 L106 35 L116 24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="26" cy="82" r="3" fill="rgba(255,255,255,.25)"/>
+    <circle cx="118" cy="86" r="4" fill="rgba(255,255,255,.2)"/>
+  </svg>`,
 ];
 
 // gradient per article for the title text
@@ -376,4 +482,7 @@ const ARTICLE_TITLE_GRADS = [
   'linear-gradient(135deg,#4A3060,#9A6AAA)',
   'linear-gradient(135deg,#7A4A62,#C97B94)',
   'linear-gradient(135deg,#B5573F,#D98C3F)',
+  'linear-gradient(135deg,#C8956D,#8A6A4A)',
+  'linear-gradient(135deg,#C97B94,#5A3F52)',
+  'linear-gradient(135deg,#8A9B7E,#5A6E52)',
 ];
