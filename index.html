@@ -932,7 +932,7 @@ async function apiDeleteAccount(){
 // Inside Claude (artifact preview), calling api.anthropic.com directly works —
 // Claude's environment injects auth automatically.
 // Once deployed standalone (Netlify, etc.), the browser can't call Anthropic directly
-// (no key, CORS), so we route through our own Netlify function (/netlify/functions/analyze.js),
+// (no key, CORS), so we route through our Cloudflare Worker (/api/analyze in worker.js),
 // which holds the real API key server-side.
 async function callClaudeAI(prompt, maxTokens){
   if(hasClaudeStorage){
@@ -948,7 +948,7 @@ async function callClaudeAI(prompt, maxTokens){
     const json = await response.json();
     return (json.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('\n');
   } else {
-    const response = await fetch("https://hadaa-app.netlify.app/.netlify/functions/analyze", {
+    const response = await fetch(API_BASE + "/api/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt, max_tokens: maxTokens })

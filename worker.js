@@ -228,36 +228,7 @@ export default {
         return json({ token, user: { id, email, name: name || "" } });
       }
 
-      // ---- AI ANALYZE: proxy for AI reports (replaces the old Netlify function) ----
-      if (path === "/api/analyze" && request.method === "POST") {
-        const apiKey = env.ANTHROPIC_API_KEY;
-        if (!apiKey) return json({ error: "ANTHROPIC_API_KEY is not set on the Worker." }, 500);
-
-        let payload;
-        try { payload = await request.json(); } catch (e) { return json({ error: "Invalid JSON body" }, 400); }
-        const prompt = payload && payload.prompt;
-        if (!prompt || typeof prompt !== "string") return json({ error: "Missing 'prompt' field" }, 400);
-        if (prompt.length > 20000) return json({ error: "Prompt too long" }, 400);
-        const maxTokens = Math.min(Math.max(parseInt(payload.max_tokens, 10) || 1000, 1), 1500);
-
-        const response = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": apiKey,
-            "anthropic-version": "2023-06-01",
-          },
-          body: JSON.stringify({
-            model: "claude-sonnet-4-6",
-            max_tokens: maxTokens,
-            messages: [{ role: "user", content: prompt }],
-          }),
-        });
-        const data = await response.json();
-        if (!response.ok) return json({ error: data }, response.status);
-        return json(data);
-      }
-
+      if (path === "/api/analyze" && request.method === "POST") { const apiKey = env.ANTHROPIC_API_KEY; if (!apiKey) return json({ error: "ANTHROPIC_API_KEY is not set on the Worker." }, 500); let payload; try { payload = await request.json(); } catch (e) { return json({ error: "Invalid JSON body" }, 400); } const prompt = payload && payload.prompt; if (!prompt || typeof prompt !== "string") return json({ error: "Missing prompt field" }, 400); if (prompt.length > 20000) return json({ error: "Prompt too long" }, 400); const maxTokens = Math.min(Math.max(parseInt(payload.max_tokens, 10) || 1000, 1), 1500); const aiRes = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" }, body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: maxTokens, messages: [{ role: "user", content: prompt }] }) }); const aiData = await aiRes.json(); if (!aiRes.ok) return json({ error: aiData }, aiRes.status); return json(aiData); }
       // ---- LOGIN ----
       if (path === "/api/login" && request.method === "POST") {
         const loginBody = await request.json();
